@@ -12,7 +12,7 @@ const TABLE = [
 ].join('\n')
 
 const draw = (text: string) => ({
-  plugin: 'prismantis',
+  plugin: 'ocellus',
   component: 'AssistantMessage' as const,
   props: { text, isFirstOfReply: true },
   viewport: { columns: 120, rows: 40 },
@@ -124,7 +124,7 @@ test('picks a named theme and falls back on unknown names', async () => {
 })
 
 const toolRow = (tool: string, input: unknown, extra: Partial<{ isRunning: boolean; isErrored: boolean; isInterrupted: boolean }> = {}) => ({
-  plugin: 'prismantis',
+  plugin: 'ocellus',
   component: 'ToolUse' as const,
   props: { tool_use_id: 't1', tool, input, isRunning: false, isErrored: false, isInterrupted: false, ...extra },
   viewport: { columns: 120, rows: 40 },

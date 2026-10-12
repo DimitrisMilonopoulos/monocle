@@ -10,7 +10,7 @@ const plain = (text: string, columns = 100) => flow([{ kind: 'text', text }], co
 const visual = (text: string) => plain(text)?.lines.map(inlineText).join('\n')
 
 const mount = (text: string, columns = 120) => ({
-  plugin: 'prismantis',
+  plugin: 'ocellus',
   component: 'AssistantMessage' as const,
   props: { text, isFirstOfReply: true },
   viewport: { columns, rows: 40 },
@@ -36,9 +36,9 @@ test('parentheses mirror inside a Hebrew line', async () => {
 })
 
 test('inline code and paths stay one left-to-right unit inside Hebrew', async () => {
-  const nodes: Inline[] = [{ kind: 'text', text: 'מחליפים עם ' }, { kind: 'code', text: '/prismantis theme nord' }, { kind: 'text', text: ' ו-' }, { kind: 'path', text: '~/app/main.ts' }]
+  const nodes: Inline[] = [{ kind: 'text', text: 'מחליפים עם ' }, { kind: 'code', text: '/ocellus theme nord' }, { kind: 'text', text: ' ו-' }, { kind: 'path', text: '~/app/main.ts' }]
   const line = flow(nodes, 100, measure)?.lines[0]
-  expect(line?.find(n => n.kind === 'code')).toEqual({ kind: 'code', text: '/prismantis theme nord' })
+  expect(line?.find(n => n.kind === 'code')).toEqual({ kind: 'code', text: '/ocellus theme nord' })
   expect(line?.find(n => n.kind === 'path')).toEqual({ kind: 'path', text: '~/app/main.ts' })
 })
 
@@ -279,7 +279,7 @@ test('detection also runs when a prompt is submitted, so a reload without sessio
 })
 
 test('the demo-rtl screen has every element and draws right to left', { options: { rtl: 'warp' } }, async $ => {
-  const ui = await $.ui.mount({ plugin: 'prismantis', component: 'CommandOutput' as const, props: { command: 'prismantis', args: 'demo-rtl', text: rtlShowcaseText(), isErrored: false }, viewport: { columns: 120, rows: 40 }, surface: 'terminal' as const })
+  const ui = await $.ui.mount({ plugin: 'ocellus', component: 'CommandOutput' as const, props: { command: 'ocellus', args: 'demo-rtl', text: rtlShowcaseText(), isErrored: false }, viewport: { columns: 120, rows: 40 }, surface: 'terminal' as const })
   expect(await ui.find({ type: 'Text', text: /^לאמשל ןימימ תירבע$/ })).toBeDefined()
   expect((await ui.findAll({ type: 'Box' })).filter(b => b.props.alignItems === 'flex-end').length >= 3).toBe(true)
   expect((await ui.findAll({ type: 'Box' })).some(b => b.props.width === '100%')).toBe(true)

@@ -1,7 +1,7 @@
 <Box border=bold>
   <Text color=#f9e2af bold>
     <Text>
-      "prismantis"
+      "ocellus"
 <Text>
   <Text color=#ffffff bold>
     <Text>
@@ -881,7 +881,7 @@
     <Text>
       "."
     <Text>
-      "(https://github.com/NahumLitvin/prismantis)"
+      "(https://github.com/DimitrisMilonopoulos/ocellus)"
 <Box>
   <Box row>
     <Box>
@@ -894,7 +894,7 @@
     <Box>
       <Text>
         <Text color=#89dceb>
-          "/prismantis theme nord"
+          "/ocellus theme nord"
         <Text>
           " עם נושא ערכת מחליפים"
     <Text color=#cba6f7>

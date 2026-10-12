@@ -6,7 +6,7 @@ import { clipboardEnv, recordCopies, recordToasts, runResult, startSession } fro
 const source = '| Name | Value |\n|--|--:|\n| **שלום** | `$(ignored)` |'
 const plain = 'Name\tValue\nשלום\t$(ignored)'
 const mount = {
-  plugin: 'prismantis',
+  plugin: 'ocellus',
   component: 'AssistantMessage' as const,
   props: { text: source, isFirstOfReply: true },
   viewport: { columns: 120, rows: 40 },

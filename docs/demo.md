@@ -1,6 +1,6 @@
-# prismantis
+# ocellus
 
-**Furious Five status:** Mantis cleared 3 dumplings in 6m 20s, kick power up 18% to 82 kicks/min. Notes in ~/jade-palace/training.md, scroll at https://github.com/NahumLitvin/prismantis
+**Furious Five status:** Mantis cleared 3 dumplings in 6m 20s, kick power up 18% to 82 kicks/min. Notes in ~/jade-palace/training.md, scroll at https://github.com/DimitrisMilonopoulos/ocellus
 
 ## Roster
 
@@ -61,10 +61,10 @@ kungfu train --student "Po" --master shifu --dumplings 3 && echo "skadoosh"
 
 ## עברית
 
-**שלום חברים**, התוסף מצייר גם עברית עם מונחים באנגלית כמו `kubectl`, מספרים כמו 99.9% ו-250ms, וגם [קישור](https://github.com/NahumLitvin/prismantis).
+**שלום חברים**, התוסף מצייר גם עברית עם מונחים באנגלית כמו `kubectl`, מספרים כמו 99.9% ו-250ms, וגם [קישור](https://github.com/DimitrisMilonopoulos/ocellus).
 
 - פרוסים ב-us-east ו-eu-west (שני אזורים)
-- מחליפים ערכת נושא עם `/prismantis theme nord`
+- מחליפים ערכת נושא עם `/ocellus theme nord`
 
 1. מתעוררים ומותחים את כל 6 הרגליים
 2. מתפללים לאלי הנודלס

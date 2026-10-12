@@ -1,6 +1,6 @@
 ---
 name: demo
-description: Print the prismantis demo reply to eyeball every rendering feature after a change. Use after any visual change, when asked for "the demo", "show all features", "visual test", or before a release screenshot.
+description: Print the ocellus demo reply to eyeball every rendering feature after a change. Use after any visual change, when asked for "the demo", "show all features", "visual test", or before a release screenshot.
 ---
 
 # Demo
@@ -10,7 +10,7 @@ The visual test. Unit tests prove the tree; this proves the look.
 1. **Load the working copy** in this session (see `live-check` step 1). The new version shows only after the turn that made the edit ends.
 2. **Print `docs/demo.md` verbatim as the whole final message of a turn**, with nothing before it and no tool call after it. Claude Code condenses text written right before a tool call, so the demo must close the turn.
 3. **The person looks at it**, or screenshots it on the next turn (`live-check` step 3). Check:
-   - `prismantis` in a heavy box on the first line, and `Roster` with a heavy rule under it
+   - `ocellus` in a heavy box on the first line, and `Roster` with a heavy rule under it
    - the table: yellow header, rules between rows, the right-aligned `Size` column, colored numbers
    - the four diagrams and the table on one row on a wide terminal, wrapping on a narrow one
    - every flowchart box and sequence participant in its own color, with matching colors at both ends of the sequence

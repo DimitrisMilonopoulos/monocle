@@ -1,6 +1,6 @@
 ---
 name: release
-description: Cut a prismantis release - version bump, changelog, verify, tag and push. Use when asked to "release", "bump the version", "ship 0.x" or "publish".
+description: Cut a ocellus release - version bump, changelog, verify, tag and push. Use when asked to "release", "bump the version", "ship 0.x" or "publish".
 ---
 
 # Release
@@ -12,8 +12,8 @@ description: Cut a prismantis release - version bump, changelog, verify, tag and
 5. **Verify:** run every step in AGENTS.md Verify, plus `live-check`.
 6. **Fresh install test** against a throwaway config:
    ```
-   CLAUDE_CONFIG_DIR=<scratch>/fresh claude plugin marketplace add NahumLitvin/prismantis
-   CLAUDE_CONFIG_DIR=<scratch>/fresh claude plugin install prismantis@prismantis
+   CLAUDE_CONFIG_DIR=<scratch>/fresh claude plugin marketplace add DimitrisMilonopoulos/ocellus
+   CLAUDE_CONFIG_DIR=<scratch>/fresh claude plugin install ocellus@ocellus
    CLAUDE_CONFIG_DIR=<scratch>/fresh claude plugin list
    ```
    Run it after pushing; the marketplace clones from GitHub.

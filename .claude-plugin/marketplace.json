@@ -1,14 +1,14 @@
 {
-  "name": "prismantis",
+  "name": "ocellus",
   "owner": {
-    "name": "Nahum Litvin",
-    "url": "https://github.com/NahumLitvin"
+    "name": "Dimitrios Milonopoulos",
+    "url": "https://github.com/DimitrisMilonopoulos"
   },
   "plugins": [
     {
-      "name": "prismantis",
-      "description": "Colorful, themeable rendering for Claude Code replies: tables, headings, code, numbers, paths and links.",
-      "source": { "source": "github", "repo": "NahumLitvin/prismantis", "ref": "v0.17.1", "sha": "1e5bdb8505d5857885cb3fa3e30986be84ef6367" },
+      "name": "ocellus",
+      "description": "Colorful Claude Code replies, with mermaid diagrams and images drawn as real pixels in kitty. A fork of prismantis.",
+      "source": "./",
       "version": "0.17.1",
       "category": "appearance",
       "tags": [
@@ -20,5 +20,5 @@
       ]
     }
   ],
-  "description": "Prismantis: colorful, themeable rendering for Claude Code replies."
+  "description": "ocellus: colorful Claude Code replies with real pixels in kitty. A fork of prismantis."
 }

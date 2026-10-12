@@ -43,11 +43,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 ## Optional system clipboard tools
 
 On Linux, HTML copying calls an installed and running [CopyQ](https://github.com/hluk/CopyQ) (GPL-3.0-or-later).
-CopyQ is supplied by the user's system and is not bundled with prismantis.
+CopyQ is supplied by the user's system and is not bundled with ocellus.
 
 ## Color palettes
 
-Each preset in `hooks/presets.ts` maps a published palette onto prismantis tokens. All are MIT licensed.
+Each preset in `hooks/presets.ts` maps a published palette onto ocellus tokens. All are MIT licensed.
 
 | Preset | Source | Copyright |
 | --- | --- | --- |

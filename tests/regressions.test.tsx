@@ -18,7 +18,7 @@ const tableOf = (source: string) => {
 }
 
 const mount = (text: string, columns = 120) => ({
-  plugin: 'prismantis',
+  plugin: 'ocellus',
   component: 'AssistantMessage' as const,
   props: { text, isFirstOfReply: true },
   viewport: { columns, rows: 40 },
@@ -303,7 +303,7 @@ test('a half-streamed reply with an open fence and a cut table still draws', asy
   }
 })
 
-test('the help screen shows every element prismantis draws', async () => {
+test('the help screen shows every element ocellus draws', async () => {
   const blocks = parse(showcaseText(Object.keys(PRESETS)), hl)
   expect(showcaseText(Object.keys(PRESETS))).toContain('promptStyle')
   expect(showcaseText(Object.keys(PRESETS))).toContain('`clock`')
@@ -369,9 +369,9 @@ test('the help screen fits one screen: few blocks, two alerts, a table, a list a
   for (const kind of ['heading', 'table', 'list']) expect(blocks.some(b => b.kind === kind)).toBe(true)
   expect(blocks.some(b => b.kind === 'list' && b.items.some(i => i.task !== undefined))).toBe(true)
   expect(blocks.some(b => b.kind === 'paragraph' && b.inline.some(n => n.kind === 'link'))).toBe(true)
-  expect(helpText(Object.keys(PRESETS))).toContain('/prismantis copy')
+  expect(helpText(Object.keys(PRESETS))).toContain('/ocellus copy')
   expect(helpText([])).toContain('`random`')
-  expect(showcaseText([])).toContain('/prismantis theme random')
+  expect(showcaseText([])).toContain('/ocellus theme random')
   expect(helpText([])).toContain('HTML (macOS/Linux)')
   const diagrams = blocks.flatMap(b => (b.kind === 'code' && b.lang === 'mermaid' ? [b.lines.join('\n')] : []))
   expect(diagrams.length).toBe(2)
@@ -380,13 +380,13 @@ test('the help screen fits one screen: few blocks, two alerts, a table, a list a
 
 test('the help screen draws as command output', async $ => {
   const ui = await $.ui.mount({
-    plugin: 'prismantis',
+    plugin: 'ocellus',
     component: 'CommandOutput' as const,
-    props: { command: 'prismantis', args: 'demo', text: showcaseText(Object.keys(PRESETS)), isErrored: false },
+    props: { command: 'ocellus', args: 'demo', text: showcaseText(Object.keys(PRESETS)), isErrored: false },
     viewport: { columns: 100, rows: 40 },
     surface: 'terminal' as const,
   })
-  expect(await ui.find({ type: 'Box', text: /prismantis/ })).toBeDefined()
+  expect(await ui.find({ type: 'Box', text: /ocellus/ })).toBeDefined()
   await ui.unmount()
 })
 
@@ -447,7 +447,7 @@ test('table art keeps a long path whole when the other wide column can give way'
 
 test('copy reply copies the whole reply as written, Hebrew in reading order', { options: { rtl: 'warp' } }, async ($, on) => {
   const copied = stubClipboard(on)
-  const text = 'שלום חברים, זו הדגמה של prismantis.\n\n| a | b |\n|---|---|\n| 1 | 2 |'
+  const text = 'שלום חברים, זו הדגמה של ocellus.\n\n| a | b |\n|---|---|\n| 1 | 2 |'
   const ui = await $.ui.mount(mount(text))
   const reply = (await ui.findAll({ type: 'Button' })).find(b => b.props.label === '⧉ copy reply')
   await ui.press({ key: reply!.key! })

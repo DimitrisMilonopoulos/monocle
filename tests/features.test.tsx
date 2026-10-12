@@ -19,7 +19,7 @@ const call = (tool: string, input: unknown, id: string) => ({ tool_use_id: id, t
 
 test('collapsed tool groups draw one summary line', { options: { toolStyle: 'classic' } }, async $ => {
   const ui = await $.ui.mount({
-    plugin: 'prismantis',
+    plugin: 'ocellus',
     surface: 'terminal',
     component: 'ToolGroup',
     props: { calls: [call('Bash', { command: 'ls' }, 'a'), call('Bash', { command: 'pwd' }, 'b'), call('Read', { file_path: '/tmp/x' }, 'c')], isActive: false, isExpanded: false },
@@ -81,11 +81,11 @@ test('read-only shell commands are described in plain words with short paths', (
 })
 
 test('toolOutput quiet rows say what was read, and failed groups say why', { options: { toolOutput: 'quiet', toolStyle: 'classic' } }, async $ => {
-  const row = await $.ui.mount({ plugin: 'prismantis', surface: 'terminal', component: 'ToolUse', props: call('Bash', { command: 'sed -n 1,12p hooks/theme.ts' }, 'd-1') })
+  const row = await $.ui.mount({ plugin: 'ocellus', surface: 'terminal', component: 'ToolUse', props: call('Bash', { command: 'sed -n 1,12p hooks/theme.ts' }, 'd-1') })
   expect(await row.find({ type: 'Text', text: /^Read hooks\/theme\.ts lines 1–12$/ })).toBeDefined()
   await row.unmount()
   const described = await $.ui.mount({
-    plugin: 'prismantis',
+    plugin: 'ocellus',
     surface: 'terminal',
     component: 'ToolUse',
     props: call('Bash', { command: 'R=a/b; for q in a b; do gh search issues "$q"; done | jq -s add', description: 'Search upstream issues about copy buttons' }, 'd-5'),
@@ -94,7 +94,7 @@ test('toolOutput quiet rows say what was read, and failed groups say why', { opt
   await described.unmount()
   const failed = { ...call('Bash', { command: 'cat missing.txt' }, 'd-2'), isErrored: true, output: 'Exit code 1\ncat: missing.txt: No such file or directory' }
   const group = await $.ui.mount({
-    plugin: 'prismantis',
+    plugin: 'ocellus',
     surface: 'terminal',
     component: 'ToolGroup',
     props: { calls: [call('Read', { file_path: 'AGENTS.md' }, 'd-3'), failed], isActive: false, isExpanded: false },
@@ -102,10 +102,10 @@ test('toolOutput quiet rows say what was read, and failed groups say why', { opt
   expect(await group.find({ type: 'Text', text: /^Read AGENTS\.md · Read missing\.txt$/ })).toBeDefined()
   expect(await group.find({ type: 'Text', text: /cat: missing\.txt: No such file or directory$/ })).toBeDefined()
   await group.unmount()
-  const bare = await $.ui.mount({ plugin: 'prismantis', surface: 'terminal', component: 'ToolUse', props: call('Bash', { command: 'make test' }, 'd-6') })
+  const bare = await $.ui.mount({ plugin: 'ocellus', surface: 'terminal', component: 'ToolUse', props: call('Bash', { command: 'make test' }, 'd-6') })
   expect(await bare.find({ type: 'Text', text: /^Ran make test$/ })).toBeDefined()
   await bare.unmount()
-  const searched = await $.ui.mount({ plugin: 'prismantis', surface: 'terminal', component: 'ToolUse', props: call('Grep', { pattern: 'TODO', path: 'src/' }, 'd-7') })
+  const searched = await $.ui.mount({ plugin: 'ocellus', surface: 'terminal', component: 'ToolUse', props: call('Grep', { pattern: 'TODO', path: 'src/' }, 'd-7') })
   expect(await searched.find({ type: 'Text', text: /^Searched src\/ for "TODO"$/ })).toBeDefined()
   await searched.unmount()
 })
@@ -175,13 +175,13 @@ test('the failure reason skips stack frames and runtime banners', () => {
 test('toolOutput quiet labels skills and PowerShell, and hides the skill result', { options: { toolOutput: 'quiet', toolStyle: 'classic' } }, async ($, on) => {
   engine(on)
   for (const surface of ['terminal', 'desktop'] as const) {
-    const skill = await $.ui.mount({ plugin: 'prismantis', surface, component: 'ToolUse', props: call('Skill', { skill: 'kolibee:do-review', args: '--branch' }, `s-${surface}`) })
+    const skill = await $.ui.mount({ plugin: 'ocellus', surface, component: 'ToolUse', props: call('Skill', { skill: 'kolibee:do-review', args: '--branch' }, `s-${surface}`) })
     expect(await skill.find({ type: 'Text', text: /^Loaded skill kolibee:do-review --branch$/ })).toBeDefined()
-    const done = await $.ui.mount({ plugin: 'prismantis', surface, component: 'ToolResult', props: { tool_use_id: `s-${surface}`, tool: 'Skill', output: 'Successfully loaded skill', isErrored: false } })
+    const done = await $.ui.mount({ plugin: 'ocellus', surface, component: 'ToolResult', props: { tool_use_id: `s-${surface}`, tool: 'Skill', output: 'Successfully loaded skill', isErrored: false } })
     expect(await done.find({ type: 'Text', text: /^engine$/ })).toBeUndefined()
     await done.unmount()
     await skill.unmount()
-    const pwsh = await $.ui.mount({ plugin: 'prismantis', surface, component: 'ToolUse', props: call('PowerShell', { command: 'cat C:\\Users\\me\\notes.md' }, `p-${surface}`) })
+    const pwsh = await $.ui.mount({ plugin: 'ocellus', surface, component: 'ToolUse', props: call('PowerShell', { command: 'cat C:\\Users\\me\\notes.md' }, `p-${surface}`) })
     expect(await pwsh.find({ type: 'Text', text: /^Ran cat C:\\Users\\me\\notes\.md$/ })).toBeDefined()
     await pwsh.unmount()
   }
@@ -190,8 +190,8 @@ test('toolOutput quiet labels skills and PowerShell, and hides the skill result'
 test('toolOutput quiet leaves background and image shell results to the engine', { options: { toolOutput: 'quiet' } }, async ($, on) => {
   engine(on)
   for (const [id, output] of [['b-1', { stdout: '', stderr: '', backgroundTaskId: 'task-7' }], ['b-2', { stdout: 'iVBORw0KGgo', stderr: '', isImage: true }], ['b-3', { stdout: 'partial', stderr: '', interrupted: true }]] as const) {
-    const use = await $.ui.mount({ plugin: 'prismantis', surface: 'terminal', component: 'ToolUse', props: call('Bash', { command: 'make watch' }, id) })
-    const out = await $.ui.mount({ plugin: 'prismantis', surface: 'terminal', component: 'ToolResult', props: { tool_use_id: id, tool: 'Bash', output, isErrored: false } })
+    const use = await $.ui.mount({ plugin: 'ocellus', surface: 'terminal', component: 'ToolUse', props: call('Bash', { command: 'make watch' }, id) })
+    const out = await $.ui.mount({ plugin: 'ocellus', surface: 'terminal', component: 'ToolResult', props: { tool_use_id: id, tool: 'Bash', output, isErrored: false } })
     expect(await out.find({ type: 'Text', text: /^engine$/ })).toBeDefined()
     await out.unmount()
     await use.unmount()
@@ -199,8 +199,8 @@ test('toolOutput quiet leaves background and image shell results to the engine',
 })
 
 const result = (tool: string, input: unknown, id: string) => [
-  { plugin: 'prismantis', surface: 'terminal' as const, component: 'ToolUse' as const, props: call(tool, input, id) },
-  { plugin: 'prismantis', surface: 'terminal' as const, component: 'ToolResult' as const, props: { tool_use_id: id, tool, output: { stdout: 'file contents' }, isErrored: false } },
+  { plugin: 'ocellus', surface: 'terminal' as const, component: 'ToolUse' as const, props: call(tool, input, id) },
+  { plugin: 'ocellus', surface: 'terminal' as const, component: 'ToolResult' as const, props: { tool_use_id: id, tool, output: { stdout: 'file contents' }, isErrored: false } },
 ] as const
 
 test('toolOutput quiet hides the result of read-only calls only', { options: { toolOutput: 'quiet' } }, async ($, on) => {
@@ -223,7 +223,7 @@ test('toolOutput quiet hides the result of read-only calls only', { options: { t
 test('toolOutput quiet shows why a call failed instead of only its exit code', { options: { toolOutput: 'quiet' } }, async ($, on) => {
   engine(on)
   const out = await $.ui.mount({
-    plugin: 'prismantis',
+    plugin: 'ocellus',
     surface: 'terminal',
     component: 'ToolResult',
     props: { tool_use_id: 'e-1', tool: 'Bash', output: 'Error: Exit code 1\ncat: missing.txt: No such file or directory', isErrored: true },
@@ -248,7 +248,7 @@ test('a refused call keeps its whole reason, a failed command only its last line
 test('a refused call inside a collapsed quiet group keeps its whole reason too', { options: { toolOutput: 'quiet', toolStyle: 'classic' } }, async $ => {
   const refused = { ...call('Bash', { command: 'cat secrets.txt' }, 'g-2'), isErrored: true, output: REFUSED }
   const group = await $.ui.mount({
-    plugin: 'prismantis',
+    plugin: 'ocellus',
     surface: 'terminal',
     component: 'ToolGroup',
     props: { calls: [call('Read', { file_path: 'AGENTS.md' }, 'g-1'), refused], isActive: false, isExpanded: false },
@@ -262,7 +262,7 @@ test('a refused call inside a collapsed quiet group keeps its whole reason too',
 test('toolOutput quiet shows the full reason of a refused call, wrapped and not cut', { options: { toolOutput: 'quiet' } }, async ($, on) => {
   engine(on)
   const out = await $.ui.mount({
-    plugin: 'prismantis',
+    plugin: 'ocellus',
     surface: 'terminal',
     component: 'ToolResult',
     props: { tool_use_id: 'r-1', tool: 'Bash', output: REFUSED, isErrored: true },
@@ -283,7 +283,7 @@ test('the call memory is capped and forgets the oldest ids first', () => {
 test('a collapsed quiet group still shows the first lines of a shell command that is not a read', { options: { toolOutput: 'quiet', toolStyle: 'classic' } }, async $ => {
   const read = { ...call('Bash', { command: 'sed -n 1,4p app.py' }, 'g-3'), output: { stdout: 'file contents\n', stderr: '' } }
   const tests = { ...call('Bash', { command: 'python3 -m unittest -v', description: 'Run the unit tests' }, 'g-4'), output: { stdout: '', stderr: 'test_one ... ok\ntest_two ... ok\n\nOK\n' } }
-  const group = await $.ui.mount({ plugin: 'prismantis', surface: 'terminal', component: 'ToolGroup', props: { calls: [read, tests], isActive: false, isExpanded: false } })
+  const group = await $.ui.mount({ plugin: 'ocellus', surface: 'terminal', component: 'ToolGroup', props: { calls: [read, tests], isActive: false, isExpanded: false } })
   expect(await group.find({ type: 'Text', text: /^test_one \.\.\. ok$/ })).toBeDefined()
   expect(await group.find({ type: 'Text', text: /^… \+1 lines$/ })).toBeDefined()
   expect(await group.find({ type: 'Text', text: /file contents/ })).toBeUndefined()
@@ -292,9 +292,9 @@ test('a collapsed quiet group still shows the first lines of a shell command tha
 
 test('toolOutput quiet draws shell results itself, a few lines and no approval line', { options: { toolOutput: 'quiet' } }, async ($, on) => {
   engine(on)
-  const use = await $.ui.mount({ plugin: 'prismantis', surface: 'terminal', component: 'ToolUse', props: call('Bash', { command: 'make test' }, 'w-1') })
+  const use = await $.ui.mount({ plugin: 'ocellus', surface: 'terminal', component: 'ToolUse', props: call('Bash', { command: 'make test' }, 'w-1') })
   const out = await $.ui.mount({
-    plugin: 'prismantis',
+    plugin: 'ocellus',
     surface: 'terminal',
     component: 'ToolResult',
     props: { tool_use_id: 'w-1', tool: 'Bash', output: { stdout: 'one\ntwo\nthree\nfour\nfive\n', stderr: '' }, isErrored: false },
@@ -319,7 +319,7 @@ test('toolOutput full leaves every result to the engine', async ($, on) => {
 
 const expand = async ($: Parameters<TestBody>[0], id: string) => {
   const group = await $.ui.mount({
-    plugin: 'prismantis',
+    plugin: 'ocellus',
     surface: 'terminal',
     component: 'ToolGroup',
     props: { calls: [call('Bash', { command: 'ls' }, id)], isActive: false, isExpanded: true },
@@ -331,7 +331,7 @@ test('expanded non-shell rows go back to the engine so their output shows', asyn
   engine(on)
   await expand($, 'exp-1')
   const row = await $.ui.mount({
-    plugin: 'prismantis',
+    plugin: 'ocellus',
     surface: 'terminal',
     component: 'ToolUse',
     props: { ...call('Read', { file_path: '/tmp/x' }, 'exp-1'), output: { stdout: 'file' } },
@@ -344,7 +344,7 @@ test('expanded shell rows color the command and show stdout and stderr', async (
   engine(on)
   await expand($, 'exp-2')
   const row = await $.ui.mount({
-    plugin: 'prismantis',
+    plugin: 'ocellus',
     surface: 'terminal',
     component: 'ToolUse',
     props: { ...call('Bash', { command: 'gh run list --repo "a/b"' }, 'exp-2'), output: { stdout: 'in_progress\n', stderr: 'warn' } },
@@ -363,7 +363,7 @@ test('expanded shell output is capped so a huge result cannot hit the node limit
   await expand($, 'exp-3')
   const stdout = Array.from({ length: 5000 }, (_, i) => `line ${i}`).join('\n')
   const row = await $.ui.mount({
-    plugin: 'prismantis',
+    plugin: 'ocellus',
     surface: 'terminal',
     component: 'ToolUse',
     props: { ...call('Bash', { command: 'seq 5000' }, 'exp-3'), output: { stdout } },
@@ -376,7 +376,7 @@ test('an expanded shell row with no output says so', async ($, on) => {
   engine(on)
   await expand($, 'exp-4')
   const row = await $.ui.mount({
-    plugin: 'prismantis',
+    plugin: 'ocellus',
     surface: 'terminal',
     component: 'ToolUse',
     props: { ...call('Bash', { command: 'true' }, 'exp-4'), output: { stdout: '', stderr: '' } },
@@ -385,9 +385,9 @@ test('an expanded shell row with no output says so', async ($, on) => {
   await row.unmount()
 })
 
-test('standalone tool rows keep the prismantis look', async $ => {
+test('standalone tool rows keep the ocellus look', async $ => {
   const ui = await $.ui.mount({
-    plugin: 'prismantis',
+    plugin: 'ocellus',
     surface: 'terminal',
     component: 'ToolUse',
     props: { ...call('Bash', { command: 'ls' }, 'solo-1'), output: { stdout: 'file' } },
@@ -408,7 +408,7 @@ test('turn footer formats durations', async () => {
 })
 
 test('turn footer keeps the word and colors the duration', async $ => {
-  const ui = await $.ui.mount({ plugin: 'prismantis', surface: 'terminal', component: 'TurnDuration', props: { word: 'Baked', durationMs: 380000 } })
+  const ui = await $.ui.mount({ plugin: 'ocellus', surface: 'terminal', component: 'TurnDuration', props: { word: 'Baked', durationMs: 380000 } })
   expect((await ui.find({ type: 'Text', text: /^6m 20s$/ }))?.props.color).toBe(t.number)
   await ui.unmount()
 })
@@ -441,7 +441,7 @@ test('clock adds the end time to the turn footer', { options: { clock: '24h' } }
   mock.clock(on, { now: local(10, 14, 32) })
   on('turn.complete', async (_$, e) => ({ text: e.answer }))
   await $.turn.complete({ answer: 'done', durationMs: 380000, isAborted: false, turnId: 't1', reason: 'answer' })
-  const ui = await $.ui.mount({ plugin: 'prismantis', surface: 'terminal', component: 'TurnDuration', props: { word: 'Baked', durationMs: 380000 } })
+  const ui = await $.ui.mount({ plugin: 'ocellus', surface: 'terminal', component: 'TurnDuration', props: { word: 'Baked', durationMs: 380000 } })
   expect((await ui.find({ type: 'Text', text: /^14:32$/ }))?.props.color).toBe(t.number)
   await ui.unmount()
 })
@@ -450,7 +450,7 @@ test('clock off, or a turn it never saw, leaves the turn footer as it was', asyn
   mock.clock(on, { now: local(10, 14, 32) })
   on('turn.complete', async (_$, e) => ({ text: e.answer }))
   await $.turn.complete({ answer: 'done', durationMs: 380000, isAborted: false, turnId: 't1', reason: 'answer' })
-  const ui = await $.ui.mount({ plugin: 'prismantis', surface: 'terminal', component: 'TurnDuration', props: { word: 'Baked', durationMs: 380000 } })
+  const ui = await $.ui.mount({ plugin: 'ocellus', surface: 'terminal', component: 'TurnDuration', props: { word: 'Baked', durationMs: 380000 } })
   expect(await ui.find({ type: 'Text', text: /^14:32$/ })).toBeUndefined()
   await ui.unmount()
 })
@@ -458,7 +458,7 @@ test('clock off, or a turn it never saw, leaves the turn footer as it was', asyn
 test('an old turn line that redraws never takes a later end with a close duration', { options: { clock: '24h' } }, async ($, on) => {
   const clock = mock.clock(on, { now: local(10, 14, 0) })
   on('turn.complete', async (_$, e) => ({ text: e.answer }))
-  const line = (id: string) => $.ui.mount({ plugin: 'prismantis', surface: 'terminal', component: 'TurnDuration', requestId: id, props: { word: 'Baked', durationMs: 5000 } })
+  const line = (id: string) => $.ui.mount({ plugin: 'ocellus', surface: 'terminal', component: 'TurnDuration', requestId: id, props: { word: 'Baked', durationMs: 5000 } })
   const old = await line('old')
   await clock.advance(60000)
   await $.turn.complete({ answer: 'done', durationMs: 5100, isAborted: false, turnId: 't2', reason: 'answer' })
@@ -472,10 +472,10 @@ test('an old turn line that redraws never takes a later end with a close duratio
 
 test('slash command output renders as markdown, errors stay native', async ($, on) => {
   engine(on)
-  const ok = await $.ui.mount({ plugin: 'prismantis', surface: 'terminal', component: 'CommandOutput', props: { command: 'cost', args: '', text: '| a | b |\n|---|---|\n| 1 | 2 |', isErrored: false } })
+  const ok = await $.ui.mount({ plugin: 'ocellus', surface: 'terminal', component: 'CommandOutput', props: { command: 'cost', args: '', text: '| a | b |\n|---|---|\n| 1 | 2 |', isErrored: false } })
   expect((await ok.find({ type: 'Text', text: /^a$/ }))?.props.color).toBe(t.tableHeader)
   await ok.unmount()
-  const bad = await $.ui.mount({ plugin: 'prismantis', surface: 'terminal', component: 'CommandOutput', props: { command: 'cost', args: '', text: 'boom', isErrored: true } })
+  const bad = await $.ui.mount({ plugin: 'ocellus', surface: 'terminal', component: 'CommandOutput', props: { command: 'cost', args: '', text: 'boom', isErrored: true } })
   expect(await bad.find({ type: 'Text', text: /^engine$/ })).toBeDefined()
   await bad.unmount()
 })
@@ -488,7 +488,7 @@ test('your prompts carry the render hint as model-only context', async ($, on) =
     return { text: e.text, context: e.context }
   })
   await $.prompt.submit({ text: 'show me deploys per day', wait: false, origin: { kind: 'composer' } })
-  expect(seen[0]?.some(c => c.includes('prismantis'))).toBe(true)
+  expect(seen[0]?.some(c => c.includes('ocellus'))).toBe(true)
   expect(seen[0]?.some(c => c.includes('fenced block') && c.includes('copy button'))).toBe(true)
 })
 
@@ -500,7 +500,7 @@ test('no render hint when diagramHints is off', { options: { diagramHints: false
     return { text: e.text, context: e.context }
   })
   await $.prompt.submit({ text: 'hi', wait: false, origin: { kind: 'composer' } })
-  expect((seen[0] ?? []).some(c => c.includes('prismantis'))).toBe(false)
+  expect((seen[0] ?? []).some(c => c.includes('ocellus'))).toBe(false)
 })
 
 test('a continuation line joins the list item it is indented under', async () => {
@@ -517,7 +517,7 @@ test('double-backtick code keeps single backticks inside', async () => {
 
 test('wide characters take two columns in tables', async $ => {
   const ui = await $.ui.mount({
-    plugin: 'prismantis',
+    plugin: 'ocellus',
     surface: 'terminal',
     component: 'AssistantMessage',
     props: { text: '| 名前 | n |\n|---|---|\n| 寿司 | 1 |', isFirstOfReply: true },
@@ -549,7 +549,7 @@ test('a long path in a narrow table keeps its column wide enough to stay whole',
     '| 1 | src/services/reporting/exports/monthly_pdf.py | The monthly export now writes one summary file per region and uploads them after the nightly run |',
   ].join('\n')
   const ui = await $.ui.mount({
-    plugin: 'prismantis',
+    plugin: 'ocellus',
     surface: 'terminal',
     component: 'AssistantMessage',
     props: { text: table, isFirstOfReply: true },
@@ -561,7 +561,7 @@ test('a long path in a narrow table keeps its column wide enough to stay whole',
 })
 
 const FULL = [
-  '# prismantis',
+  '# ocellus',
   '',
   'Status: 3 regions in 6m 20s, p95 82ms. Notes in ~/notes/today.md and https://example.com/docs',
   '',
@@ -602,7 +602,7 @@ const FULL = [
 test('a full reply draws every element itself, with the right copy buttons', async ($, on) => {
   engine(on)
   const ui = await $.ui.mount({
-    plugin: 'prismantis',
+    plugin: 'ocellus',
     surface: 'terminal',
     component: 'AssistantMessage',
     props: { text: FULL, isFirstOfReply: true },
@@ -627,43 +627,43 @@ test('headless runs get no render hint', async ($, on) => {
     return { text: e.text, context: e.context }
   })
   await $.prompt.submit({ text: 'hi', wait: false, origin: { kind: 'sdk' } })
-  expect((seen[0] ?? []).some(c => c.includes('prismantis'))).toBe(false)
+  expect((seen[0] ?? []).some(c => c.includes('ocellus'))).toBe(false)
 })
 
-test('/prismantis theme <name> and /prismantis <name> switch the theme through config', async ($, on) => {
+test('/ocellus theme <name> and /ocellus <name> switch the theme through config', async ($, on) => {
   const writes: { key: string; value: unknown }[] = []
   on('config.set', (_, e) => {
     writes.push({ key: e.key, value: e.value })
     return { value: e.value }
   })
-  const result = await $.command.run({ command: 'prismantis', args: 'theme nord', origin: { kind: 'composer' }, presentation: { isFullscreen: false, columns: 120 } })
-  expect(writes).toEqual([{ key: 'prismantis.theme', value: 'nord' }])
+  const result = await $.command.run({ command: 'ocellus', args: 'theme nord', origin: { kind: 'composer' }, presentation: { isFullscreen: false, columns: 120 } })
+  expect(writes).toEqual([{ key: 'ocellus.theme', value: 'nord' }])
   expect(result.text).toBe('Theme set to nord.')
-  const short = await $.command.run({ command: 'prismantis', args: 'random', origin: { kind: 'composer' }, presentation: { isFullscreen: false, columns: 120 } })
-  expect(writes.at(-1)).toEqual({ key: 'prismantis.theme', value: 'random' })
+  const short = await $.command.run({ command: 'ocellus', args: 'random', origin: { kind: 'composer' }, presentation: { isFullscreen: false, columns: 120 } })
+  expect(writes.at(-1)).toEqual({ key: 'ocellus.theme', value: 'random' })
   expect(short.text).toBe('Theme set to random.')
 })
 
-test('/prismantis random re-rolls on every call once the setting is random', { options: { theme: 'random' } }, async ($, on) => {
+test('/ocellus random re-rolls on every call once the setting is random', { options: { theme: 'random' } }, async ($, on) => {
   on('config.set', (_, e) => ({ value: e.value }))
-  const roll = async () => (await $.command.run({ command: 'prismantis', args: 'random', origin: { kind: 'composer' }, presentation: { isFullscreen: false, columns: 120 } })).text ?? ''
-  const first = /^Theme set to random: (\S+) for now\.\nkeep it: \/prismantis theme \1$/.exec(await roll())?.[1]
+  const roll = async () => (await $.command.run({ command: 'ocellus', args: 'random', origin: { kind: 'composer' }, presentation: { isFullscreen: false, columns: 120 } })).text ?? ''
+  const first = /^Theme set to random: (\S+) for now\.\nkeep it: \/ocellus theme \1$/.exec(await roll())?.[1]
   const second = /^Theme set to random: (\S+) for now\./.exec(await roll())?.[1]
   expect(RANDOM_THEMES).toContain(first)
   expect(RANDOM_THEMES).toContain(second)
   expect(second).not.toBe(first)
 })
 
-test('/prismantis rejects unknown themes and lists the real ones', async ($, on) => {
+test('/ocellus rejects unknown themes and lists the real ones', async ($, on) => {
   const writes: unknown[] = []
   on('config.set', (_, e) => {
     writes.push(e.value)
     return { value: e.value }
   })
-  const bad = await $.command.run({ command: 'prismantis', args: 'theme neon', origin: { kind: 'composer' }, presentation: { isFullscreen: false, columns: 120 } })
+  const bad = await $.command.run({ command: 'ocellus', args: 'theme neon', origin: { kind: 'composer' }, presentation: { isFullscreen: false, columns: 120 } })
   expect(writes).toEqual([])
   expect(bad.text?.startsWith('Unknown theme "neon".')).toBe(true)
-  const list = await $.command.run({ command: 'prismantis', args: '', origin: { kind: 'composer' }, presentation: { isFullscreen: false, columns: 120 } })
+  const list = await $.command.run({ command: 'ocellus', args: '', origin: { kind: 'composer' }, presentation: { isFullscreen: false, columns: 120 } })
   expect(list.text?.includes('dracula')).toBe(true)
 })
 
@@ -678,17 +678,17 @@ test('theme random can pick every dark color preset, never mono or a light one, 
   expect(pickTheme('neon')).toBe('catppuccin-mocha')
 })
 
-test('/prismantis theme reports the random pick and how to keep it', { options: { theme: 'random' } }, async $ => {
-  const run = () => $.command.run({ command: 'prismantis', args: 'theme', origin: { kind: 'composer' }, presentation: { isFullscreen: false, columns: 120 } })
+test('/ocellus theme reports the random pick and how to keep it', { options: { theme: 'random' } }, async $ => {
+  const run = () => $.command.run({ command: 'ocellus', args: 'theme', origin: { kind: 'composer' }, presentation: { isFullscreen: false, columns: 120 } })
   const first = (await run()).text ?? ''
-  const name = /^current: (\S+) \(random\)\nkeep it: \/prismantis theme (\S+)$/.exec(first)
+  const name = /^current: (\S+) \(random\)\nkeep it: \/ocellus theme (\S+)$/.exec(first)
   expect(name?.[1]).toBe(name?.[2])
   expect((PRESET_NAMES as readonly string[]).includes(name?.[1] ?? '')).toBe(true)
   expect((await run()).text).toBe(first)
 })
 
-test('/prismantis theme reports a fixed theme without the random note', { options: { theme: 'nord' } }, async $ => {
-  const result = await $.command.run({ command: 'prismantis', args: 'theme', origin: { kind: 'composer' }, presentation: { isFullscreen: false, columns: 120 } })
+test('/ocellus theme reports a fixed theme without the random note', { options: { theme: 'nord' } }, async $ => {
+  const result = await $.command.run({ command: 'ocellus', args: 'theme', origin: { kind: 'composer' }, presentation: { isFullscreen: false, columns: 120 } })
   expect(result.text).toBe('current: nord')
 })
 
@@ -701,7 +701,7 @@ test('task list items parse as checked or open, nested ones too', async () => {
 
 test('task lists draw brackets and check marks, done items dimmed and struck through', async $ => {
   for (const surface of ['terminal', 'desktop'] as const) {
-    const ui = await $.ui.mount({ plugin: 'prismantis', component: 'AssistantMessage', props: { text: '- [ ] todo\n- [x] done', isFirstOfReply: true }, viewport: { columns: 80, rows: 20 }, surface })
+    const ui = await $.ui.mount({ plugin: 'ocellus', component: 'AssistantMessage', props: { text: '- [ ] todo\n- [x] done', isFirstOfReply: true }, viewport: { columns: 80, rows: 20 }, surface })
     expect((await ui.find({ type: 'Text', text: /^\[ \] $/ }))?.props.color).toBe(PRESETS['catppuccin-mocha'].bullet)
     expect(await ui.find({ type: 'Text', text: /^\[✓\] $/ })).toBeDefined()
     expect((await ui.find({ type: 'Text', text: /^done$/ }))?.props).toMatchObject({ dimColor: true, strikethrough: true })
@@ -710,7 +710,7 @@ test('task lists draw brackets and check marks, done items dimmed and struck thr
   }
 })
 
-const tasks = (surface: 'terminal' | 'desktop') => ({ plugin: 'prismantis', component: 'AssistantMessage' as const, props: { text: '- [ ] todo\n- [x] done', isFirstOfReply: true }, viewport: { columns: 80, rows: 20 }, surface })
+const tasks = (surface: 'terminal' | 'desktop') => ({ plugin: 'ocellus', component: 'AssistantMessage' as const, props: { text: '- [ ] todo\n- [x] done', isFirstOfReply: true }, viewport: { columns: 80, rows: 20 }, surface })
 
 test('taskStyle progress draws ticks under a done-count bar', { options: { taskStyle: 'progress' } }, async $ => {
   for (const surface of ['terminal', 'desktop'] as const) {
@@ -737,7 +737,7 @@ test('taskStyle box draws a box and a tick', { options: { taskStyle: 'box' } }, 
 
 test('markdown links and bare URLs draw as clickable links', async $ => {
   for (const surface of ['terminal', 'desktop'] as const) {
-    const ui = await $.ui.mount({ plugin: 'prismantis', component: 'AssistantMessage', props: { text: 'See [the docs](https://example.com/docs) or https://example.com/raw for more.', isFirstOfReply: true }, viewport: { columns: 100, rows: 20 }, surface })
+    const ui = await $.ui.mount({ plugin: 'ocellus', component: 'AssistantMessage', props: { text: 'See [the docs](https://example.com/docs) or https://example.com/raw for more.', isFirstOfReply: true }, viewport: { columns: 100, rows: 20 }, surface })
     const links = await ui.findAll({ type: 'Link' })
     expect(links.map(l => l.props.href)).toEqual(['https://example.com/docs', 'https://example.com/raw'])
     expect((await ui.find({ type: 'Text', text: /^the docs$/ }))?.props.underline).toBe(true)
@@ -747,7 +747,7 @@ test('markdown links and bare URLs draw as clickable links', async $ => {
   }
 })
 
-const run = (args: string) => ({ command: 'prismantis', args, origin: { kind: 'composer' as const }, presentation: { isFullscreen: false, columns: 120 } })
+const run = (args: string) => ({ command: 'ocellus', args, origin: { kind: 'composer' as const }, presentation: { isFullscreen: false, columns: 120 } })
 
 const transcript = (on: On, messages: { role: 'user' | 'assistant'; text: string }[]) => {
   const copied: string[] = []
@@ -759,34 +759,34 @@ const transcript = (on: On, messages: { role: 'user' | 'assistant'; text: string
   return copied
 }
 
-test('/prismantis copy copies the last reply without a mouse', async ($, on) => {
+test('/ocellus copy copies the last reply without a mouse', async ($, on) => {
   const copied = transcript(on, [{ role: 'user', text: 'hi' }, { role: 'assistant', text: 'old' }, { role: 'user', text: 'again' }, { role: 'assistant', text: 'שלום, the newest reply' }])
   const result = await $.command.run(run('copy'))
   expect(copied).toEqual(['שלום, the newest reply'])
   expect(result.text).toBe('Copied the last reply.')
 })
 
-test('/prismantis copy code copies the last code block of the last reply', async ($, on) => {
+test('/ocellus copy code copies the last code block of the last reply', async ($, on) => {
   const copied = transcript(on, [{ role: 'assistant', text: 'Run:\n\n```bash\nls\n```\n\nthen:\n\n```bash\nnpm test\n```' }])
   const result = await $.command.run(run('copy code'))
   expect(copied).toEqual(['npm test'])
   expect(result.text).toBe('Copied the last code block.')
 })
 
-test('/prismantis copy code finds a code block under a list item', async ($, on) => {
+test('/ocellus copy code finds a code block under a list item', async ($, on) => {
   const copied = transcript(on, [{ role: 'assistant', text: '1. Setup:\n   ```bash\n   npm i\n   ```\n2. Next' }])
   await $.command.run(run('copy code'))
   expect(copied).toEqual(['npm i'])
 })
 
-test('/prismantis copy says so when there is nothing to copy', async ($, on) => {
+test('/ocellus copy says so when there is nothing to copy', async ($, on) => {
   const copied = transcript(on, [{ role: 'assistant', text: 'no code here' }])
   expect((await $.command.run(run('copy code'))).text).toBe('The last reply has no code block.')
   expect(copied).toEqual([])
 })
 
 const prompt = (text: string, kind: 'composer' | 'task-notification' = 'composer', surface: 'terminal' | 'desktop' = 'terminal') =>
-  ({ plugin: 'prismantis', component: 'UserMessage' as const, props: { text, origin: { kind } as never, isExpanded: true }, viewport: { columns: 80, rows: 10 }, surface })
+  ({ plugin: 'ocellus', component: 'UserMessage' as const, props: { text, origin: { kind } as never, isExpanded: true }, viewport: { columns: 80, rows: 10 }, surface })
 
 test('your prompts draw in a rounded accent bubble by default', async $ => {
   for (const surface of ['terminal', 'desktop'] as const) {
@@ -883,7 +883,7 @@ test('an unstamped prompt is yours, a teammate message is not', async ($, on) =>
   await peer.unmount()
 })
 
-const readRow = { plugin: 'prismantis', component: 'ToolUse' as const, props: call('Read', { file_path: '/tmp/x' }, 'ts-1'), viewport: { columns: 100, rows: 10 }, surface: 'terminal' as const }
+const readRow = { plugin: 'ocellus', component: 'ToolUse' as const, props: call('Read', { file_path: '/tmp/x' }, 'ts-1'), viewport: { columns: 100, rows: 10 }, surface: 'terminal' as const }
 
 test('chat puts tool rows on the right, dimmed, by default', async $ => {
   const ui = await $.ui.mount(readRow)
@@ -908,17 +908,17 @@ test('toolStyle classic is the original look', { options: { toolStyle: 'classic'
 })
 
 test('toolStyle tree-bold draws one-line narration in bold', { options: { toolStyle: 'tree-bold' } }, async $ => {
-  const one = await $.ui.mount({ plugin: 'prismantis', component: 'AssistantMessage', props: { text: 'Checking the tests next.', isFirstOfReply: true }, viewport: { columns: 80, rows: 10 }, surface: 'terminal' })
+  const one = await $.ui.mount({ plugin: 'ocellus', component: 'AssistantMessage', props: { text: 'Checking the tests next.', isFirstOfReply: true }, viewport: { columns: 80, rows: 10 }, surface: 'terminal' })
   expect((await one.find({ type: 'Text', text: /^Checking the tests next\.$/ }))?.props.bold).toBe(true)
   await one.unmount()
-  const long = await $.ui.mount({ plugin: 'prismantis', component: 'AssistantMessage', props: { text: 'First.\n\nSecond.', isFirstOfReply: true }, viewport: { columns: 80, rows: 10 }, surface: 'terminal' })
+  const long = await $.ui.mount({ plugin: 'ocellus', component: 'AssistantMessage', props: { text: 'First.\n\nSecond.', isFirstOfReply: true }, viewport: { columns: 80, rows: 10 }, surface: 'terminal' })
   expect((await long.find({ type: 'Text', text: /^First\.$/ }))?.props.bold).toBeFalsy()
   await long.unmount()
 })
 
 test('slash command output with terminal escape codes is left to the engine', async ($, on) => {
   engine(on)
-  const colored = await $.ui.mount({ plugin: 'prismantis', surface: 'terminal', component: 'CommandOutput', props: { command: 'context', args: '', text: '\u001b[1mContext Usage\u001b[22m\n\u001b[38;5;246m⛁ 3.8k tokens\u001b[39m', isErrored: false } })
+  const colored = await $.ui.mount({ plugin: 'ocellus', surface: 'terminal', component: 'CommandOutput', props: { command: 'context', args: '', text: '\u001b[1mContext Usage\u001b[22m\n\u001b[38;5;246m⛁ 3.8k tokens\u001b[39m', isErrored: false } })
   expect(await colored.find({ type: 'Text', text: /^engine$/ })).toBeDefined()
   await colored.unmount()
 })
@@ -927,7 +927,7 @@ test('tool rows show paths relative to the project, and ~ for the home directory
   mock.env(on, { HOME: '/home/demo' })
   on('session.root', () => ({ value: '/home/demo/tank-monitor' }))
   const row = async (file_path: string) => {
-    const ui = await $.ui.mount({ plugin: 'prismantis', component: 'ToolUse', props: call('Read', { file_path }, `p-${file_path}`), viewport: { columns: 100, rows: 10 }, surface: 'terminal' })
+    const ui = await $.ui.mount({ plugin: 'ocellus', component: 'ToolUse', props: call('Read', { file_path }, `p-${file_path}`), viewport: { columns: 100, rows: 10 }, surface: 'terminal' })
     const text = (await ui.find({ type: 'Text', text: /^Read / }))?.text
     await ui.unmount()
     return text
@@ -935,7 +935,7 @@ test('tool rows show paths relative to the project, and ~ for the home directory
   expect(await row('/home/demo/tank-monitor/logs/hourly.csv')).toContain('Read logs/hourly.csv')
   expect(await row('/home/demo/notes/todo.md')).toContain('Read ~/notes/todo.md')
   expect(await row('/etc/hosts')).toContain('Read /etc/hosts')
-  const group = await $.ui.mount({ plugin: 'prismantis', component: 'ToolGroup', props: { calls: [call('Read', { file_path: '/home/demo/tank-monitor/src/pool.ts' }, 'g1')], isActive: false, isExpanded: false }, viewport: { columns: 100, rows: 10 }, surface: 'terminal' })
+  const group = await $.ui.mount({ plugin: 'ocellus', component: 'ToolGroup', props: { calls: [call('Read', { file_path: '/home/demo/tank-monitor/src/pool.ts' }, 'g1')], isActive: false, isExpanded: false }, viewport: { columns: 100, rows: 10 }, surface: 'terminal' })
   expect(await group.find({ type: 'Text', text: /last: src\/pool\.ts$/ })).toBeDefined()
   await group.unmount()
 })
@@ -944,7 +944,7 @@ test('tool rows shorten Windows paths against a backslashed root, with USERPROFI
   mock.env(on, { USERPROFILE: 'C:\\Users\\demo' })
   on('session.root', () => ({ value: 'C:\\Users\\demo\\tank-monitor' }))
   const row = async (file_path: string) => {
-    const ui = await $.ui.mount({ plugin: 'prismantis', component: 'ToolUse', props: call('Read', { file_path }, `w-${file_path}`), viewport: { columns: 100, rows: 10 }, surface: 'terminal' })
+    const ui = await $.ui.mount({ plugin: 'ocellus', component: 'ToolUse', props: call('Read', { file_path }, `w-${file_path}`), viewport: { columns: 100, rows: 10 }, surface: 'terminal' })
     const text = (await ui.find({ type: 'Text', text: /^Read / }))?.text
     await ui.unmount()
     return text
@@ -982,7 +982,7 @@ test('tool row paths follow the project root after a worktree move', async ($, o
   let root = '/home/demo/tank-monitor'
   on('session.root', () => ({ value: root }))
   const row = async (file_path: string, id: string) => {
-    const ui = await $.ui.mount({ plugin: 'prismantis', component: 'ToolUse', props: call('Read', { file_path }, id), viewport: { columns: 100, rows: 10 }, surface: 'terminal' })
+    const ui = await $.ui.mount({ plugin: 'ocellus', component: 'ToolUse', props: call('Read', { file_path }, id), viewport: { columns: 100, rows: 10 }, surface: 'terminal' })
     const text = (await ui.find({ type: 'Text', text: /^Read / }))?.text
     await ui.unmount()
     return text
@@ -992,15 +992,15 @@ test('tool row paths follow the project root after a worktree move', async ($, o
   expect(await row('/home/demo/worktrees/tank-monitor-fix/src/pool.ts', 'w2')).toContain('Read src/pool.ts')
 })
 
-test('/prismantis random redraws replies in the new pick', { options: { theme: 'random' } }, async ($, on) => {
+test('/ocellus random redraws replies in the new pick', { options: { theme: 'random' } }, async ($, on) => {
   on('config.set', (_, e) => ({ value: e.value }))
   const heading = async () => {
-    const ui = await $.ui.mount({ plugin: 'prismantis', surface: 'terminal', component: 'AssistantMessage', props: { text: '# Tanks', isFirstOfReply: true }, viewport: { columns: 120, rows: 40 } })
+    const ui = await $.ui.mount({ plugin: 'ocellus', surface: 'terminal', component: 'AssistantMessage', props: { text: '# Tanks', isFirstOfReply: true }, viewport: { columns: 120, rows: 40 } })
     const color = (await ui.find({ type: 'Text', text: /^Tanks$/ }))?.props.color
     await ui.unmount()
     return color
   }
-  const run = await $.command.run({ command: 'prismantis', args: 'random', origin: { kind: 'composer' }, presentation: { isFullscreen: false, columns: 120 } })
+  const run = await $.command.run({ command: 'ocellus', args: 'random', origin: { kind: 'composer' }, presentation: { isFullscreen: false, columns: 120 } })
   const picked = /^Theme set to random: (\S+) for now/.exec(run.text ?? '')?.[1] ?? ''
   const want = (PRESETS as Record<string, { heading?: string }>)[picked]?.heading
   expect(want).toBeDefined()
@@ -1009,7 +1009,7 @@ test('/prismantis random redraws replies in the new pick', { options: { theme: '
 
 const patch = { filePath: '/tmp/app.ts', structuredPatch: [{ oldStart: 4, newStart: 4, lines: [' const a = 1', '-const b = 2', '+const b = 3', '+const c = 4'] }] }
 const editResult = (surface: 'terminal' | 'desktop', tool: string, output: unknown, isErrored = false) =>
-  ({ plugin: 'prismantis', surface, component: 'ToolResult' as const, props: { tool_use_id: `d-${surface}`, tool, output, isErrored } })
+  ({ plugin: 'ocellus', surface, component: 'ToolResult' as const, props: { tool_use_id: `d-${surface}`, tool, output, isErrored } })
 
 test('diff lines number old and new sides, and a new file is all additions', () => {
   expect(diffLines(patch)?.map(r => `${r.num}${r.mark}${r.text}`)).toEqual(['4 const a = 1', '5-const b = 2', '5+const b = 3', '6+const c = 4'])

@@ -1,17 +1,17 @@
 import { RANDOM_THEMES } from './theme'
 
 export const showcaseText = (themes: readonly string[]): string => `
-# prismantis
+# ocellus
 
-Colored markdown for Claude Code replies: **bold**, *italic*, ~~struck~~, \`inline code\`, a [link](https://github.com/NahumLitvin/prismantis) and a bare URL https://github.com/NahumLitvin/prismantis/issues, both clickable, numbers like 99.9% and 250ms, paths like ~/src/app.ts.
+Colored markdown for Claude Code replies: **bold**, *italic*, ~~struck~~, \`inline code\`, a [link](https://github.com/DimitrisMilonopoulos/ocellus) and a bare URL https://github.com/DimitrisMilonopoulos/ocellus/issues, both clickable, numbers like 99.9% and 250ms, paths like ~/src/app.ts.
 
 ## Commands
 
 | Command | Does |
 |---------|------|
-| \`/prismantis\` | This screen |
-| \`/prismantis theme <name>\` | Switch theme on the spot (\`/prismantis <name>\` works too), \`random\` for a new dark one now and each time the mod loads |
-| \`/prismantis copy\` | Copy the last reply, or \`copy code\` for its last code block |
+| \`/ocellus\` | This screen |
+| \`/ocellus theme <name>\` | Switch theme on the spot (\`/ocellus <name>\` works too), \`random\` for a new dark one now and each time the mod loads |
+| \`/ocellus copy\` | Copy the last reply, or \`copy code\` for its last code block |
 | \`/config\` | Edit any option |
 
 > [!NOTE]
@@ -20,9 +20,9 @@ Colored markdown for Claude Code replies: **bold**, *italic*, ~~struck~~, \`inli
 ### Pick a theme
 
 \`\`\`bash
-/prismantis theme nord
-/prismantis theme github-light
-/prismantis theme random
+/ocellus theme nord
+/ocellus theme github-light
+/ocellus theme random
 \`\`\`
 
 1. Dark: ${themes.filter(t => RANDOM_THEMES.includes(t)).join(', ')}
@@ -149,7 +149,7 @@ flowchart LR
 sequenceDiagram
     participant U as You
     participant C as Claude
-    participant P as prismantis
+    participant P as ocellus
     U->>C: prompt
     C->>P: markdown
     P-->>U: colored reply
@@ -176,10 +176,10 @@ export const helpText = (themes: readonly string[]): string => `
 
 | Command | Does |
 |---------|------|
-| \`/prismantis theme <name>\` | Switch theme on the spot (\`/prismantis <name>\` works too), \`random\` for a new dark one now and each time the mod loads |
-| \`/prismantis copy\` | Copy the last reply, or \`copy code\` for its last code block |
-| \`/prismantis demo\` | Full showcase, every element and diagram |
-| \`/prismantis demo-rtl\` | Hebrew right-to-left showcase |
+| \`/ocellus theme <name>\` | Switch theme on the spot (\`/ocellus <name>\` works too), \`random\` for a new dark one now and each time the mod loads |
+| \`/ocellus copy\` | Copy the last reply, or \`copy code\` for its last code block |
+| \`/ocellus demo\` | Full showcase, every element and diagram |
+| \`/ocellus demo-rtl\` | Hebrew right-to-left showcase |
 
 ### ${themes.length} themes
 
@@ -187,7 +187,7 @@ export const helpText = (themes: readonly string[]): string => `
 - Light: ${themes.filter(t => /latte|light|dawn/.test(t)).join(', ')}
 - Plain: mono, no color, only bold and dim
 
-Docs and issues: https://github.com/NahumLitvin/prismantis
+Docs and issues: https://github.com/DimitrisMilonopoulos/ocellus
 
 > [!TIP]
 > Any color slot beats the theme. Set \`headingColor\` or \`numberColor\` to a hex value in \`/config\`.
@@ -220,12 +220,12 @@ xychart-beta
 export const rtlShowcaseText = (): string => `
 # עברית מימין לשמאל
 
-**שלום חברים**, זו הדגמה של עברית עם מונחים באנגלית כמו \`kubectl\`, מספרים כמו 99.9% ו-250ms, נתיב כמו ~/src/app.ts וגם [קישור](https://github.com/NahumLitvin/prismantis).
+**שלום חברים**, זו הדגמה של עברית עם מונחים באנגלית כמו \`kubectl\`, מספרים כמו 99.9% ו-250ms, נתיב כמו ~/src/app.ts וגם [קישור](https://github.com/DimitrisMilonopoulos/ocellus).
 
 ## רשימות
 
 - פרוסים בשני אזורים (us-east ו-eu-west)
-- מחליפים ערכת נושא עם \`/prismantis theme nord\`
+- מחליפים ערכת נושא עם \`/ocellus theme nord\`
 
 1. מתקינים את התוסף
 2. שואלים שאלה בעברית

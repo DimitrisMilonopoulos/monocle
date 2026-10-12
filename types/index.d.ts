@@ -1,19 +1,19 @@
-export type PrismantisMarkdownArgs<Surface> = {
+export type OcellusMarkdownArgs<Surface> = {
   surface: Surface
   text: string
   columns: number
 }
 
-export type Prismantis<Surface, Drawing> = {
-  markdown: (args: PrismantisMarkdownArgs<Surface>) => Promise<Drawing | undefined>
+export type Ocellus<Surface, Drawing> = {
+  markdown: (args: OcellusMarkdownArgs<Surface>) => Promise<Drawing | undefined>
 }
 
 declare module 'claude-code' {
   interface EngineInterface {
-    prismantis: Prismantis<RenderSurface, RenderElement>
+    ocellus: Ocellus<RenderSurface, RenderElement>
   }
   interface PluginState {
-    prismantis: {
+    ocellus: {
       formulas: Record<string, unknown>
       dir: string
       unfolded: string[]

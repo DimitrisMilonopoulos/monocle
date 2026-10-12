@@ -1,11 +1,13 @@
-<h1 align="center"><img src="docs/brand/banner.png" alt="prismantis" width="640"></h1>
+<h1 align="center"><img src="docs/brand/banner.png" alt="ocellus" width="640"></h1>
 
 <p align="center"><em>Sees 16 colors. Your terminal only had 8.</em></p>
 
+> ocellus is a fork of [prismantis](https://github.com/NahumLitvin/prismantis) by Nahum Litvin. It adds real pixels in kitty: mermaid diagrams rendered by `mmdc`, and previews of the images you paste.
+
 <p align="center">
-  <a href="https://github.com/NahumLitvin/prismantis/releases"><img src="https://img.shields.io/github/v/release/NahumLitvin/prismantis?style=flat-square&color=cba6f7" alt="Release"></a>
-  <a href="https://github.com/NahumLitvin/prismantis/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/NahumLitvin/prismantis/ci.yml?branch=main&style=flat-square&label=ci" alt="CI"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/github/license/NahumLitvin/prismantis?style=flat-square&color=cba6f7" alt="License"></a>
+  <a href="https://github.com/DimitrisMilonopoulos/ocellus/releases"><img src="https://img.shields.io/github/v/release/DimitrisMilonopoulos/ocellus?style=flat-square&color=cba6f7" alt="Release"></a>
+  <a href="https://github.com/DimitrisMilonopoulos/ocellus/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/DimitrisMilonopoulos/ocellus/ci.yml?branch=main&style=flat-square&label=ci" alt="CI"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/DimitrisMilonopoulos/ocellus?style=flat-square&color=cba6f7" alt="License"></a>
   <img src="https://img.shields.io/badge/Claude%20Code-2.1.287%2B-cba6f7?style=flat-square" alt="Claude Code 2.1.287 or later">
 </p>
 
@@ -17,26 +19,26 @@
   <a href="docs/CHANGELOG.md">Changelog</a>
 </p>
 
-![Plain Claude Code replies wiping into prismantis: a table, a bar chart and a mermaid flowchart](docs/tour.gif)
+![Plain Claude Code replies wiping into ocellus: a table, a bar chart and a mermaid flowchart](docs/tour.gif)
 
-<sub>Same prompt, same model: plain Claude Code, then with prismantis. <a href="https://github.com/user-attachments/assets/7f4744fc-ca52-4ea3-adb3-43467190dc62">▶ Watch the full 44-second tour</a> (tables, charts, diagrams, diffs, callouts, right-to-left text).</sub>
+<sub>Same prompt, same model: plain Claude Code, then with ocellus. <a href="https://github.com/user-attachments/assets/7f4744fc-ca52-4ea3-adb3-43467190dc62">▶ Watch the full 44-second tour</a> (tables, charts, diagrams, diffs, callouts, right-to-left text).</sub>
 
 ## TL;DR
 
-- Claude Code prints mermaid as source and tool calls as walls of text. prismantis draws them: real charts and flowcharts, typeset LaTeX math in kitty and Ghostty, colored tables and code, and quiet tool rows.
+- Claude Code prints mermaid as source and tool calls as walls of text. ocellus draws them: real charts and flowcharts, typeset LaTeX math in kitty and Ghostty, colored tables and code, and quiet tool rows.
 - 15 palettes plus `mono`, and copy buttons on everything.
 - Two commands to install, `/plugin` to turn it off. Claude Code's own renderer comes back the moment you do.
 - No network calls. It runs a program only when you click `⧉ html` (the clipboard helper) or turn on LaTeX (RaTeX's renderer).
 
 ```
-/plugin marketplace add NahumLitvin/prismantis
+/plugin marketplace add DimitrisMilonopoulos/ocellus
 ```
 
 ```
-/plugin install prismantis@prismantis
+/plugin install ocellus@ocellus
 ```
 
-Then run `/prismantis demo` for a tour of the main features.
+Then run `/ocellus demo` for a tour of the main features.
 
 ## Install
 
@@ -45,13 +47,13 @@ Requires Claude Code **2.1.287** or later. Run the two commands above.
 To update, run this, then `/reload` in every open session. A session keeps the version it loaded until it reloads.
 
 ```bash
-claude plugin marketplace update prismantis && claude plugin update prismantis@prismantis
+claude plugin marketplace update ocellus && claude plugin update ocellus@ocellus
 ```
 
 To uninstall:
 
 ```bash
-claude plugin uninstall prismantis@prismantis
+claude plugin uninstall ocellus@ocellus
 ```
 
 For LaTeX math, install RaTeX's renderer and set `latex` to `true`; see [LaTeX math](#latex-math). Until then formulas draw as text.
@@ -60,13 +62,13 @@ For LaTeX math, install RaTeX's renderer and set `latex` to `true`; see [LaTeX m
 
 | Feature | What you get |
 | --- | --- |
-| [Themes](#themes) | `/prismantis theme <name>` switches on the spot. 16 themes and 20 color slots you can override |
+| [Themes](#themes) | `/ocellus theme <name>` switches on the spot. 16 themes and 20 color slots you can override |
 | [Tables](#tables) | colored headers, rules, column alignment, colored numbers, sized to the terminal |
 | [Code](#code) | a language header and copy button, Prism highlighting in two dozen languages, shell lines colored like a prompt |
 | [Diagrams and charts](#diagrams-and-charts) | flowcharts, sequence, state, class and ER diagrams, bar and line charts, one color per box, participant and bar |
 | [LaTeX math](#latex-math) | `$$` and ` ```math ` formulas typeset as images in kitty and Ghostty by [RaTeX](https://github.com/erweixin/RaTeX), text everywhere else |
 | [Layout](#layout) | back-to-back tables and diagrams sit side by side and wrap on narrow terminals |
-| [Copy buttons](#copy-buttons) | `⧉ md`, `⧉ art` and `⧉ html` on tables, `[ ⧉ copy ]` on code, lists and quotes, `/prismantis copy` without a mouse |
+| [Copy buttons](#copy-buttons) | `⧉ md`, `⧉ art` and `⧉ html` on tables, `[ ⧉ copy ]` on code, lists and quotes, `/ocellus copy` without a mouse |
 | [Tool rows](#tool-rows) | `Ran gh pr view 12`, `Read ~/src/app.ts`, groups summed up as `Ran 3 commands, read 2 files`, with status dots; `toolOutput: quiet` hides what Claude only read and says in plain words what each call did |
 | [Turn footer](#turn-footer) | `✻ Baked for 6m 20s` with the duration in the number color |
 | [Slash commands](#slash-commands) | command output (`/cost`, `/context`, plugin commands) gets the same tables and code styling |
@@ -75,31 +77,31 @@ For LaTeX math, install RaTeX's renderer and set `latex` to `true`; see [LaTeX m
 | [Headings, lists, quotes](#headings-lists-quotes) | 4 heading styles, nested lists, task lists, quotes with an accent bar |
 | [Your prompts](#your-prompts) | what you type draws in a bubble, an accent bar or a chevron, so you find your turns when you scroll back, and `clock` adds when you sent it and when the turn finished |
 | [Right to left](#right-to-left) | Hebrew and Arabic read right to left, with bullets, quote bars and table columns mirrored |
-| [Other mods](#other-mods) | `$.prismantis.markdown` draws any markdown the way replies are drawn, for mod authors |
+| [Other mods](#other-mods) | `$.ocellus.markdown` draws any markdown the way replies are drawn, for mod authors |
 
 ### Themes
 
 ![The same reply in all 15 color themes, ten dark and five light: a tip box, a task list, a flowchart and a bar chart](docs/themes.png)
 
-![Random theme: plain Claude Code on the left, prismantis with theme random on the right](docs/compare/random-theme.png)
+![Random theme: plain Claude Code on the left, ocellus with theme random on the right](docs/compare/random-theme.png)
 
 Dark: `catppuccin-mocha` (default), `dracula`, `nord`, `tokyo-night`, `gruvbox-dark`, `rose-pine`, `everforest`, `github-dark`, `one-dark`, `solarized-dark`.
 
 Light: `catppuccin-latte`, `gruvbox-light`, `rose-pine-dawn`, `github-light`, `solarized-light`.
 
-`mono` drops the palette for bold and dim; alerts keep their colors. Switch with `/prismantis theme nord`, or run `/prismantis` for the help screen with every theme. Every palette is MIT licensed and credited in [THIRD_PARTY_NOTICES.md](docs/THIRD_PARTY_NOTICES.md).
+`mono` drops the palette for bold and dim; alerts keep their colors. Switch with `/ocellus theme nord`, or run `/ocellus` for the help screen with every theme. Every palette is MIT licensed and credited in [THIRD_PARTY_NOTICES.md](docs/THIRD_PARTY_NOTICES.md).
 
 ### Tables
 
-![Tables: plain Claude Code on the left, prismantis on the right](docs/compare/tables.png)
+![Tables: plain Claude Code on the left, ocellus on the right](docs/compare/tables.png)
 
 Header cells take the `tableHeader` color, and the default `box` style puts a double line under the header. `tableStyle` picks `box` (the default, every cell boxed), `rules`, `grid` or `minimal`. `:---:` and `---:` alignment is honored, numbers in cells get the number color, and columns shrink to fit the terminal.
 
 ### Code
 
-![Code: plain Claude Code on the left, prismantis on the right](docs/compare/code.png)
+![Code: plain Claude Code on the left, ocellus on the right](docs/compare/code.png)
 
-![Code fold: plain Claude Code on the left, prismantis numbering and folding a 45 line block on the right](docs/compare/code-fold.png)
+![Code fold: plain Claude Code on the left, ocellus numbering and folding a 45 line block on the right](docs/compare/code-fold.png)
 
 Each code block gets a header row: the language on the left, a copy button on the right. The code sits indented below with no frame, so selecting it with the mouse copies only the code.
 
@@ -108,11 +110,11 @@ Each code block gets a header row: the language on the left, a copy button on th
 
 ### Diagrams and charts
 
-![Diagrams and charts: plain Claude Code on the left, prismantis on the right](docs/compare/diagrams.png)
+![Diagrams and charts: plain Claude Code on the left, ocellus on the right](docs/compare/diagrams.png)
 
-![Diagrams and charts: plain Claude Code on the left, prismantis on the right](docs/compare/charts.png)
+![Diagrams and charts: plain Claude Code on the left, ocellus on the right](docs/compare/charts.png)
 
-![Diagram too wide: plain Claude Code on the left, prismantis falling back to the source with a note on the right](docs/compare/fallback-note.png)
+![Diagram too wide: plain Claude Code on the left, ocellus falling back to the source with a note on the right](docs/compare/fallback-note.png)
 
 Code blocks tagged `mermaid` draw as colored text art:
 
@@ -126,7 +128,7 @@ Diagrams too wide for the window, or over 80 lines, stay as code. `mermaidAscii`
 
 ### LaTeX math
 
-![LaTeX math: plain Claude Code on the left, prismantis on the right](docs/compare/latex.png)
+![LaTeX math: plain Claude Code on the left, ocellus on the right](docs/compare/latex.png)
 
 Display math, `$$…$$` on lines of its own or a ` ```math ` block, draws as a typeset image in the theme's diagram text color, one formula per line. With copy buttons on, its `⧉ copy` button copies the formula's LaTeX, since selecting an image copies blank cells. It needs [RaTeX](https://github.com/erweixin/RaTeX)'s PNG renderer, a single binary that typesets KaTeX syntax in a few milliseconds without TeX, a browser or Node:
 
@@ -139,25 +141,25 @@ install ratex-cli-*/render ~/.local/bin/ratex-render
 
 Pick the archive for your platform (`x86_64-apple-darwin`, `x86_64-unknown-linux-musl`, ...). Any directory on your `PATH` works, but the file must be named `ratex-render`.
 
-LaTeX is off until you set `latex` to `true`. Then prismantis runs `ratex-render` once in kitty and Ghostty, outside tmux, and keeps LaTeX on only if that test formula comes back. If a later run fails, formulas already drawn stay and new ones stay text until you `/reload`. A reply shown before the test finishes draws its formulas as text, then redraws them as images. Anywhere else, without the renderer, or with `latex` off, formulas draw as text in a `math` code block. So does a formula the renderer rejects, or one too wide for the terminal even at one row. While LaTeX is on, the [diagram hints](#diagram-hints) note also tells Claude that `$$` math renders. Inline `$…$` draws as italic text without its dollar signs, with common commands such as `\rho`, `\cdot` and `\le` shown as symbols; amounts like `$5` stay as written.
+LaTeX is off until you set `latex` to `true`. Then ocellus runs `ratex-render` once in kitty and Ghostty, outside tmux, and keeps LaTeX on only if that test formula comes back. If a later run fails, formulas already drawn stay and new ones stay text until you `/reload`. A reply shown before the test finishes draws its formulas as text, then redraws them as images. Anywhere else, without the renderer, or with `latex` off, formulas draw as text in a `math` code block. So does a formula the renderer rejects, or one too wide for the terminal even at one row. While LaTeX is on, the [diagram hints](#diagram-hints) note also tells Claude that `$$` math renders. Inline `$…$` draws as italic text without its dollar signs, with common commands such as `\rho`, `\cdot` and `\le` shown as symbols; amounts like `$5` stay as written.
 
 Formula text matches the reply text. A terminal image fills whole rows, so a formula that falls between two row counts is rendered again with more padding rather than stretched.
 
 ### Layout
 
-![Layout: plain Claude Code on the left, prismantis on the right](docs/compare/layout.png)
+![Layout: plain Claude Code on the left, ocellus on the right](docs/compare/layout.png)
 
 When tables and diagrams follow each other, they share a row and wrap once the terminal runs out of width. A wide terminal shows a table, a flowchart and two charts side by side.
 
 ### Copy buttons
 
-![Copy buttons: plain Claude Code on the left, prismantis on the right](docs/compare/copy.png)
+![Copy buttons: plain Claude Code on the left, ocellus on the right](docs/compare/copy.png)
 
 - **Tables:** `⧉ md` copies the original Markdown and `⧉ art` a boxed table that pastes well into Slack. `⧉ html` copies a formatted table (headers, alignment, inline formatting) plus a tab-separated plain-text copy.
 - **Code, lists and quotes:** `[ ⧉ copy ]` on each. Code copies without its fences, lists as markdown, quotes without their `> ` markers.
 - **Diagrams:** `⧉ source` copies the mermaid code, `⧉ art` the drawn art.
 - **Whole replies:** replies with more than one block, or any Hebrew or Arabic, end with `⧉ copy reply`, which copies the reply as Claude wrote it. Selecting right-to-left text on screen copies letters in drawn order, not reading order.
-- **No mouse:** `/prismantis copy` copies the last reply, `/prismantis copy code` its last code block.
+- **No mouse:** `/ocellus copy` copies the last reply, `/ocellus copy code` its last code block.
 
 `⧉ html` shows in a local macOS terminal or a Linux graphical session. macOS needs nothing extra. Linux needs [CopyQ](https://copyq.readthedocs.io/en/stable/installation.html) running (see its [Wayland caveats](https://copyq.readthedocs.io/en/stable/known-issues.html#on-linux-some-features-do-not-work-under-wayland)). On Ubuntu:
 
@@ -169,9 +171,9 @@ Clicking works where the terminal passes clicks through, as fullscreen mode does
 
 ### Tool rows
 
-![Tool rows: plain Claude Code on the left, prismantis on the right](docs/compare/tools.png)
+![Tool rows: plain Claude Code on the left, ocellus on the right](docs/compare/tools.png)
 
-![Diff cards: plain Claude Code on the left, prismantis on the right](docs/compare/diff-cards.png)
+![Diff cards: plain Claude Code on the left, ocellus on the right](docs/compare/diff-cards.png)
 
 Each tool call draws as one line: a verb and its target, `Ran` with a colored shell command, `Read` and `Edited` with the path. A status dot shows done, running or failed, and output still draws below.
 
@@ -190,7 +192,7 @@ Collapsed groups draw one line too: `Ran 3 commands, read 2 files · last: npm t
 
 ### Turn footer
 
-![Turn footer: plain Claude Code on the left, prismantis on the right](docs/compare/footer.png)
+![Turn footer: plain Claude Code on the left, ocellus on the right](docs/compare/footer.png)
 
 The line that closes a turn keeps Claude Code's word and colors the duration: `✻ Baked for 6m 20s`. Terminal only, since that's the only surface that draws it.
 
@@ -206,15 +208,15 @@ The note costs about 190 tokens per prompt, and about 60 more while [LaTeX math]
 
 ### Text
 
-![Text: plain Claude Code on the left, prismantis on the right](docs/compare/text.png)
+![Text: plain Claude Code on the left, ocellus on the right](docs/compare/text.png)
 
-![Footnotes: plain Claude Code on the left, prismantis on the right](docs/compare/footnotes.png)
+![Footnotes: plain Claude Code on the left, ocellus on the right](docs/compare/footnotes.png)
 
 **Bold**, *italic*, ~~strikethrough~~, `inline code`, links and bare URLs, clickable as terminal hyperlinks. Numbers, versions (`v2.14.0`), durations (`250ms`, `3h`), sizes (`16Gi`) and percentages (`99.9%`) take the number color, and paths like `~/src/app.ts` the path color.
 
 ### Headings, lists, quotes
 
-![Headings, lists, quotes: plain Claude Code on the left, prismantis on the right](docs/compare/headings.png)
+![Headings, lists, quotes: plain Claude Code on the left, ocellus on the right](docs/compare/headings.png)
 
 `headingStyle` picks `banner` (the default: a box around H1, a heavy rule under H2), `bold`, `underline` or `uppercase`. Terminals have one font size, so headings stand out through style and color.
 
@@ -226,7 +228,7 @@ Task lists draw as `[ ]` and `[✓]`, with done items dimmed and struck through.
 
 ### Your prompts
 
-![Your prompts: plain Claude Code on the left, prismantis on the right](docs/compare/prompts.png)
+![Your prompts: plain Claude Code on the left, ocellus on the right](docs/compare/prompts.png)
 
 What you type, at the prompt or through Remote Control, draws in the theme's colors. `promptStyle` picks the look, and `off` keeps Claude Code's own. Task notifications and teammate messages are left alone.
 
@@ -242,18 +244,18 @@ What you type, at the prompt or through Remote Control, draws in the theme's col
 
 ### Right to left
 
-![Right to left: plain Claude Code on the left, prismantis on the right](docs/compare/rtl.png)
+![Right to left: plain Claude Code on the left, ocellus on the right](docs/compare/rtl.png)
 
-Hebrew and Arabic blocks are right aligned, with bullets, numbers and quote bars on the right and table columns mirrored. Code, numbers, paths and links stay left to right inside them. Terminals treat right-to-left letters differently, so prismantis detects yours and sends the letters the way it needs them. `/prismantis demo-rtl` shows every element, and the `rtl` option forces a terminal's handling or turns it off.
+Hebrew and Arabic blocks are right aligned, with bullets, numbers and quote bars on the right and table columns mirrored. Code, numbers, paths and links stay left to right inside them. Terminals treat right-to-left letters differently, so ocellus detects yours and sends the letters the way it needs them. `/ocellus demo-rtl` shows every element, and the `rtl` option forces a terminal's handling or turns it off.
 
 ## Configure
 
-Open `/config` and look for the **prismantis** rows, or set values in `~/.claude/settings.json`:
+Open `/config` and look for the **ocellus** rows, or set values in `~/.claude/settings.json`:
 
 ```json
 {
   "pluginConfigs": {
-    "prismantis@prismantis": {
+    "ocellus@ocellus": {
       "options": {
         "theme": "tokyo-night",
         "tableStyle": "grid",
@@ -321,7 +323,7 @@ A color is hex (`#a6e3a1`, `#fc0`), `rgb(166,227,161)`, `ansi256(114)` or a name
 - **A diagram shows as code:** its source is over 80 lines or 8,000 characters, it's wider than the window, it doesn't parse, or `mermaid` is off. Widen the terminal or split the diagram.
 - **No `⧉ html` on tables:** you're over SSH, in the desktop app or VS Code, or on Linux with no graphical session. `⧉ md` and `⧉ art` still work.
 - **`⧉ html` copied plain text only:** CopyQ isn't running, or the clipboard helper failed. The toast says why.
-- **Clicking a copy button selects the word "copy":** your terminal copies on select. Use `/prismantis copy`.
+- **Clicking a copy button selects the word "copy":** your terminal copies on select. Use `/ocellus copy`.
 
 ## Limits
 
@@ -336,58 +338,54 @@ A color is hex (`#a6e3a1`, `#fc0`), `rgb(166,227,161)`, `ansi256(114)` or a name
 To change the code, read [AGENTS.md](AGENTS.md) instead.
 
 - **What it is:** a Claude Code mod (function hooks in TypeScript) that redraws assistant replies, slash-command output, tool rows, the turn footer and user prompts. It changes how things look. The one thing it sends the model is the optional diagram hint below.
-- **Install:** `/plugin marketplace add NahumLitvin/prismantis`, then `/plugin install prismantis@prismantis`. Needs Claude Code 2.1.287+. Changes apply after `/reload`.
-- **Configure:** `/prismantis theme <name>` is the only setter at runtime. Every other option is a key under `pluginConfigs["prismantis@prismantis"].options` in `~/.claude/settings.json` (or a row in `/config`), then `/reload`. Options and defaults are in the [Configure](#configure) table; the machine-readable source is `userConfig` in [.claude-plugin/plugin.json](.claude-plugin/plugin.json). Color values that don't parse are ignored.
+- **Install:** `/plugin marketplace add DimitrisMilonopoulos/ocellus`, then `/plugin install ocellus@ocellus`. Needs Claude Code 2.1.287+. Changes apply after `/reload`.
+- **Configure:** `/ocellus theme <name>` is the only setter at runtime. Every other option is a key under `pluginConfigs["ocellus@ocellus"].options` in `~/.claude/settings.json` (or a row in `/config`), then `/reload`. Options and defaults are in the [Configure](#configure) table; the machine-readable source is `userConfig` in [.claude-plugin/plugin.json](.claude-plugin/plugin.json). Color values that don't parse are ignored.
 - **Side effects:** no network. Programs it runs: the `⧉ html` clipboard helper (`/usr/bin/osascript` on macOS, `copyq` on Linux, 5 second timeout, only on a click), and `ratex-render` while `latex` is on. With `diagramHints` on, it adds about 190 tokens of model-only context to each typed prompt.
 - **Turning it off:** `"enabled": false`, or disable the plugin in `/plugin`.
-- **For other mods:** `$.prismantis.markdown({ surface, text, columns })`, typed in [types/index.d.ts](types/index.d.ts). See [Other mods](#other-mods).
+- **For other mods:** `$.ocellus.markdown({ surface, text, columns })`, typed in [types/index.d.ts](types/index.d.ts). See [Other mods](#other-mods).
 
 </details>
-
-## Roadmap
-
-Planned features are on the [roadmap board](https://github.com/users/NahumLitvin/projects/2), one issue each. Give an issue a 👍 to vote for it, or open one for what you miss.
 
 ## Develop
 
 ```bash
-git clone https://github.com/NahumLitvin/prismantis
-claude --plugin-dir ./prismantis
+git clone https://github.com/DimitrisMilonopoulos/ocellus
+claude --plugin-dir ./ocellus
 ```
 
 Edits hot-reload in that session. Before a PR run `claude plugin validate .` and `claude plugin test .`, and print [docs/demo.md](docs/demo.md) to check the look. `npm --prefix scripts run bench` times a full render of the demo reply, so speed claims can be checked on any machine. The full rules and verify loop are in [AGENTS.md](AGENTS.md).
 
 ### Other mods
 
-Other mods can draw markdown in the user's theme with `$.prismantis.markdown`. Pass the surface, the text and the content width in columns.
+Other mods can draw markdown in the user's theme with `$.ocellus.markdown`. Pass the surface, the text and the content width in columns.
 
-- It answers the tree to draw, or `undefined` when prismantis is disabled or the text holds nothing to draw.
-- It throws when prismantis isn't installed, so call it in a `try`.
-- Prismantis draws at least 20 columns wide. Copy buttons are left out, because a button can't cross from one mod to another.
+- It answers the tree to draw, or `undefined` when ocellus is disabled or the text holds nothing to draw.
+- It throws when ocellus isn't installed, so call it in a `try`.
+- Ocellus draws at least 20 columns wide. Copy buttons are left out, because a button can't cross from one mod to another.
 
 ```tsx
 let drawn
 try {
-  drawn = await $.prismantis.markdown({ surface: e.surface, text, columns: e.props.bodyColumns })
+  drawn = await $.ocellus.markdown({ surface: e.surface, text, columns: e.props.bodyColumns })
 } catch {}
 return drawn ?? <Markdown text={text} />
 ```
 
-The types are in [types/index.d.ts](types/index.d.ts). List prismantis under `dependencies` in your `plugin.json` and Claude Code lays them into your `.claude-plugin/types/`. When prismantis is optional, declare the noun in your own contract instead:
+The types are in [types/index.d.ts](types/index.d.ts). List ocellus under `dependencies` in your `plugin.json` and Claude Code lays them into your `.claude-plugin/types/`. When ocellus is optional, declare the noun in your own contract instead:
 
 ```ts
 declare module 'claude-code' {
   interface EngineInterface {
-    prismantis: {
+    ocellus: {
       markdown: (args: { surface: RenderSurface; text: string; columns: number }) => Promise<RenderElement | undefined>
     }
   }
 }
 ```
 
-## Author
+## Credits
 
-Built by [Nahum Litvin](https://github.com/NahumLitvin), who writes about running untrusted code in production at [catchkill9.dev](https://www.catchkill9.dev/).
+ocellus is a fork of [prismantis](https://github.com/NahumLitvin/prismantis), built by [Nahum Litvin](https://github.com/NahumLitvin), who writes about running untrusted code in production at [catchkill9.dev](https://www.catchkill9.dev/). Everything up to 0.17.1 in the [changelog](docs/CHANGELOG.md) is prismantis's work. The fork is maintained by [Dimitrios Milonopoulos](https://github.com/DimitrisMilonopoulos).
 
 ## License
 

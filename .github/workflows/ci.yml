@@ -147,5 +147,5 @@ jobs:
           CLAUDE_CONFIG_DIR: ${{ runner.temp }}/claude
         run: |
           claude plugin marketplace add ./
-          claude plugin install prismantis@prismantis
-          claude plugin list | grep -A3 prismantis | grep -q enabled
+          claude plugin install ocellus@ocellus
+          claude plugin list | grep -A3 ocellus | grep -q enabled
