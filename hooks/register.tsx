@@ -43,7 +43,7 @@ const detectTerminal = async ($: EngineInterface): Promise<Terminal | null> => {
   if ((await $.env.get('KITTY_WINDOW_ID')) || term === 'xterm-kitty') return 'kitty'
   if (program === 'Apple_Terminal') return 'apple-terminal'
   if (program === 'WarpTerminal') return 'warp'
-  if (program === 'ghostty') return 'ghostty'
+  if (program === 'ghostty' || term === 'xterm-ghostty' || (await $.env.get('GHOSTTY_RESOURCES_DIR'))) return 'ghostty'
   if (program === 'WezTerm') return 'wezterm'
   if (program === 'vscode') return 'vscode'
   if (program === 'iTerm.app') return 'iterm'

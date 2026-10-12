@@ -173,6 +173,18 @@ test('mermaidImages off never runs mmdc', { options: { mermaidImages: false } },
   await ui.unmount()
 })
 
+test('a terminal built on libghostty counts as Ghostty by its terminfo name', async ($, on) => {
+  mock.env(on, { TERM: 'xterm-ghostty', TERM_PROGRAM: 'cmux', TMPDIR: '/tmp/', HOME: '/home/me' })
+  const clock = mock.clock(on)
+  mmdc(on)
+
+  const ui = await $.ui.mount(reply(FLOW))
+  await clock.settle()
+
+  expect(await ui.find({ type: 'Image' })).toBeDefined()
+  await ui.unmount()
+})
+
 test('under tmux, diagrams stay text art', async ($, on) => {
   mock.env(on, { ...KITTY, TMUX: '/tmp/tmux-1/default,1,0' })
   const clock = mock.clock(on)
