@@ -163,6 +163,15 @@ xychart-beta
     bar [7, 3, 2, 6, 2]
 \`\`\`
 
+With \`mmdc\` installed, kitty and Ghostty draw every diagram as a real image, even kinds text art can't draw:
+
+\`\`\`mermaid
+pie title Where render time goes
+    "Parse" : 18
+    "Layout" : 42
+    "Paint" : 40
+\`\`\`
+
 A diagram wider than the terminal stays source, with a dim line saying why:
 
 \`\`\`mermaid

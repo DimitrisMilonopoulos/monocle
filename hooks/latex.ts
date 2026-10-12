@@ -41,11 +41,11 @@ export const ratexColor = (color: string): string => {
 
 const MAX_FORMULAS = 50
 
-export const keepFormulas = <T,>(store: Record<string, T>, fresh: readonly (readonly [string, T])[], wanted: ReadonlySet<string>): Record<string, T> => {
+export const keepFormulas = <T,>(store: Record<string, T>, fresh: readonly (readonly [string, T])[], wanted: ReadonlySet<string>, max = MAX_FORMULAS): Record<string, T> => {
   const added = new Set(fresh.map(([key]) => key))
   const entries = [...Object.entries(store).filter(([key]) => !added.has(key)), ...fresh]
   const spare = entries.filter(([key]) => !wanted.has(key) && !added.has(key)).map(([key]) => key)
-  const dropped = new Set(spare.slice(0, Math.max(0, entries.length - MAX_FORMULAS)))
+  const dropped = new Set(spare.slice(0, Math.max(0, entries.length - max)))
   return Object.fromEntries(entries.filter(([key]) => !dropped.has(key)))
 }
 

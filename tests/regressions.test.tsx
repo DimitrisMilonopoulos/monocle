@@ -4,7 +4,7 @@ import { expect, test } from 'claude-code/testing'
 import { helpText, showcaseText } from '../hooks/help'
 import { inlineText, parse } from '../hooks/markdown'
 import { tableHtml, tableText } from '../hooks/html'
-import { inlineMarks, mermaidText, shortenEdgeLabels } from '../hooks/mermaid'
+import { inlineMarks, mermaidText, shortenEdgeLabels, unsupportedKind } from '../hooks/mermaid'
 import { tableArt, width } from '../hooks/render'
 import { PRESETS } from '../hooks/presets'
 import { clipboardEnv, recordCopies } from './clipboard-env'
@@ -309,6 +309,7 @@ test('the help screen shows every element ocellus draws', async () => {
   expect(showcaseText(Object.keys(PRESETS))).toContain('`clock`')
   expect(showcaseText([])).toContain('⧉ html')
   expect(showcaseText([])).toContain('<i>Reply</i>')
+expect(showcaseText([])).toContain('pie title')
   expect(showcaseText([])).toContain('CopyQ')
   expect(showcaseText([])).toContain('plain text')
   expect(blocks.some(b => b.kind === 'table' && b.align.includes('right') && b.align.includes('center'))).toBe(true)
@@ -358,8 +359,10 @@ test('a mounted diagram with wide labels draws its box borders on the same colum
 
 test('every diagram on the help screen draws as art', async () => {
   const diagrams = parse(showcaseText(Object.keys(PRESETS)), hl).flatMap(b => (b.kind === 'code' && b.lang === 'mermaid' ? [b.lines.join('\n')] : []))
-  expect(diagrams.length).toBe(4)
-  for (const source of diagrams) expect(mermaidText(source, false, 100)).not.toBeNull()
+  expect(diagrams.length).toBe(5)
+  const imageOnly = diagrams.filter(source => unsupportedKind(source))
+  expect(imageOnly.map(unsupportedKind)).toEqual(['pie'])
+  for (const source of diagrams.filter(d => !imageOnly.includes(d))) expect(mermaidText(source, false, 100)).not.toBeNull()
 })
 
 test('the help screen fits one screen: few blocks, two alerts, a table, a list and two drawn charts', async () => {

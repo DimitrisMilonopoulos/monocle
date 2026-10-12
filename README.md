@@ -28,7 +28,7 @@
 - Claude Code prints mermaid as source and tool calls as walls of text. ocellus draws them: real charts and flowcharts, typeset LaTeX math in kitty and Ghostty, colored tables and code, and quiet tool rows.
 - 15 palettes plus `mono`, and copy buttons on everything.
 - Two commands to install, `/plugin` to turn it off. Claude Code's own renderer comes back the moment you do.
-- No network calls. It runs a program only when you click `⧉ html` (the clipboard helper) or turn on LaTeX (RaTeX's renderer).
+- No network calls. It runs a program only when you click `⧉ html` (the clipboard helper), turn on LaTeX (RaTeX's renderer), or a reply holds a mermaid diagram and `mmdc` is installed.
 
 ```
 /plugin marketplace add DimitrisMilonopoulos/ocellus
@@ -65,7 +65,7 @@ For LaTeX math, install RaTeX's renderer and set `latex` to `true`; see [LaTeX m
 | [Themes](#themes) | `/ocellus theme <name>` switches on the spot. 16 themes and 20 color slots you can override |
 | [Tables](#tables) | colored headers, rules, column alignment, colored numbers, sized to the terminal |
 | [Code](#code) | a language header and copy button, Prism highlighting in two dozen languages, shell lines colored like a prompt |
-| [Diagrams and charts](#diagrams-and-charts) | flowcharts, sequence, state, class and ER diagrams, bar and line charts, one color per box, participant and bar |
+| [Diagrams and charts](#diagrams-and-charts) | flowcharts, sequence, state, class and ER diagrams, bar and line charts, one color per box, participant and bar; with `mmdc`, real images of every mermaid type in kitty and Ghostty |
 | [LaTeX math](#latex-math) | `$$` and ` ```math ` formulas typeset as images in kitty and Ghostty by [RaTeX](https://github.com/erweixin/RaTeX), text everywhere else |
 | [Layout](#layout) | back-to-back tables and diagrams sit side by side and wrap on narrow terminals |
 | [Copy buttons](#copy-buttons) | `⧉ md`, `⧉ art` and `⧉ html` on tables, `[ ⧉ copy ]` on code, lists and quotes, `/ocellus copy` without a mouse |
@@ -124,7 +124,18 @@ Code blocks tagged `mermaid` draw as colored text art:
 - bars in a multi-series chart get their own colors; a single-series chart prints each value above its bar and colors the tallest one
 - gridlines stay dim, axis numbers use the number color
 
-Diagrams too wide for the window, or over 80 lines, stay as code. `mermaidAscii` swaps box-drawing characters for `+ - |`. Pie charts are not supported.
+Diagrams too wide for the window, or over 80 lines, stay as code. `mermaidAscii` swaps box-drawing characters for `+ - |`.
+
+#### Diagrams as images
+
+In kitty and Ghostty (not under tmux), ocellus renders each mermaid block with [mermaid-cli](https://github.com/mermaid-js/mermaid-cli) and draws it as a real image in the theme's colors. Every mermaid type works this way, including the ones text art can't draw: pie, gantt, mindmap, timeline, quadrant and git graphs. It needs `mmdc` on your `PATH` and a Chrome or Chromium it can start; when puppeteer has no browser of its own, ocellus points it at `/usr/bin/chromium` or another system browser it finds.
+
+- A diagram draws as text art first and turns into an image once `mmdc` is done, about two seconds for the first one. All diagrams in a reply render in one run, and results are kept for the session.
+- An image is sized to match the terminal text and never stretched. A diagram that would have to shrink below half its size to fit stays text art or source.
+- A diagram `mmdc` rejects stays text art or source; the others still render.
+- While it works, the [diagram hints](#diagram-hints) note also tells Claude that every mermaid type renders.
+
+`mermaidImages` turns it off. Without `mmdc`, nothing changes from the text art.
 
 ### LaTeX math
 
@@ -289,6 +300,7 @@ Options sit under `options`, keyed by the plugin's install name. Project setting
 | `rtl` | `auto`, a terminal (`warp`, `kitty`, `apple-terminal`, `iterm`, `ghostty`, `wezterm`, `vscode`, `alacritty`, `windows-terminal`, `gnome`, `konsole`), `off` | `auto` |
 | `mermaid` | `true`, `false` | `true` |
 | `mermaidAscii` | `true`, `false` | `false` |
+| `mermaidImages` | `true`, `false` | `true` |
 | `latex` | `true`, `false` | `false` |
 | `<token>Color` | any color, see below | theme |
 
@@ -340,7 +352,7 @@ To change the code, read [AGENTS.md](AGENTS.md) instead.
 - **What it is:** a Claude Code mod (function hooks in TypeScript) that redraws assistant replies, slash-command output, tool rows, the turn footer and user prompts. It changes how things look. The one thing it sends the model is the optional diagram hint below.
 - **Install:** `/plugin marketplace add DimitrisMilonopoulos/ocellus`, then `/plugin install ocellus@ocellus`. Needs Claude Code 2.1.287+. Changes apply after `/reload`.
 - **Configure:** `/ocellus theme <name>` is the only setter at runtime. Every other option is a key under `pluginConfigs["ocellus@ocellus"].options` in `~/.claude/settings.json` (or a row in `/config`), then `/reload`. Options and defaults are in the [Configure](#configure) table; the machine-readable source is `userConfig` in [.claude-plugin/plugin.json](.claude-plugin/plugin.json). Color values that don't parse are ignored.
-- **Side effects:** no network. Programs it runs: the `⧉ html` clipboard helper (`/usr/bin/osascript` on macOS, `copyq` on Linux, 5 second timeout, only on a click), and `ratex-render` while `latex` is on. With `diagramHints` on, it adds about 190 tokens of model-only context to each typed prompt.
+- **Side effects:** no network. Programs it runs: the `⧉ html` clipboard helper (`/usr/bin/osascript` on macOS, `copyq` on Linux, 5 second timeout, only on a click), `ratex-render` while `latex` is on, and `mmdc` (which starts a headless Chrome) for mermaid blocks while `mermaidImages` is on, in kitty or Ghostty. With `diagramHints` on, it adds about 190 tokens of model-only context to each typed prompt.
 - **Turning it off:** `"enabled": false`, or disable the plugin in `/plugin`.
 - **For other mods:** `$.ocellus.markdown({ surface, text, columns })`, typed in [types/index.d.ts](types/index.d.ts). See [Other mods](#other-mods).
 

@@ -4,6 +4,10 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Added
+
+- Mermaid diagrams draw as real images in kitty and Ghostty when mermaid-cli (`mmdc`) is installed, in the theme's colors, including pie, gantt, mindmap and the other types text art can't draw. Text art shows until the image is ready, and stays for diagrams `mmdc` rejects or that would shrink below half size. `mermaidImages` turns it off.
+
 ### Changed
 
 - Forked from prismantis 0.17.1 as ocellus. The plugin, its `/ocellus` command, its `$.ocellus` noun and its settings key `ocellus@ocellus` are renamed; settings under `prismantis@prismantis` do not carry over.

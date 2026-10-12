@@ -2,6 +2,8 @@ import { atom, read, update } from 'claude-code'
 import type { EngineInterface, Register, RenderElement, RenderSurface } from 'claude-code'
 
 import { clockText, endedAt, promptKey, sentAt, withRecord } from './clock'
+import type { Diagram, Picture } from './diagram'
+import { BROWSERS, MAX_DIAGRAMS, MMDC_SCALE, batchMarkdown, batchOutput, diagramKey, fitDiagram, inlinable, mermaidConfig, mermaidOf } from './diagram'
 import type { Formula } from './latex'
 import { LATEX_DPR, LATEX_FONT_PX, fitsImage, keepFormulas, mathOf, padFor, pickFormula, pngSize, ratexColor, renderedOf } from './latex'
 import type { Block } from './markdown'
@@ -26,6 +28,8 @@ const HINT = [
   'Skip diagrams for simple answers.',
   'Put any command or snippet the user may run or copy in a fenced block with a language tag, never inline code: fenced blocks get a copy button, inline code does not.',
 ].join(' ')
+
+const MERMAID_HINT = 'This terminal also renders ```mermaid blocks as real images, so every mermaid diagram type works here: pie, gantt, mindmap, timeline, quadrantChart, gitGraph and journey as well as flowcharts, sequence, state, class, ER and xychart-beta.'
 
 const LATEX_HINT = 'This terminal typesets LaTeX math: a formula in $$…$$ on lines of its own, or in a ```math block, renders as an image (KaTeX syntax). Inline $…$ does not render, so write inline math as plain text or Unicode.'
 
@@ -68,6 +72,8 @@ const columnsOf = (viewport?: { columns?: number }) => Math.max(20, (viewport?.c
 
 const formulas = atom({ plugin: 'ocellus', key: 'formulas' } as const, {})
 const latexDir = atom({ plugin: 'ocellus', key: 'dir' } as const, '')
+const diagrams = atom({ plugin: 'ocellus', key: 'diagrams' } as const, {})
+const diagramDir = atom({ plugin: 'ocellus', key: 'diagramDir' } as const, '')
 const unfolded = atom({ plugin: 'ocellus', key: 'unfolded' } as const, [] as string[])
 const sent = atom({ plugin: 'ocellus', key: 'sent' } as const, [])
 const turnEnds = atom({ plugin: 'ocellus', key: 'turnEnds' } as const, [])
@@ -187,6 +193,120 @@ const mathOfBlocks = async ($: EngineInterface, latex: LatexSession, surface: st
   }))
 }
 
+type Mermaid = { dir: string; puppeteer?: string }
+type MermaidSession = { style: Style; pending: Set<string>; wanted: Set<string>; batch: { key: string; source: string }[]; engine?: Promise<Mermaid | null>; ready?: Mermaid | null; stopped?: boolean; queue: Promise<void> }
+
+const themeKeys = new WeakMap<Style['theme'], string>()
+
+const themeKeyOf = (theme: Style['theme']): string => {
+  const known = themeKeys.get(theme)
+  if (known) return known
+  let hash = 2166136261
+  for (const ch of JSON.stringify(mermaidConfig(theme))) hash = Math.imul(hash ^ ch.charCodeAt(0), 16777619) >>> 0
+  const key = hash.toString(36)
+  themeKeys.set(theme, key)
+  return key
+}
+
+const tmpDir = async ($: EngineInterface): Promise<string> => ((await $.env.get('TMPDIR')) ?? (await $.env.get('TEMP')) ?? '/tmp').replace(/[\\/]+$/, '')
+
+const startMermaid = async ($: EngineInterface, mermaid: MermaidSession): Promise<Mermaid | null> => {
+  if (!mermaid.style.mermaidImages || !(await $.session.surfaces()).includes('terminal') || !(await showsImages($))) return null
+  const probe = await $.process.run(['mmdc', '--version'], { timeoutMs: 15000 })
+  if (probe.exitCode !== 0) return null
+  const suffix = (await read($, diagramDir)) || crypto.randomUUID()
+  await update($, diagramDir, () => suffix)
+  const dir = `${await tmpDir($)}/ocellus-mermaid-${await $.session.id()}-${suffix}`
+  const home = await $.env.get('HOME')
+  const bundled = (await $.env.get('PUPPETEER_CACHE_DIR')) ?? (home ? `${home}/.cache/puppeteer` : '')
+  if ((await $.env.get('PUPPETEER_EXECUTABLE_PATH')) || (bundled && (await $.fs.exists(bundled)))) return { dir }
+  for (const browser of BROWSERS) {
+    if (!(await $.fs.exists(browser))) continue
+    const puppeteer = `${dir}/puppeteer.json`
+    await $.fs.write(puppeteer, JSON.stringify({ executablePath: browser }))
+    return { dir, puppeteer }
+  }
+  return { dir }
+}
+
+const mermaidEngine = ($: EngineInterface, mermaid: MermaidSession): Promise<Mermaid | null> =>
+  (mermaid.engine ??= startMermaid($, mermaid)
+    .catch(() => null)
+    .then(engine => {
+      mermaid.ready = engine
+      if (engine) $.ui.invalidate('ui.render')
+      return engine
+    }))
+
+const stopMermaid = (mermaid: MermaidSession) => {
+  mermaid.stopped = true
+  mermaid.pending.clear()
+  mermaid.batch = []
+}
+
+const renderDiagrams = async ($: EngineInterface, engine: Mermaid, theme: Style['theme'], sources: readonly string[]): Promise<Diagram[]> => {
+  const batch = crypto.randomUUID().slice(0, 8)
+  const input = `${engine.dir}/${batch}.md`
+  const config = `${engine.dir}/${batch}.json`
+  await $.fs.write(config, JSON.stringify(mermaidConfig(theme)))
+  await $.fs.write(input, batchMarkdown(sources))
+  const argv = ['mmdc', '-q', '-i', input, '-o', `${engine.dir}/${batch}.png`, '-c', config, '-b', 'transparent', '-s', String(MMDC_SCALE), '-j', '1', ...(engine.puppeteer ? ['-p', engine.puppeteer] : [])]
+  const { exitCode } = await $.process.run(argv, { timeoutMs: Math.min(120000, 20000 + 5000 * sources.length) })
+  const results = await Promise.all(sources.map(async (_, i): Promise<Diagram> => {
+    const file = batchOutput(engine.dir, batch, i)
+    const png = await $.fs.read(file, { as: 'bytes' }).then(r => r.base64, () => '')
+    const size = png ? pngSize(png) : null
+    return size ? { file, ...size, ...(inlinable(png) ? { png } : {}) } : { error: true }
+  }))
+  if (exitCode === 0 || sources.length === 1) return results
+  const retried: Diagram[] = []
+  for (const [i, result] of results.entries()) retried.push('error' in result ? (await renderDiagrams($, engine, theme, [sources[i]!]))[0]! : result)
+  return retried
+}
+
+const renderLater = async ($: EngineInterface, mermaid: MermaidSession, items: { key: string; source: string }[]): Promise<void> => {
+  const engine = await mermaidEngine($, mermaid)
+  if (!engine || mermaid.stopped) return
+  const results = await renderDiagrams($, engine, mermaid.style.theme, items.map(item => item.source)).catch(() => null)
+  if (!results) return stopMermaid(mermaid)
+  const fresh = items.map((item, i) => [item.key, results[i]!] as const)
+  await update($, diagrams, store => keepFormulas(store, fresh, mermaid.wanted, MAX_DIAGRAMS))
+  mermaid.wanted.clear()
+  for (const item of items) mermaid.pending.delete(item.key)
+}
+
+const diagramsOfBlocks = async ($: EngineInterface, mermaid: MermaidSession, surface: string, blocks: Block[]): Promise<Map<number, Picture>> => {
+  if (surface !== 'terminal' || !mermaid.style.mermaidImages) return new Map()
+  const themeKey = themeKeyOf(mermaid.style.theme)
+  const found = [...blocks.entries()].flatMap(([i, block]) => {
+    const source = mermaidOf(block)
+    return source === null ? [] : [{ i, source, key: diagramKey(themeKey, source) }]
+  })
+  if (found.length === 0) return new Map()
+  void mermaidEngine($, mermaid)
+  if (!mermaid.ready) return new Map()
+  for (const { key } of found) mermaid.wanted.add(key)
+  const store = (await read($, diagrams)) as Record<string, Diagram>
+  const missing = mermaid.stopped ? [] : [...new Map(found.map(({ key, source }) => [key, source]))].filter(([key]) => !store[key] && !mermaid.pending.has(key))
+  if (missing.length) {
+    if (mermaid.batch.length === 0) {
+      $.clock.after(0, () => {
+        const items = mermaid.batch
+        mermaid.batch = []
+        mermaid.queue = mermaid.queue.then(() => renderLater($, mermaid, items)).catch(() => stopMermaid(mermaid))
+      })
+    }
+    for (const [key, source] of missing) {
+      mermaid.pending.add(key)
+      mermaid.batch.push({ key, source })
+    }
+  }
+  return new Map(found.flatMap(({ i, key }) => {
+    const diagram = store[key]
+    return diagram && !('error' in diagram) ? [[i, diagram] as const] : []
+  }))
+}
+
 const locate = async ($: EngineInterface, style: Style) => {
   style.cwd = await $.session.root().catch(() => style.cwd)
   style.home ||= (await $.env.get('HOME').catch(() => undefined)) ?? (await $.env.get('USERPROFILE').catch(() => undefined)) ?? ''
@@ -222,7 +342,7 @@ const folder = ($: EngineInterface, el: ReturnType<EngineInterface['ui']['resolv
   return { folded, element: <el.Button key={key} variant="secondary" label={folded ? `+${hidden} more lines` : 'show less'} onPress={() => update($, unfolded, ids => (folded ? [...ids, id].slice(-500) : ids.filter(x => x !== id)))} /> }
 }
 
-const drawMarkdown = ($: EngineInterface, el: ReturnType<EngineInterface['ui']['resolve']>, style: Style, blocks: ReturnType<typeof parse>, columns: number, math: Map<number, Typeset> = new Map(), reply?: string, open?: string[]): RenderElement[] => {
+const drawMarkdown = ($: EngineInterface, el: ReturnType<EngineInterface['ui']['resolve']>, style: Style, blocks: ReturnType<typeof parse>, columns: number, math: Map<number, Typeset> = new Map(), reply?: string, open?: string[], pictures: Map<number, Picture> = new Map()): RenderElement[] => {
   const { Button } = el
   const copy = (text: string | (() => string), key: string, label = '⧉ copy', html?: () => string) => {
     const copied = async (surface: RenderSurface): Promise<string> => {
@@ -244,10 +364,18 @@ const drawMarkdown = ($: EngineInterface, el: ReturnType<EngineInterface['ui']['
     ) : null
   }
   const drawn: Drawn = new Map()
+  const Image = 'Image' in el ? el.Image : null
   if (style.mermaid) {
     for (const [i, block] of blocks.entries()) {
       if (block.kind !== 'code' || block.lang.toLowerCase() !== 'mermaid') continue
       const source = block.lines.join('\n')
+      const picture = Image ? pictures.get(i) : undefined
+      const fit = picture ? fitDiagram(picture, columns) : null
+      if (Image && picture && fit) {
+        const alt = `mermaid: ${source.trim().split('\n')[0]!.trim()}`
+        drawn.set(i, { element: <el.Box key={`b${i}`} paddingLeft={2}><Image source={picture.png ? { png: picture.png } : { file: picture.file, format: 'png' }} columns={fit.columns} rows={fit.rows} alt={alt} /></el.Box> })
+        continue
+      }
       let narrowest = Infinity
       for (const max of [Infinity, 24, 12]) {
         const art = mermaidText(max === Infinity ? source : shortenEdgeLabels(source, max), style.mermaidAscii, columns)
@@ -263,7 +391,6 @@ const drawMarkdown = ($: EngineInterface, el: ReturnType<EngineInterface['ui']['
       }
     }
   }
-  const Image = 'Image' in el ? el.Image : null
   if (Image) {
     for (const [i, formula] of math) {
       const picked = pickFormula(formula, columns)
@@ -290,6 +417,7 @@ export const register: Register = (on, options) => {
   const shared = new Map<string, ReturnType<typeof parse>>()
   let terminal: Terminal | null = null
   const fit = (viewport?: { isFullscreen?: boolean }): Style => (terminal === 'apple-terminal' && viewport?.isFullscreen ? { ...style, shape: 'inverse' } : style)
+  const mermaid: MermaidSession = { style, pending: new Set(), wanted: new Set(), batch: [], queue: Promise.resolve() }
   const latex: LatexSession = { style, color: ratexColor(style.theme.diagramText ?? style.theme.codeText ?? '#808080'), pending: new Set(), wanted: new Set(), batch: [], queue: Promise.resolve() }
   const forSurface = (base: Style, surface: RenderSurface): Style => (surface === 'terminal' || !base.htmlCopy ? base : { ...base, htmlCopy: null })
   const fullWidth = (text: string) => (style.reorder && hasRtl(text) ? { width: '100%' as const } : {})
@@ -332,6 +460,7 @@ export const register: Register = (on, options) => {
   on('session.start', async ($, e, next) => {
     terminal = await probe($, style, probes)
     void latexEngine($, latex)
+    void mermaidEngine($, mermaid)
     const started = await next(e)
     await $.command
       .register({ name: 'ocellus', description: 'Switch the ocellus theme, copy the last reply, or show the demo', argumentHint: '[theme [<name> | random] | copy [code] | demo]' })
@@ -391,7 +520,8 @@ export const register: Register = (on, options) => {
     terminal = await probe($, style, probes)
     if (!style.diagramHints || (e.origin.kind !== 'composer' && e.origin.kind !== 'bridge')) return next(e)
     void latexEngine($, latex)
-    const hints = latex.ready && !latex.stopped ? [HINT, LATEX_HINT] : [HINT]
+    void mermaidEngine($, mermaid)
+    const hints = [HINT, ...(mermaid.ready && !mermaid.stopped ? [MERMAID_HINT] : []), ...(latex.ready && !latex.stopped ? [LATEX_HINT] : [])]
     return next({ ...e, context: [...(e.context ?? []), ...hints] })
   })
 
@@ -403,8 +533,9 @@ export const register: Register = (on, options) => {
     const el = $.ui.resolve(e)
     const { Box } = el
     const math = await mathOfBlocks($, latex, e.surface, blocks)
+    const pictures = await diagramsOfBlocks($, mermaid, e.surface, blocks)
     const open = await read($, unfolded)
-    return <Box flexDirection="column" rowGap={1} {...fullWidth(e.props.text)}>{drawMarkdown($, el, forSurface(fit(e.viewport), e.surface), blocks, columnsOf(e.viewport), math, undefined, open)}</Box>
+    return <Box flexDirection="column" rowGap={1} {...fullWidth(e.props.text)}>{drawMarkdown($, el, forSurface(fit(e.viewport), e.surface), blocks, columnsOf(e.viewport), math, undefined, open, pictures)}</Box>
   })
 
   on('ui.render', { component: 'UserMessage' }, async ($, e, next) => {
@@ -424,6 +555,7 @@ export const register: Register = (on, options) => {
     const { Box, Text } = el
     const narration = style.toolStyle === 'tree-bold' && blocks.length === 1 && blocks[0]!.kind === 'paragraph'
     const math = await mathOfBlocks($, latex, e.surface, blocks)
+    const pictures = await diagramsOfBlocks($, mermaid, e.surface, blocks)
     const surfaceStyle = forSurface(fit(e.viewport), e.surface)
     const open = await read($, unfolded)
     return (
@@ -432,7 +564,7 @@ export const register: Register = (on, options) => {
           <Text color={style.theme.accent}>{e.props.isFirstOfReply ? '●' : ' '}</Text>
         </Box>
         <Box flexDirection="column" rowGap={1} flexGrow={1}>
-          {drawMarkdown($, el, narration ? { ...surfaceStyle, narration } : surfaceStyle, blocks, columnsOf(e.viewport), math, blocks.length > 1 || hasRtl(e.props.text) ? e.props.text : undefined, open)}
+          {drawMarkdown($, el, narration ? { ...surfaceStyle, narration } : surfaceStyle, blocks, columnsOf(e.viewport), math, blocks.length > 1 || hasRtl(e.props.text) ? e.props.text : undefined, open, pictures)}
         </Box>
       </Box>
     )

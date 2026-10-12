@@ -16,6 +16,8 @@ declare module 'claude-code' {
     ocellus: {
       formulas: Record<string, unknown>
       dir: string
+      diagrams: Record<string, unknown>
+      diagramDir: string
       unfolded: string[]
       sent: { text: string; at: number }[]
       turnEnds: { durationMs: number; at: number }[]
