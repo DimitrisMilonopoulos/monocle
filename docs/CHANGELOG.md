@@ -11,6 +11,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Added
 
+- Images you paste show under your prompt in kitty and Ghostty instead of only `[Image #1]`; in kitty, click one to see it full screen.
 - `#` and `##` headings draw larger in kitty and Ghostty, three and two rows tall, rendered by ImageMagick in the terminal's own bold font. `headingImages` turns it off.
 - Mermaid diagrams draw as real images in kitty and Ghostty when mermaid-cli (`mmdc`) is installed, in the theme's colors, including pie, gantt, mindmap and the other types text art can't draw. Text art shows until the image is ready, and stays for diagrams `mmdc` rejects or that would shrink below half size. `mermaidImages` turns it off.
 - In kitty, clicking a diagram image or its `⤢ zoom` button opens it full screen in a kitty overlay, rendered again at twice the resolution.

@@ -33,6 +33,7 @@ export type Style = {
   copyButtons: boolean
   htmlCopy: ClipboardBackend | null
   zoom?: boolean
+  images?: boolean
   diagramHints: boolean
   rtl: 'auto' | Terminal | 'off'
   reorder: boolean

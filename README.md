@@ -250,6 +250,8 @@ What you type, at the prompt or through Remote Control, draws in the theme's col
 |---|---|---|
 | ![a prompt in a rounded box](docs/prompts/bubble.png) | ![a prompt with an accent bar](docs/prompts/bar.png) | ![a prompt with a bold chevron](docs/prompts/chevron.png) |
 
+Images you paste show under the prompt that carried them, in kitty and Ghostty (not under tmux), instead of only `[Image #1]`: up to 12 rows tall, keeping their shape. In kitty, click one to see it full screen in the same overlay diagrams use. A pasted JPEG, GIF or WebP is converted to PNG with ImageMagick first; without it, only PNGs show.
+
 `clock` adds the time: each prompt shows when you sent it, and the line that closes each turn when it finished (`✻ Baked for 1m 55s · 14:32`). It reads `24h` or `12h`, and a time from another day gets its date. With `promptStyle: off` the time goes in front of Claude Code's own prompt row. Off by default.
 
 | `clock: 24h` on a prompt | and on a turn's last line |

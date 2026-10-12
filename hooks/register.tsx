@@ -5,6 +5,8 @@ import { clockText, endedAt, promptKey, sentAt, withRecord } from './clock'
 import type { Diagram, Picture } from './diagram'
 import { BROWSERS, MAX_DIAGRAMS, MMDC_SCALE, batchMarkdown, batchOutput, colorHex, diagramKey, fitDiagram, inlinable, mermaidConfig, mermaidOf } from './diagram'
 import type { HeadingSource } from './heading'
+import type { PastedSource } from './paste'
+import { fitPreview, imageRefs, pastedImages } from './paste'
 import { HEADING_PX_PER_ROW, KITTY_FONT, fitHeading, headingColor, headingRows, headingSource, parseHeadingSource, wrapHeading } from './heading'
 import type { Formula } from './latex'
 import { LATEX_DPR, LATEX_FONT_PX, fitsImage, keepFormulas, mathOf, padFor, pickFormula, pngSize, ratexColor, renderedOf } from './latex'
@@ -52,10 +54,9 @@ const detectTerminal = async ($: EngineInterface): Promise<Terminal | null> => {
   return null
 }
 
-const applyRtl = async ($: EngineInterface, style: Style): Promise<Terminal | null> => {
+const applyRtl = (style: Style, terminal: Terminal | null): Terminal | null => {
   if (style.rtl === 'off') return null
   if (style.rtl !== 'auto') return style.rtl
-  const terminal = await detectTerminal($)
   style.reorder = terminal !== null
   if (terminal) style.shape = TERMINALS[terminal]
   return terminal
@@ -406,39 +407,127 @@ const headingsOfBlocks = async ($: EngineInterface, headed: Painter, surface: st
 const ZOOM_SCALE = 4
 const ZOOM_VIEW = `kitty +kitten icat --scale-up --align center "$1"; printf '\\n  [Enter to close] '; read -r _`
 
+type ZoomTarget = { kind: 'mermaid'; source: string } | { kind: 'image'; id: number }
+
 const zoomable = {
-  sources: new Map<string, string>(),
+  targets: new Map<string, ZoomTarget>(),
   session: undefined as MermaidSession | undefined,
-  add(source: string): string {
-    const id = hashOf(source)
-    this.sources.delete(id)
-    this.sources.set(id, source)
-    if (this.sources.size > 200) this.sources.delete(this.sources.keys().next().value!)
+  add(target: ZoomTarget): string {
+    const id = target.kind === 'mermaid' ? hashOf(target.source) : `image-${target.id}`
+    this.targets.delete(id)
+    this.targets.set(id, target)
+    if (this.targets.size > 200) this.targets.delete(this.targets.keys().next().value!)
     return id
   },
 }
 
-const zoomIn = async ($: EngineInterface, mermaid: MermaidSession, source: string): Promise<string | null> => {
-  const window = await $.env.get('KITTY_WINDOW_ID')
-  if (!window) return 'Full screen needs kitty'
-  const engine = (await painterEngine($, mermaid)) as Mermaid | null
-  if (!engine) return 'mmdc is not available'
+type Preview = Picture & PastedSource
+const pastes = { images: new Map<number, Preview | { error: true }>(), loading: false, triedAt: -Infinity, dir: '' }
+
+const pasteDir = async ($: EngineInterface): Promise<string> => {
+  if (pastes.dir) return pastes.dir
+  const dir = await workDir($, 'paste')
+  await $.fs.write(`${dir}/.ocellus`, '')
+  pastes.dir = dir
+  return dir
+}
+
+const pasteFile = async ($: EngineInterface, id: number, source: PastedSource): Promise<string | null> => {
+  const file = `${await pasteDir($)}/image-${id}.png`
+  const decode = source.mediaType === 'image/png' ? 'base64 -d > "$1"' : 'base64 -d | magick - "png:$1"'
+  const result = await $.process.run(['sh', '-c', decode, 'paste', file], { stdin: source.data, timeoutMs: 20000 }).catch(() => null)
+  return result?.exitCode === 0 ? file : null
+}
+
+const previewOf = async ($: EngineInterface, id: number, source: PastedSource): Promise<Preview | { error: true }> => {
+  const size = source.mediaType === 'image/png' ? pngSize(source.data) : null
+  if (size && inlinable(source.data)) return { png: source.data, file: '', ...size, ...source }
+  const file = await pasteFile($, id, source)
+  const png = file ? await $.fs.read(file, { as: 'bytes' }).then(r => r.base64, () => '') : ''
+  const read = png ? pngSize(png) : null
+  return file && read ? { file, ...read, ...(inlinable(png) ? { png } : {}), ...source } : { error: true }
+}
+
+const loadPastes = async ($: EngineInterface): Promise<void> => {
+  const messages = await $.session.messages({ as: 'api' })
+  let added = false
+  for (const [id, source] of pastedImages(messages)) {
+    if (pastes.images.has(id)) continue
+    pastes.images.set(id, await previewOf($, id, source))
+    added = true
+  }
+  if (added) $.ui.invalidate('ui.render')
+}
+
+const previewsOf = async ($: EngineInterface, text: string): Promise<{ id: number; preview: Preview }[]> => {
+  const ids = imageRefs(text)
+  if (ids.length === 0) return []
+  const now = await $.clock.now()
+  if (ids.some(id => !pastes.images.has(id)) && !pastes.loading && now - pastes.triedAt > 1000) {
+    pastes.loading = true
+    pastes.triedAt = now
+    $.clock.after(0, () => void loadPastes($).catch(() => undefined).finally(() => (pastes.loading = false)))
+  }
+  return ids.flatMap(id => {
+    const preview = pastes.images.get(id)
+    return preview && !('error' in preview) ? [{ id, preview }] : []
+  })
+}
+
+const zoomFile = async ($: EngineInterface, target: ZoomTarget): Promise<{ file: string } | { failure: string }> => {
+  if (target.kind === 'image') {
+    const preview = pastes.images.get(target.id)
+    if (!preview || 'error' in preview) return { failure: 'That image is gone' }
+    const file = preview.file || (await pasteFile($, target.id, preview))
+    return file ? { file } : { failure: 'Could not write the image' }
+  }
+  const mermaid = zoomable.session
+  const engine = mermaid ? ((await painterEngine($, mermaid)) as Mermaid | null) : null
+  if (!mermaid || !engine) return { failure: 'mmdc is not available' }
   const name = `${engine.dir}/zoom-${crypto.randomUUID().slice(0, 8)}`
   await $.fs.write(`${name}.json`, JSON.stringify(mermaidConfig(mermaid.style.theme)))
-  await $.fs.write(`${name}.mmd`, source)
+  await $.fs.write(`${name}.mmd`, target.source)
   const render = await $.process.run(['mmdc', '-q', '-i', `${name}.mmd`, '-o', `${name}.png`, '-c', `${name}.json`, '-b', 'transparent', '-s', String(ZOOM_SCALE), '-j', '1', ...(engine.puppeteer ? ['-p', engine.puppeteer] : [])], { timeoutMs: 60000 })
-  if (render.exitCode !== 0) return `mmdc failed: ${render.stderr.trim().split('\n')[0] ?? render.exitCode}`
-  const launch = await $.process.run(['kitty', '@', 'launch', '--match', `window_id:${window}`, '--next-to', `id:${window}`, '--type=overlay', '--title=diagram', '--', 'sh', '-c', ZOOM_VIEW, 'zoom', `${name}.png`], { timeoutMs: 10000 })
+  return render.exitCode === 0 ? { file: `${name}.png` } : { failure: `mmdc failed: ${render.stderr.trim().split('\n')[0] ?? render.exitCode}` }
+}
+
+const zoomIn = async ($: EngineInterface, target: ZoomTarget): Promise<string | null> => {
+  const window = await $.env.get('KITTY_WINDOW_ID')
+  if (!window) return 'Full screen needs kitty'
+  const shown = await zoomFile($, target)
+  if ('failure' in shown) return shown.failure
+  const launch = await $.process.run(['kitty', '@', 'launch', '--match', `window_id:${window}`, '--next-to', `id:${window}`, '--type=overlay', `--title=${target.kind === 'image' ? 'image' : 'diagram'}`, '--', 'sh', '-c', ZOOM_VIEW, 'zoom', shown.file], { timeoutMs: 10000 })
   return launch.exitCode === 0 ? null : `kitty refused the overlay: ${launch.stderr.trim().split('\n')[0] ?? launch.exitCode}`
 }
 
 const openZoom = async ($: EngineInterface, id: string): Promise<void> => {
-  const source = zoomable.sources.get(id)
-  const mermaid = zoomable.session
-  if (source === undefined || !mermaid) return
-  $.ui.toast('Opening the diagram full screen…')
-  const failure = await zoomIn($, mermaid, source).catch(() => 'Could not open the diagram')
+  const target = zoomable.targets.get(id)
+  if (!target) return
+  $.ui.toast(target.kind === 'image' ? 'Opening the image full screen…' : 'Opening the diagram full screen…')
+  const failure = await zoomIn($, target).catch(() => 'Could not open it')
   if (failure) $.ui.toast(failure)
+}
+
+const zoomBox = (el: ReturnType<EngineInterface['ui']['resolve']>, style: Style, image: RenderElement, id: string, fit: { columns: number; rows: number }, key: string): RenderElement =>
+  'Client' in el && style.zoom ? (
+    <el.Box key={key} width={fit.columns} height={fit.rows}>
+      {image}
+      <el.Box position="absolute" top={0} left={0}>
+        <el.Client key={`zoom-${id}`} module="./zoom.tsx" props={{ id, columns: fit.columns, rows: fit.rows }} width={fit.columns} height={fit.rows} />
+      </el.Box>
+    </el.Box>
+  ) : image
+
+const drawPreviews = ($: EngineInterface, el: ReturnType<EngineInterface['ui']['resolve']>, style: Style, previews: { id: number; preview: Preview }[], columns: number): RenderElement | null => {
+  const Image = 'Image' in el ? el.Image : null
+  if (!Image || previews.length === 0) return null
+  const shown = previews.flatMap(({ id, preview }) => {
+    const fit = fitPreview(preview, columns - 2)
+    if (!fit) return []
+    const image = <Image key={`img${id}`} source={preview.png ? { png: preview.png } : { file: preview.file, format: 'png' }} columns={fit.columns} rows={fit.rows} alt={`[Image #${id}]`} />
+    return [zoomBox(el, style, image, zoomable.add({ kind: 'image', id }), fit, `paste${id}`)]
+  })
+  return shown.length ? <el.Box key="pasted" flexDirection="column" rowGap={1} paddingLeft={2}>{shown}</el.Box> : null
 }
 
 const locate = async ($: EngineInterface, style: Style) => {
@@ -456,15 +545,19 @@ const htmlBackend = async ($: EngineInterface): Promise<ClipboardBackend | null>
 const zoomBackend = async ($: EngineInterface): Promise<boolean> =>
   !!(await $.env.get('KITTY_WINDOW_ID')) && !(await $.env.get('TMUX')) && !(await $.env.get('SSH_CONNECTION')) && !(await $.env.get('SSH_TTY'))
 
-type Probes = { terminal?: Promise<Terminal | null>; htmlCopy?: Promise<ClipboardBackend | null>; zoom?: Promise<boolean> }
+type Probes = { detected?: Promise<Terminal | null>; terminal?: Promise<Terminal | null>; htmlCopy?: Promise<ClipboardBackend | null>; zoom?: Promise<boolean>; images?: Promise<boolean> }
 
 const probe = async ($: EngineInterface, style: Style, probes: Probes): Promise<Terminal | null> => {
-  probes.terminal ??= applyRtl($, style)
+  probes.detected ??= detectTerminal($)
+  const detected = await probes.detected
+  probes.terminal ??= Promise.resolve(applyRtl(style, detected))
   const terminal = await probes.terminal
   probes.htmlCopy ??= htmlBackend($)
   style.htmlCopy = await probes.htmlCopy
   probes.zoom ??= zoomBackend($)
   style.zoom = await probes.zoom
+  probes.images ??= $.env.get('TMUX').then(tmux => !tmux && (detected === 'kitty' || detected === 'ghostty'))
+  style.images = await probes.images
   return terminal
 }
 
@@ -512,18 +605,9 @@ const drawMarkdown = ($: EngineInterface, el: ReturnType<EngineInterface['ui']['
       const fit = picture ? fitDiagram(picture, columns) : null
       if (Image && picture && fit) {
         const alt = `mermaid: ${source.trim().split('\n')[0]!.trim()}`
-        const id = zoomable.add(source)
+        const id = zoomable.add({ kind: 'mermaid', source })
         const image = <Image key={`img${i}`} source={picture.png ? { png: picture.png } : { file: picture.file, format: 'png' }} columns={fit.columns} rows={fit.rows} alt={alt} />
-        const element = 'Client' in el && style.zoom ? (
-          <el.Box key={`b${i}`} paddingLeft={2}>
-            <el.Box key={`zoom${i}`} width={fit.columns} height={fit.rows}>
-              {image}
-              <el.Box position="absolute" top={0} left={0}>
-                <el.Client key={`zoom-${id}`} module="./zoom.tsx" props={{ id, columns: fit.columns, rows: fit.rows }} width={fit.columns} height={fit.rows} />
-              </el.Box>
-            </el.Box>
-          </el.Box>
-        ) : <el.Box key={`b${i}`} paddingLeft={2}>{image}</el.Box>
+        const element = <el.Box key={`b${i}`} paddingLeft={2}>{zoomBox(el, style, image, id, fit, `zoom${i}`)}</el.Box>
         const button = style.zoom ? <el.Button key={`zoombtn${i}`} variant="primary" label="⤢ zoom" onPress={() => void openZoom($, id)} /> : undefined
         drawn.set(i, { element, button })
         continue
@@ -707,8 +791,12 @@ export const register: Register = (on, options) => {
     if (!own) return next(e)
     const at = style.clock === 'off' ? undefined : sentAt(await read($, sent), e.props.text, await firstDrawn($, e.requestId))
     const time = at === undefined ? undefined : clockText(at, await $.clock.now(), style.clock)
-    if (style.promptStyle === 'off') return time === undefined ? next(e) : next({ ...e, props: { ...e.props, text: `[${time}] ${e.props.text}` } })
-    return renderUserPrompt($.ui.resolve(e), fit(e.viewport), e.props.text, columnsOf(e.viewport), time)
+    const prompt = style.promptStyle === 'off'
+      ? await (time === undefined ? next(e) : next({ ...e, props: { ...e.props, text: `[${time}] ${e.props.text}` } }))
+      : renderUserPrompt($.ui.resolve(e), fit(e.viewport), e.props.text, columnsOf(e.viewport), time)
+    const el = $.ui.resolve(e)
+    const pasted = e.surface === 'terminal' && style.images ? drawPreviews($, el, style, await previewsOf($, e.props.text), columnsOf(e.viewport)) : null
+    return pasted ? <el.Box flexDirection="column" rowGap={1}>{prompt}{pasted}</el.Box> : prompt
   })
 
   on('ui.render', { component: 'AssistantMessage' }, async ($, e, next) => {
