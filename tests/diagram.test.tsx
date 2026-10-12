@@ -14,15 +14,17 @@ const BAD = '```mermaid\ngraph LR\n  A --> \n```'
 
 type Run = { argv: readonly string[]; sources: string[] }
 
+const base = (path: string) => path.replace(/\\/g, '/').split('/').pop() ?? path
+
 const mmdc = (on: On, { installed = true, broken = (_: string): boolean => false }: { installed?: boolean; broken?: (source: string) => boolean } = {}) => {
   const runs: Run[] = []
   const kitty: (readonly string[])[] = []
   const written = new Map<string, string>()
   on('session.surfaces', () => ({ value: ['terminal'] as const }))
   on('session.id', () => ({ value: 'sess-1' }))
-  on('fs.exists', (_, e) => ({ value: e.path === '/usr/bin/chromium' }))
+  on('fs.exists', (_, e) => ({ value: e.path.replace(/\\/g, '/').endsWith('/usr/bin/chromium') }))
   on('fs.write', (_, e) => {
-    written.set(e.path, e.text)
+    written.set(base(e.path), e.text)
     return { value: undefined }
   })
   on('process.run', (_, e) => {
@@ -32,15 +34,15 @@ const mmdc = (on: On, { installed = true, broken = (_: string): boolean => false
     }
     if (e.argv[0] !== 'mmdc' || !installed) return { deny: `spawn ${e.argv[0]} ENOENT` }
     const input = e.argv[e.argv.indexOf('-i') + 1]
-    const sources = input ? [...(written.get(input) ?? '').matchAll(/```mermaid\n([\s\S]*?)\n```/g)].map(m => m[1]!) : []
+    const sources = input ? [...(written.get(base(input)) ?? '').matchAll(/```mermaid\n([\s\S]*?)\n```/g)].map(m => m[1]!) : []
     if (e.argv.includes('-i')) runs.push({ argv: e.argv, sources })
     const failed = sources.some(broken)
     return { value: { exitCode: failed ? 1 : 0, stdout: '', stderr: failed ? 'Parse error' : '', isStdoutTruncated: false, isStderrTruncated: false } }
   })
   on('fs.read', (_, e) => {
-    const match = /\/([0-9a-f]{8})-(\d+)\.png$/.exec(e.path)
-    const run = runs.find(r => r.argv.includes(e.path.replace(/-\d+\.png$/, '.png')))
-    if (/\/zoom-[0-9a-f]{8}\.png$/.test(e.path)) return { value: { base64: PNG_800x400 } }
+    const match = /^([0-9a-f]{8})-(\d+)\.png$/.exec(base(e.path))
+    const run = match ? runs.find(r => r.argv.some(a => base(a) === `${match[1]}.png`)) : undefined
+    if (/^zoom-[0-9a-f]{8}\.png$/.test(base(e.path))) return { value: { base64: PNG_800x400 } }
     const source = match && run ? run.sources[Number(match[2]) - 1] : undefined
     if (source === undefined) return { deny: `no such file ${e.path}` }
     if (broken(source)) return { deny: `no such file ${e.path}` }
@@ -79,9 +81,9 @@ test('a mermaid block draws as an image rendered by mmdc in the theme colors', a
   expect(runs).toHaveLength(1)
   expect(runs[0]!.argv).toEqual(expect.arrayContaining(['-b', 'transparent', '-s', '2', '-p']))
   expect(runs[0]!.sources).toEqual(['graph LR\n  A[Start] --> B[Done]'])
-  const config = [...written].find(([path]) => path.endsWith('.json') && !path.endsWith('puppeteer.json'))?.[1]
+  const config = [...written].find(([name]) => name.endsWith('.json') && name !== 'puppeteer.json')?.[1]
   expect(JSON.parse(config ?? '{}').themeVariables.lineColor).toBe(PRESETS['catppuccin-mocha'].diagram)
-  expect(JSON.parse([...written].find(([path]) => path.endsWith('puppeteer.json'))?.[1] ?? '{}')).toEqual({ executablePath: '/usr/bin/chromium' })
+  expect(JSON.parse(written.get('puppeteer.json') ?? '{}')).toEqual({ executablePath: '/usr/bin/chromium' })
   await ui.unmount()
 })
 
@@ -256,11 +258,11 @@ test('the zoom button renders the diagram sharper and opens it in a kitty overla
   await ui.press({ key: String(button?.key) })
   await clock.settle()
 
-  const zoomInput = [...written.keys()].find(path => path.endsWith('.mmd'))
+  const zoomInput = [...written.keys()].find(name => name.endsWith('.mmd'))
   expect(written.get(zoomInput ?? '')).toBe('graph LR\n  A[Start] --> B[Done]')
   expect(kitty).toHaveLength(1)
   expect(kitty[0]).toEqual(expect.arrayContaining(['@', 'launch', '--type=overlay', '--match', 'window_id:42', '--next-to', 'id:42']))
-  expect(kitty[0]!.at(-1)).toBe(zoomInput!.replace(/\.mmd$/, '.png'))
+  expect(base(String(kitty[0]!.at(-1)))).toBe(zoomInput!.replace(/\.mmd$/, '.png'))
   await ui.unmount()
 })
 

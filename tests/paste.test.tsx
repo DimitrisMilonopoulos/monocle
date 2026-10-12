@@ -16,6 +16,8 @@ const pasted = (text: string, images: { media_type: string; data: string }[]) =>
 
 type Run = { argv: readonly string[]; data?: string }
 
+const base = (path: string) => path.replace(/\\/g, '/').split('/').pop() ?? path
+
 const world = (on: On, messages: unknown[]) => {
   const runs: Run[] = []
   const files = new Map<string, string>()
@@ -24,15 +26,15 @@ const world = (on: On, messages: unknown[]) => {
   on('session.messages', () => ({ value: messages as never }))
   const written = new Map<string, string>()
   on('fs.write', (_, e) => {
-    written.set(e.path, e.text)
+    written.set(base(e.path), e.text)
     return { value: undefined }
   })
   on('process.run', (_, e) => {
-    runs.push({ argv: e.argv, data: written.get(String(e.argv[4])) })
-    if (e.argv[0] === 'sh') files.set(String(e.argv[5]), PNG_800x400)
+    runs.push({ argv: e.argv, data: written.get(base(String(e.argv[4]))) })
+    if (e.argv[0] === 'sh') files.set(base(String(e.argv[5])), PNG_800x400)
     return { value: { exitCode: 0, stdout: '', stderr: '', isStdoutTruncated: false, isStderrTruncated: false } }
   })
-  on('fs.read', (_, e) => (files.has(e.path) ? { value: { base64: files.get(e.path)! } } : { deny: `no such file ${e.path}` }))
+  on('fs.read', (_, e) => (files.has(base(e.path)) ? { value: { base64: files.get(base(e.path))! } } : { deny: `no such file ${e.path}` }))
   return runs
 }
 

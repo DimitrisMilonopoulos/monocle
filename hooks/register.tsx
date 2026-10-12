@@ -247,8 +247,8 @@ const drawsImages = async ($: EngineInterface): Promise<boolean> => (await $.ses
 
 const startMermaid = async ($: EngineInterface, style: Style): Promise<Mermaid | null> => {
   if (!style.mermaidImages || !(await drawsImages($))) return null
-  const probe = await $.process.run(['mmdc', '--version'], { timeoutMs: 15000 })
-  if (probe.exitCode !== 0) return null
+  const version = await $.process.run(['mmdc', '--version'], { timeoutMs: 15000 })
+  if (version.exitCode !== 0) return null
   const dir = await workDir($, 'mermaid')
   const browser = await findBrowser($)
   if (browser?.kind !== 'system') return { dir }

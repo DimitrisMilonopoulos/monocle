@@ -12,6 +12,8 @@ const REPLY = '# Big title\n\nIntro.\n\n## A section\n\nBody.\n\n### Smaller\n\n
 
 type Paint = { argv: readonly string[]; text: string }
 
+const base = (path: string) => path.replace(/\\/g, '/').split('/').pop() ?? path
+
 const magick = (on: On, { installed = true } = {}) => {
   const paints: Paint[] = []
   const dirs = new Set<string>()
@@ -22,15 +24,15 @@ const magick = (on: On, { installed = true } = {}) => {
     if (e.argv[0] === 'kitty') return ok('JetBrainsMono Nerd Font\n')
     if (e.argv[0] === 'fc-match') return ok(e.argv.at(-1) === 'JetBrainsMono Nerd Font:bold' ? '/fonts/JBMono-Bold.ttf' : '/fonts/Mono-Bold.ttf')
     if (e.argv[0] !== 'magick' || !installed) return { deny: `spawn ${e.argv[0]} ENOENT` }
-    if (e.argv[1] !== '-version' && !dirs.has(String(e.argv.at(-1)).replace(/\/[^/]*$/, ''))) return { value: { exitCode: 1, stdout: '', stderr: 'unable to open image: No such file or directory', isStdoutTruncated: false, isStderrTruncated: false } }
+    if (e.argv[1] !== '-version' && ![...dirs].some(dir => dir.endsWith(String(e.argv.at(-1)).replace(/\/[^/]*$/, '')))) return { value: { exitCode: 1, stdout: '', stderr: 'unable to open image: No such file or directory', isStdoutTruncated: false, isStderrTruncated: false } }
     if (e.argv[1] !== '-version') paints.push({ argv: e.argv, text: String(e.argv.find(a => a.startsWith('label:'))).slice('label:'.length) })
     return ok('Version: ImageMagick 7')
   })
   on('fs.write', (_, e) => {
-    dirs.add(e.path.replace(/\/[^/]*$/, ''))
+    dirs.add(e.path.replace(/\\/g, '/').replace(/\/[^/]*$/, ''))
     return { value: undefined }
   })
-  on('fs.read', (_, e) => (paints.some(p => p.argv.at(-1) === e.path) ? { value: { base64: PNG_800x400 } } : { deny: `no such file ${e.path}` }))
+  on('fs.read', (_, e) => (paints.some(p => base(String(p.argv.at(-1))) === base(e.path)) ? { value: { base64: PNG_800x400 } } : { deny: `no such file ${e.path}` }))
   return paints
 }
 
