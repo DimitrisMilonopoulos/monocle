@@ -39,9 +39,12 @@ const MERMAID_HINT = 'This terminal also renders ```mermaid blocks as real image
 
 const LATEX_HINT = 'This terminal typesets LaTeX math: a formula in $$…$$ on lines of its own, or in a ```math block, renders as an image (KaTeX syntax). Inline $…$ does not render, so write inline math as plain text or Unicode.'
 
-const detectTerminal = async ($: EngineInterface): Promise<Terminal | null> => {
+type Host = Terminal | 'herdr'
+
+const detectHost = async ($: EngineInterface): Promise<Host | null> => {
   const program = await $.env.get('TERM_PROGRAM')
   const term = await $.env.get('TERM')
+  if (program === 'herdr') return 'herdr'
   if ((await $.env.get('KITTY_WINDOW_ID')) || term === 'xterm-kitty') return 'kitty'
   if (program === 'Apple_Terminal') return 'apple-terminal'
   if (program === 'WarpTerminal') return 'warp'
@@ -55,6 +58,8 @@ const detectTerminal = async ($: EngineInterface): Promise<Terminal | null> => {
   if (await $.env.get('KONSOLE_VERSION')) return 'konsole'
   return null
 }
+
+const terminalOf = (host: Host | null): Terminal | null => (host === 'herdr' ? null : host)
 
 const applyRtl = (style: Style, terminal: Terminal | null): Terminal | null => {
   if (style.rtl === 'off') return null
@@ -96,11 +101,15 @@ const firstDrawn = async ($: EngineInterface, id: string): Promise<number> => {
 
 type Typeset = Exclude<Formula, { error: true }> & { tex: string }
 
-const showsImages = async ($: EngineInterface): Promise<boolean> => {
+const forcedImages = async ($: EngineInterface): Promise<boolean> => /^(1|true|yes|on)$/i.test((await $.env.get('CLAUDE_CODE_FORCE_TERMINAL_IMAGES')) ?? '')
+
+const viewsImages = async ($: EngineInterface, host: Host | null): Promise<boolean> => {
   if (await $.env.get('TMUX')) return false
-  const terminal = await detectTerminal($)
-  return terminal === 'kitty' || terminal === 'ghostty'
+  if (host === 'herdr') return forcedImages($)
+  return host === 'kitty' || host === 'ghostty'
 }
+
+const showsImages = async ($: EngineInterface): Promise<boolean> => viewsImages($, await detectHost($))
 
 type Latex = { command: string; dir: string }
 type LatexSession = { style: Style; color: string; pending: Set<string>; wanted: Set<string>; batch: string[]; engine?: Promise<Latex | null>; ready?: Latex | null; stopped?: boolean; queue: Promise<void> }
@@ -277,18 +286,19 @@ const platformOf = async ($: EngineInterface): Promise<Platform> => {
 }
 
 const doctorFacts = async ($: EngineInterface, style: Style): Promise<Facts> => {
-  const terminal = await detectTerminal($)
+  const host = await detectHost($)
   const [platform, mmdc, browser, magick, fcMatch, ratex] = await Promise.all([platformOf($), commandPath($, 'mmdc'), findBrowser($), imageMagick($), commandPath($, 'fc-match'), commandPath($, 'ratex-render')])
   return {
     platform,
-    terminal,
+    terminal: host,
+    forced: await forcedImages($),
     tmux: !!(await $.env.get('TMUX')),
     mmdc,
     browser: browser ? (browser.kind === 'system' ? browser.path : "puppeteer's own Chrome") : null,
     magick,
     fcMatch,
     font: magick && fcMatch ? ((await fontFile($, await terminalFont($)))?.split('/').pop() ?? null) : null,
-    kittyRemote: terminal === 'kitty' ? !!(await $.env.get('KITTY_LISTEN_ON')) : null,
+    kittyRemote: host === 'kitty' ? !!(await $.env.get('KITTY_LISTEN_ON')) : null,
     ratex,
     latex: style.latex,
   }
@@ -334,8 +344,16 @@ type Headings = { dir: string; font: string; magick: string }
 
 const GHOSTTY_APP = '/Applications/Ghostty.app/Contents/MacOS/ghostty'
 
+const fontTerminal = async ($: EngineInterface): Promise<'kitty' | 'ghostty' | null> => {
+  const host = await detectHost($)
+  if (host === 'kitty' || host === 'ghostty') return host
+  if (host !== 'herdr') return null
+  if (await $.env.get('GHOSTTY_RESOURCES_DIR')) return 'ghostty'
+  return (await $.env.get('KITTY_PID')) ? 'kitty' : null
+}
+
 const terminalFont = async ($: EngineInterface): Promise<string | null> => {
-  const terminal = await detectTerminal($)
+  const terminal = await fontTerminal($)
   if (terminal === 'kitty') {
     const result = await $.process.run(['kitty', '+runpy', KITTY_FONT], { timeoutMs: 10000 }).catch(() => null)
     const name = result?.exitCode === 0 ? result.stdout.trim() : ''
@@ -600,18 +618,18 @@ const htmlBackend = async ($: EngineInterface): Promise<ClipboardBackend | null>
 const zoomBackend = async ($: EngineInterface): Promise<boolean> =>
   !!(await $.env.get('KITTY_WINDOW_ID')) && !(await $.env.get('TMUX')) && !(await $.env.get('SSH_CONNECTION')) && !(await $.env.get('SSH_TTY'))
 
-type Probes = { detected?: Promise<Terminal | null>; terminal?: Promise<Terminal | null>; htmlCopy?: Promise<ClipboardBackend | null>; zoom?: Promise<boolean>; images?: Promise<boolean> }
+type Probes = { detected?: Promise<Host | null>; terminal?: Promise<Terminal | null>; htmlCopy?: Promise<ClipboardBackend | null>; zoom?: Promise<boolean>; images?: Promise<boolean> }
 
 const probe = async ($: EngineInterface, style: Style, probes: Probes): Promise<Terminal | null> => {
-  probes.detected ??= detectTerminal($)
+  probes.detected ??= detectHost($)
   const detected = await probes.detected
-  probes.terminal ??= Promise.resolve(applyRtl(style, detected))
+  probes.terminal ??= Promise.resolve(applyRtl(style, terminalOf(detected)))
   const terminal = await probes.terminal
   probes.htmlCopy ??= htmlBackend($)
   style.htmlCopy = await probes.htmlCopy
   probes.zoom ??= zoomBackend($)
   style.zoom = await probes.zoom
-  probes.images ??= $.env.get('TMUX').then(tmux => !tmux && (detected === 'kitty' || detected === 'ghostty'))
+  probes.images ??= viewsImages($, detected)
   style.images = await probes.images
   return terminal
 }

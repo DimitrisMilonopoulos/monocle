@@ -22,7 +22,8 @@ const magick = (on: On, { installed = true } = {}) => {
   on('process.run', (_, e) => {
     const ok = (stdout = '') => ({ value: { exitCode: 0, stdout, stderr: '', isStdoutTruncated: false, isStderrTruncated: false } })
     if (e.argv[0] === 'kitty') return ok('JetBrainsMono Nerd Font\n')
-    if (e.argv[0] === 'fc-match') return ok(e.argv.at(-1) === 'JetBrainsMono Nerd Font:bold' ? '/fonts/JBMono-Bold.ttf' : '/fonts/Mono-Bold.ttf')
+    if (e.argv[0] === 'ghostty') return ok('font-size = 13\nfont-family = "Iosevka"\n')
+    if (e.argv[0] === 'fc-match') return ok({ 'JetBrainsMono Nerd Font:bold': '/fonts/JBMono-Bold.ttf', 'Iosevka:bold': '/fonts/Iosevka-Bold.ttf' }[String(e.argv.at(-1))] ?? '/fonts/Mono-Bold.ttf')
     if (e.argv[0] !== 'magick' || !installed) return { deny: `spawn ${e.argv[0]} ENOENT` }
     if (e.argv[1] !== '-version' && ![...dirs].some(dir => dir.endsWith(String(e.argv.at(-1)).replace(/\/[^/]*$/, '')))) return { value: { exitCode: 1, stdout: '', stderr: 'unable to open image: No such file or directory', isStdoutTruncated: false, isStderrTruncated: false } }
     if (e.argv[1] !== '-version') paints.push({ argv: e.argv, text: String(e.argv.find(a => a.startsWith('label:'))).slice('label:'.length) })
@@ -60,6 +61,26 @@ test('# and ## headings draw as big images in the terminal font and their level 
   expect(await ui.find({ type: 'Text', text: /^Smaller$/ })).toBeDefined()
   await ui.unmount()
 })
+
+const HERDR = { TERM: 'xterm-256color', TERM_PROGRAM: 'herdr', CLAUDE_CODE_FORCE_TERMINAL_IMAGES: '1', TMPDIR: '/tmp/', HOME: '/home/me' }
+
+for (const [outer, env, font] of [
+  ['kitty', { ...HERDR, KITTY_PID: '42' }, '/fonts/JBMono-Bold.ttf'],
+  ['Ghostty', { ...HERDR, GHOSTTY_RESOURCES_DIR: '/usr/share/ghostty' }, '/fonts/Iosevka-Bold.ttf'],
+  ['an unknown terminal', HERDR, '/fonts/Mono-Bold.ttf'],
+] as const) {
+  test(`in herdr on ${outer}, headings draw in that terminal's font`, async ($, on) => {
+    mock.env(on, env)
+    const clock = mock.clock(on)
+    const paints = magick(on)
+
+    const ui = await $.ui.mount(reply(REPLY))
+    await clock.settle()
+
+    expect(paints[0]?.argv).toEqual(expect.arrayContaining(['-font', font]))
+    await ui.unmount()
+  })
+}
 
 test('a heading still being written, the last block of the reply, stays text', async ($, on) => {
   mock.env(on, KITTY)

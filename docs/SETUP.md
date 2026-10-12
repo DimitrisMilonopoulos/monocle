@@ -72,6 +72,16 @@ Big headings use the `font_family` from your `kitty.conf`, so they match the res
 
 Nothing to configure. Diagrams, headings and pasted images work; click to zoom is kitty only, so Ghostty shows no zoom button.
 
+## herdr
+
+[herdr](https://herdr.dev) passes images through to kitty or Ghostty, but it reports itself as libghostty, which Claude Code doesn't draw images in by itself. Tell it to, for Claude Code started inside herdr only, in your `~/.bashrc` or `~/.zshrc`:
+
+```bash
+[ "$TERM_PROGRAM" = herdr ] && export CLAUDE_CODE_FORCE_TERMINAL_IMAGES=1
+```
+
+Then diagrams, big headings and pasted images work as in the terminal herdr runs in, and headings use that terminal's font. Without it, ocellus keeps text-art diagrams and plain headings. Click to zoom is off inside herdr, because a kitty overlay would cover every herdr pane, not just the one you clicked.
+
 ## LaTeX math (optional)
 
 LaTeX is off by default. Install RaTeX's renderer as `ratex-render` on your `PATH` (see [LaTeX math](../README.md#latex-math) in the README for the download), then set `latex` to `true` in `/config`.

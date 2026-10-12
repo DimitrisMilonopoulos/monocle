@@ -4,6 +4,7 @@ export type Facts = {
   platform: Platform
   terminal: string | null
   tmux: boolean
+  forced: boolean
   mmdc: string | null
   browser: string | null
   magick: string | null
@@ -18,15 +19,19 @@ type Row = { feature: string; ok: boolean; status: string; fix?: string }
 
 const install = (platform: Platform, mac: string, linux: string) => (platform === 'mac' ? mac : linux)
 
+const VIEWERS: Record<string, string> = { kitty: 'kitty', ghostty: 'Ghostty', herdr: 'herdr' }
+
 const rows = (f: Facts): Row[] => {
-  const images = (f.terminal === 'kitty' || f.terminal === 'ghostty') && !f.tmux
-  const imageRow: Row = images
-    ? { feature: 'Images in the terminal', ok: true, status: f.terminal === 'kitty' ? 'kitty' : 'Ghostty' }
+  const viewer = f.tmux ? undefined : VIEWERS[f.terminal ?? '']
+  const imageRow: Row = f.terminal === 'herdr' && !f.forced && !f.tmux
+    ? { feature: 'Images in the terminal', ok: false, status: 'herdr, which Claude Code does not draw images in by itself', fix: 'start Claude Code with `CLAUDE_CODE_FORCE_TERMINAL_IMAGES=1` inside herdr' }
+    : viewer
+    ? { feature: 'Images in the terminal', ok: true, status: viewer }
     : {
         feature: 'Images in the terminal',
         ok: false,
         status: f.tmux ? 'inside tmux' : `${f.terminal ?? 'this terminal'} has no kitty graphics`,
-        fix: f.tmux ? 'run Claude Code outside tmux' : 'use kitty or Ghostty',
+        fix: f.tmux ? 'run Claude Code outside tmux' : 'use kitty, Ghostty or herdr',
       }
   const browserFix = install(f.platform, 'install Google Chrome, or reinstall with `npm install -g @mermaid-js/mermaid-cli`', '`npm install -g @mermaid-js/mermaid-cli` fetches one, or install Chromium')
   return [
@@ -48,7 +53,7 @@ const rows = (f: Facts): Row[] => {
       ...(f.magick ? {} : { fix: 'ImageMagick, as for big headings, shows other formats' }),
     },
     f.kittyRemote === null
-      ? { feature: 'Click to zoom', ok: false, status: 'kitty only' }
+      ? { feature: 'Click to zoom', ok: false, status: f.terminal === 'herdr' ? 'not inside herdr' : 'kitty only' }
       : f.kittyRemote
         ? { feature: 'Click to zoom', ok: true, status: 'kitty remote control' }
         : { feature: 'Click to zoom', ok: false, status: 'kitty remote control is off', fix: 'add `allow_remote_control socket-only` and `listen_on unix:/tmp/kitty` to kitty.conf, then restart kitty' },
