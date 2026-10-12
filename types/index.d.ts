@@ -18,6 +18,7 @@ declare module 'claude-code' {
       dir: string
       diagrams: Record<string, unknown>
       diagramDir: string
+      headings: Record<string, unknown>
       unfolded: string[]
       sent: { text: string; at: number }[]
       turnEnds: { durationMs: number; at: number }[]

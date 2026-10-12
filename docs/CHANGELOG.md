@@ -4,14 +4,16 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
-### Added
-
-- Mermaid diagrams draw as real images in kitty and Ghostty when mermaid-cli (`mmdc`) is installed, in the theme's colors, including pie, gantt, mindmap and the other types text art can't draw. Text art shows until the image is ready, and stays for diagrams `mmdc` rejects or that would shrink below half size. `mermaidImages` turns it off.
-- In kitty, clicking a diagram image or its `⤢ zoom` button opens it full screen in a kitty overlay, rendered again at twice the resolution.
-
 ### Changed
 
 - Forked from prismantis 0.17.1 as ocellus. The plugin, its `/ocellus` command, its `$.ocellus` noun and its settings key `ocellus@ocellus` are renamed; settings under `prismantis@prismantis` do not carry over.
+- Each heading level gets its own theme color: heading, accent, link, number, then emphasis. H2 used to share H1's color and H4 and below were white.
+
+### Added
+
+- `#` and `##` headings draw larger in kitty and Ghostty, three and two rows tall, rendered by ImageMagick in the terminal's own bold font. `headingImages` turns it off.
+- Mermaid diagrams draw as real images in kitty and Ghostty when mermaid-cli (`mmdc`) is installed, in the theme's colors, including pie, gantt, mindmap and the other types text art can't draw. Text art shows until the image is ready, and stays for diagrams `mmdc` rejects or that would shrink below half size. `mermaidImages` turns it off.
+- In kitty, clicking a diagram image or its `⤢ zoom` button opens it full screen in a kitty overlay, rendered again at twice the resolution.
 
 ## [0.17.1] - 2026-10-12
 

@@ -230,7 +230,9 @@ The note costs about 190 tokens per prompt, and about 60 more while [LaTeX math]
 
 ![Headings, lists, quotes: plain Claude Code on the left, ocellus on the right](docs/compare/headings.png)
 
-`headingStyle` picks `banner` (the default: a box around H1, a heavy rule under H2), `bold`, `underline` or `uppercase`. Terminals have one font size, so headings stand out through style and color.
+`headingStyle` picks `banner` (the default: a box around H1, a heavy rule under H2), `bold`, `underline` or `uppercase`. Each level has its own color from the theme: H1 the heading color, H2 the accent, H3 the link color, H4 the number color, H5 and H6 the emphasis color.
+
+In kitty and Ghostty (not under tmux), `#` and `##` headings draw larger, three and two rows tall, as images that ImageMagick (`magick` on your `PATH`) renders in your terminal's bold font: in kitty, the `font_family` from your kitty.conf. They show as normal text until the image is ready, a few tens of milliseconds. A heading still being written stays text until the reply moves past it, and long headings wrap. A big heading can't be selected as text; `⧉ copy reply` still has it. `headingImages` turns it off.
 
 Lists keep their numbers and nest with `•` and `◦`. Quotes get an accent bar, and GitHub alerts (`> [!NOTE]`, `[!TIP]`, `[!IMPORTANT]`, `[!WARNING]`, `[!CAUTION]`) draw as colored boxes.
 
@@ -302,6 +304,7 @@ Options sit under `options`, keyed by the plugin's install name. Project setting
 | `mermaid` | `true`, `false` | `true` |
 | `mermaidAscii` | `true`, `false` | `false` |
 | `mermaidImages` | `true`, `false` | `true` |
+| `headingImages` | `true`, `false` | `true` |
 | `latex` | `true`, `false` | `false` |
 | `<token>Color` | any color, see below | theme |
 
@@ -353,7 +356,7 @@ To change the code, read [AGENTS.md](AGENTS.md) instead.
 - **What it is:** a Claude Code mod (function hooks in TypeScript) that redraws assistant replies, slash-command output, tool rows, the turn footer and user prompts. It changes how things look. The one thing it sends the model is the optional diagram hint below.
 - **Install:** `/plugin marketplace add DimitrisMilonopoulos/ocellus`, then `/plugin install ocellus@ocellus`. Needs Claude Code 2.1.287+. Changes apply after `/reload`.
 - **Configure:** `/ocellus theme <name>` is the only setter at runtime. Every other option is a key under `pluginConfigs["ocellus@ocellus"].options` in `~/.claude/settings.json` (or a row in `/config`), then `/reload`. Options and defaults are in the [Configure](#configure) table; the machine-readable source is `userConfig` in [.claude-plugin/plugin.json](.claude-plugin/plugin.json). Color values that don't parse are ignored.
-- **Side effects:** no network. Programs it runs: the `⧉ html` clipboard helper (`/usr/bin/osascript` on macOS, `copyq` on Linux, 5 second timeout, only on a click), `ratex-render` while `latex` is on, `mmdc` (which starts a headless Chrome) for mermaid blocks while `mermaidImages` is on, in kitty or Ghostty, and `kitty @ launch` when you zoom a diagram. With `diagramHints` on, it adds about 190 tokens of model-only context to each typed prompt.
+- **Side effects:** no network. Programs it runs: the `⧉ html` clipboard helper (`/usr/bin/osascript` on macOS, `copyq` on Linux, 5 second timeout, only on a click), `ratex-render` while `latex` is on, `mmdc` (which starts a headless Chrome) for mermaid blocks while `mermaidImages` is on, in kitty or Ghostty, `kitty @ launch` when you zoom a diagram, and `magick`, `fc-match` and `kitty +runpy` (to find your font) for big headings while `headingImages` is on. With `diagramHints` on, it adds about 190 tokens of model-only context to each typed prompt.
 - **Turning it off:** `"enabled": false`, or disable the plugin in `/plugin`.
 - **For other mods:** `$.ocellus.markdown({ surface, text, columns })`, typed in [types/index.d.ts](types/index.d.ts). See [Other mods](#other-mods).
 

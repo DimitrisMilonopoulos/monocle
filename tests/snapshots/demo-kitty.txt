@@ -34,10 +34,10 @@
     ", scroll at "
   <Link>
 <Box>
-  <Text color=#f9e2af bold>
+  <Text color=#cba6f7 bold>
     <Text>
       "Roster"
-  <Text color=#f9e2af>
+  <Text color=#cba6f7>
     "━━━━━━"
 <Box>
   <Text color=#585b70>
@@ -855,10 +855,10 @@
       "Mantis wisdom: small bug, big kick."
 <Box>
   <Box>
-    <Text color=#f9e2af bold>
+    <Text color=#cba6f7 bold>
       <Text>
         "עברית"
-    <Text color=#f9e2af>
+    <Text color=#cba6f7>
       "━━━━━"
 <Box>
   <Text>

@@ -3,6 +3,7 @@ import type { ElementTable, RenderElement } from 'claude-code'
 import { tableHtml, tableText } from './html'
 import type { Block, Inline } from './markdown'
 import { displayText, inlineText } from './markdown'
+import { headingColor } from './heading'
 import { commentTail, commentVisual, flow, hasRtl, terminalLine } from './rtl'
 import type { Style, Theme } from './theme'
 import type { PrismToken } from './vendor/prism.js'
@@ -398,7 +399,7 @@ const renderHeading = (el: ElementTable, style: Style, block: Extract<Block, { k
 const drawHeading = (el: ElementTable, style: Style, block: Extract<Block, { kind: 'heading' }>, inline: Inline[], key: string) => {
   const { Box, Text } = el
   const t = style.theme
-  const color = block.level <= 2 ? t.heading : t.accent ?? t.heading
+  const color = headingColor(t, block.level)
   const label = inlineText(inline)
   switch (style.headingStyle) {
     case 'uppercase':
@@ -409,7 +410,7 @@ const drawHeading = (el: ElementTable, style: Style, block: Extract<Block, { kin
       if (block.level === 1) return <Box key={key} alignSelf="flex-start" borderStyle="bold" borderColor={color} paddingX={1}><Text bold color={color}>{renderInline(el, style, inline, key)}</Text></Box>
       return block.level === 2
         ? <Box key={key} flexDirection="column" alignSelf="flex-start"><Text bold color={color}>{renderInline(el, style, inline, key)}</Text><Text color={color}>{'━'.repeat(width(label))}</Text></Box>
-        : <Text key={key} bold color={block.level === 3 ? color : t.strong}>{renderInline(el, style, inline, key)}</Text>
+        : <Text key={key} bold color={color}>{renderInline(el, style, inline, key)}</Text>
     default:
       return <Text key={key} bold color={color}>{renderInline(el, style, inline, key)}</Text>
   }
@@ -542,7 +543,7 @@ export const renderBlocks = (el: ElementTable, style: Style, blocks: Block[], co
     const key = `b${b}`
     switch (block.kind) {
       case 'heading':
-        return renderHeading(el, style, block, key)
+        return drawn.get(b)?.element ?? renderHeading(el, style, block, key)
       case 'paragraph':
         return renderParagraph(el, style, block, columns, key)
       case 'quote':

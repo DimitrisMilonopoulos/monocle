@@ -62,6 +62,12 @@
         "banner"
       ]
     },
+    "headingImages": {
+      "type": "boolean",
+      "title": "Big headings",
+      "description": "In kitty and Ghostty (not under tmux), draw # and ## headings as larger text, three and two rows tall, in your terminal's bold font, rendered by ImageMagick (magick on your PATH). Big headings can't be selected as text; the reply's copy button still has them. Off, or without ImageMagick, headings stay one row.",
+      "default": true
+    },
     "tableStyle": {
       "type": "string",
       "title": "Table style",

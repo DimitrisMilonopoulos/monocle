@@ -40,6 +40,8 @@ const channels = (color: string): [number, number, number] | null => {
   return [0, 2, 4].map(i => parseInt(full.slice(i, i + 2), 16)) as [number, number, number]
 }
 
+export const colorHex = (color: string | undefined, fallback: string): string => hexOf(color, fallback)
+
 const hexOf = (color: string | undefined, fallback: string): string => {
   const rgb = color ? channels(color) : null
   return rgb ? `#${rgb.map(n => n.toString(16).padStart(2, '0')).join('')}` : fallback
