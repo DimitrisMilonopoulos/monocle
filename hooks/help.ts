@@ -163,7 +163,7 @@ xychart-beta
     bar [7, 3, 2, 6, 2]
 \`\`\`
 
-With \`mmdc\` installed, kitty and Ghostty draw every diagram as a real image, even kinds text art can't draw:
+With \`mmdc\` installed, kitty and Ghostty draw every diagram as a real image, even kinds text art can't draw. In kitty, click one or press \`⤢ zoom\` to see it full screen:
 
 \`\`\`mermaid
 pie title Where render time goes

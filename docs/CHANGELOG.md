@@ -7,6 +7,7 @@ All notable changes to this project are documented here. The format follows [Kee
 ### Added
 
 - Mermaid diagrams draw as real images in kitty and Ghostty when mermaid-cli (`mmdc`) is installed, in the theme's colors, including pie, gantt, mindmap and the other types text art can't draw. Text art shows until the image is ready, and stays for diagrams `mmdc` rejects or that would shrink below half size. `mermaidImages` turns it off.
+- In kitty, clicking a diagram image or its `⤢ zoom` button opens it full screen in a kitty overlay, rendered again at twice the resolution.
 
 ### Changed
 

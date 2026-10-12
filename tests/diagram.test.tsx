@@ -1,4 +1,5 @@
 import type { On } from 'claude-code'
+import type { Engine } from 'claude-code/testing'
 import { expect, mock, test } from 'claude-code/testing'
 
 import { fitDiagram, mermaidConfig } from '../hooks/diagram'
@@ -15,6 +16,7 @@ type Run = { argv: readonly string[]; sources: string[] }
 
 const mmdc = (on: On, { installed = true, broken = (_: string): boolean => false }: { installed?: boolean; broken?: (source: string) => boolean } = {}) => {
   const runs: Run[] = []
+  const kitty: (readonly string[])[] = []
   const written = new Map<string, string>()
   on('session.surfaces', () => ({ value: ['terminal'] as const }))
   on('session.id', () => ({ value: 'sess-1' }))
@@ -24,6 +26,10 @@ const mmdc = (on: On, { installed = true, broken = (_: string): boolean => false
     return { value: undefined }
   })
   on('process.run', (_, e) => {
+    if (e.argv[0] === 'kitty') {
+      kitty.push(e.argv)
+      return { value: { exitCode: 0, stdout: '', stderr: '', isStdoutTruncated: false, isStderrTruncated: false } }
+    }
     if (e.argv[0] !== 'mmdc' || !installed) return { deny: `spawn ${e.argv[0]} ENOENT` }
     const input = e.argv[e.argv.indexOf('-i') + 1]
     const sources = input ? [...(written.get(input) ?? '').matchAll(/```mermaid\n([\s\S]*?)\n```/g)].map(m => m[1]!) : []
@@ -34,12 +40,13 @@ const mmdc = (on: On, { installed = true, broken = (_: string): boolean => false
   on('fs.read', (_, e) => {
     const match = /\/([0-9a-f]{8})-(\d+)\.png$/.exec(e.path)
     const run = runs.find(r => r.argv.includes(e.path.replace(/-\d+\.png$/, '.png')))
+    if (/\/zoom-[0-9a-f]{8}\.png$/.test(e.path)) return { value: { base64: PNG_800x400 } }
     const source = match && run ? run.sources[Number(match[2]) - 1] : undefined
     if (source === undefined) return { deny: `no such file ${e.path}` }
     if (broken(source)) return { deny: `no such file ${e.path}` }
     return { value: { base64: PNG_800x400 } }
   })
-  return { runs, written }
+  return { runs, written, kitty }
 }
 
 const reply = (text: string, columns = 120) => ({
@@ -201,6 +208,79 @@ test('a diagram that would shrink below half its size stays text art', async ($,
   await clock.settle()
 
   expect(await ui.find({ type: 'Image' })).toBeUndefined()
+  await ui.unmount()
+})
+
+const KITTY_WINDOW = { ...KITTY, KITTY_WINDOW_ID: '42' }
+
+const started = async ($: Engine, on: On) => {
+  on('session.start', () => ({ cwd: '/tmp' }))
+  await $.session.start({ cwd: '/tmp', surface: 'terminal', isInteractive: true })
+}
+
+test('in kitty a drawn diagram gets a zoom button and a click target over the image', async ($, on) => {
+  mock.env(on, KITTY_WINDOW)
+  const clock = mock.clock(on)
+  mmdc(on)
+  await started($, on)
+
+  const ui = await $.ui.mount(reply(FLOW))
+  await clock.settle()
+
+  expect(await ui.find({ type: 'Button', text: /zoom/ })).toBeDefined()
+  expect(await ui.find({ type: 'Client' })).toBeDefined()
+  await ui.unmount()
+})
+
+test('the zoom button renders the diagram sharper and opens it in a kitty overlay over this window', async ($, on) => {
+  mock.env(on, KITTY_WINDOW)
+  const clock = mock.clock(on)
+  const { written, kitty } = mmdc(on)
+  await started($, on)
+
+  const ui = await $.ui.mount(reply(FLOW))
+  await clock.settle()
+  const button = await ui.find({ type: 'Button', text: /zoom/ })
+  await ui.press({ key: String(button?.key) })
+  await clock.settle()
+
+  const zoomInput = [...written.keys()].find(path => path.endsWith('.mmd'))
+  expect(written.get(zoomInput ?? '')).toBe('graph LR\n  A[Start] --> B[Done]')
+  expect(kitty).toHaveLength(1)
+  expect(kitty[0]).toEqual(expect.arrayContaining(['@', 'launch', '--type=overlay', '--match', 'window_id:42', '--next-to', 'id:42']))
+  expect(kitty[0]!.at(-1)).toBe(zoomInput!.replace(/\.mmd$/, '.png'))
+  await ui.unmount()
+})
+
+test('a click on the image opens the same overlay', async ($, on) => {
+  mock.env(on, KITTY_WINDOW)
+  const clock = mock.clock(on)
+  const { kitty } = mmdc(on)
+  await started($, on)
+
+  const ui = await $.ui.mount(reply(FLOW))
+  await clock.settle()
+  const client = await ui.find({ type: 'Client' })
+  await ui.pointer({ type: 'down', x: 3, y: 1, button: 'left', in: String(client?.key) })
+  await ui.pointer({ type: 'up', x: 3, y: 1, button: 'left', in: String(client?.key) })
+  await clock.settle()
+
+  expect(kitty).toHaveLength(1)
+  await ui.unmount()
+})
+
+test('outside kitty there is no zoom', async ($, on) => {
+  mock.env(on, { ...KITTY, TERM: 'xterm-ghostty', TERM_PROGRAM: 'ghostty' })
+  const clock = mock.clock(on)
+  mmdc(on)
+  await started($, on)
+
+  const ui = await $.ui.mount(reply(FLOW))
+  await clock.settle()
+
+  expect(await ui.find({ type: 'Image' })).toBeDefined()
+  expect(await ui.find({ type: 'Button', text: /zoom/ })).toBeUndefined()
+  expect(await ui.find({ type: 'Client' })).toBeUndefined()
   await ui.unmount()
 })
 

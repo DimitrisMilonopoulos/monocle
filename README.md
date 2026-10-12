@@ -133,6 +133,7 @@ In kitty and Ghostty (not under tmux), ocellus renders each mermaid block with [
 - A diagram draws as text art first and turns into an image once `mmdc` is done, about two seconds for the first one. All diagrams in a reply render in one run, and results are kept for the session.
 - An image is sized to match the terminal text and never stretched. A diagram that would have to shrink below half its size to fit stays text art or source.
 - A diagram `mmdc` rejects stays text art or source; the others still render.
+- In kitty, click a diagram or press `⤢ zoom` beside its copy button to see it full screen: ocellus renders it again at twice the resolution and opens it in a kitty overlay over the session, using kitty's remote control. Enter closes it. Not under tmux or SSH.
 - While it works, the [diagram hints](#diagram-hints) note also tells Claude that every mermaid type renders.
 
 `mermaidImages` turns it off. Without `mmdc`, nothing changes from the text art.
@@ -352,7 +353,7 @@ To change the code, read [AGENTS.md](AGENTS.md) instead.
 - **What it is:** a Claude Code mod (function hooks in TypeScript) that redraws assistant replies, slash-command output, tool rows, the turn footer and user prompts. It changes how things look. The one thing it sends the model is the optional diagram hint below.
 - **Install:** `/plugin marketplace add DimitrisMilonopoulos/ocellus`, then `/plugin install ocellus@ocellus`. Needs Claude Code 2.1.287+. Changes apply after `/reload`.
 - **Configure:** `/ocellus theme <name>` is the only setter at runtime. Every other option is a key under `pluginConfigs["ocellus@ocellus"].options` in `~/.claude/settings.json` (or a row in `/config`), then `/reload`. Options and defaults are in the [Configure](#configure) table; the machine-readable source is `userConfig` in [.claude-plugin/plugin.json](.claude-plugin/plugin.json). Color values that don't parse are ignored.
-- **Side effects:** no network. Programs it runs: the `⧉ html` clipboard helper (`/usr/bin/osascript` on macOS, `copyq` on Linux, 5 second timeout, only on a click), `ratex-render` while `latex` is on, and `mmdc` (which starts a headless Chrome) for mermaid blocks while `mermaidImages` is on, in kitty or Ghostty. With `diagramHints` on, it adds about 190 tokens of model-only context to each typed prompt.
+- **Side effects:** no network. Programs it runs: the `⧉ html` clipboard helper (`/usr/bin/osascript` on macOS, `copyq` on Linux, 5 second timeout, only on a click), `ratex-render` while `latex` is on, `mmdc` (which starts a headless Chrome) for mermaid blocks while `mermaidImages` is on, in kitty or Ghostty, and `kitty @ launch` when you zoom a diagram. With `diagramHints` on, it adds about 190 tokens of model-only context to each typed prompt.
 - **Turning it off:** `"enabled": false`, or disable the plugin in `/plugin`.
 - **For other mods:** `$.ocellus.markdown({ surface, text, columns })`, typed in [types/index.d.ts](types/index.d.ts). See [Other mods](#other-mods).
 

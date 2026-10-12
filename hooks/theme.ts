@@ -31,6 +31,7 @@ export type Style = {
   mermaidAscii: boolean
   copyButtons: boolean
   htmlCopy: ClipboardBackend | null
+  zoom?: boolean
   diagramHints: boolean
   rtl: 'auto' | Terminal | 'off'
   reorder: boolean

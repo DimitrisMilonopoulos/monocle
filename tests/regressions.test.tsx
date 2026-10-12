@@ -310,6 +310,7 @@ test('the help screen shows every element ocellus draws', async () => {
   expect(showcaseText([])).toContain('⧉ html')
   expect(showcaseText([])).toContain('<i>Reply</i>')
 expect(showcaseText([])).toContain('pie title')
+expect(showcaseText([])).toContain('⤢ zoom')
   expect(showcaseText([])).toContain('CopyQ')
   expect(showcaseText([])).toContain('plain text')
   expect(blocks.some(b => b.kind === 'table' && b.align.includes('right') && b.align.includes('center'))).toBe(true)

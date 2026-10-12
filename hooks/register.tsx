@@ -198,12 +198,16 @@ type MermaidSession = { style: Style; pending: Set<string>; wanted: Set<string>;
 
 const themeKeys = new WeakMap<Style['theme'], string>()
 
+const hashOf = (text: string): string => {
+  let hash = 2166136261
+  for (const ch of text) hash = Math.imul(hash ^ ch.charCodeAt(0), 16777619) >>> 0
+  return hash.toString(36)
+}
+
 const themeKeyOf = (theme: Style['theme']): string => {
   const known = themeKeys.get(theme)
   if (known) return known
-  let hash = 2166136261
-  for (const ch of JSON.stringify(mermaidConfig(theme))) hash = Math.imul(hash ^ ch.charCodeAt(0), 16777619) >>> 0
-  const key = hash.toString(36)
+  const key = hashOf(JSON.stringify(mermaidConfig(theme)))
   themeKeys.set(theme, key)
   return key
 }
@@ -307,6 +311,44 @@ const diagramsOfBlocks = async ($: EngineInterface, mermaid: MermaidSession, sur
   }))
 }
 
+const ZOOM_SCALE = 4
+const ZOOM_VIEW = `kitty +kitten icat --scale-up --align center "$1"; printf '\\n  [Enter to close] '; read -r _`
+
+const zoomable = {
+  sources: new Map<string, string>(),
+  session: undefined as MermaidSession | undefined,
+  add(source: string): string {
+    const id = hashOf(source)
+    this.sources.delete(id)
+    this.sources.set(id, source)
+    if (this.sources.size > 200) this.sources.delete(this.sources.keys().next().value!)
+    return id
+  },
+}
+
+const zoomIn = async ($: EngineInterface, mermaid: MermaidSession, source: string): Promise<string | null> => {
+  const window = await $.env.get('KITTY_WINDOW_ID')
+  if (!window) return 'Full screen needs kitty'
+  const engine = await mermaidEngine($, mermaid)
+  if (!engine) return 'mmdc is not available'
+  const name = `${engine.dir}/zoom-${crypto.randomUUID().slice(0, 8)}`
+  await $.fs.write(`${name}.json`, JSON.stringify(mermaidConfig(mermaid.style.theme)))
+  await $.fs.write(`${name}.mmd`, source)
+  const render = await $.process.run(['mmdc', '-q', '-i', `${name}.mmd`, '-o', `${name}.png`, '-c', `${name}.json`, '-b', 'transparent', '-s', String(ZOOM_SCALE), '-j', '1', ...(engine.puppeteer ? ['-p', engine.puppeteer] : [])], { timeoutMs: 60000 })
+  if (render.exitCode !== 0) return `mmdc failed: ${render.stderr.trim().split('\n')[0] ?? render.exitCode}`
+  const launch = await $.process.run(['kitty', '@', 'launch', '--match', `window_id:${window}`, '--next-to', `id:${window}`, '--type=overlay', '--title=diagram', '--', 'sh', '-c', ZOOM_VIEW, 'zoom', `${name}.png`], { timeoutMs: 10000 })
+  return launch.exitCode === 0 ? null : `kitty refused the overlay: ${launch.stderr.trim().split('\n')[0] ?? launch.exitCode}`
+}
+
+const openZoom = async ($: EngineInterface, id: string): Promise<void> => {
+  const source = zoomable.sources.get(id)
+  const mermaid = zoomable.session
+  if (source === undefined || !mermaid) return
+  $.ui.toast('Opening the diagram full screen…')
+  const failure = await zoomIn($, mermaid, source).catch(() => 'Could not open the diagram')
+  if (failure) $.ui.toast(failure)
+}
+
 const locate = async ($: EngineInterface, style: Style) => {
   style.cwd = await $.session.root().catch(() => style.cwd)
   style.home ||= (await $.env.get('HOME').catch(() => undefined)) ?? (await $.env.get('USERPROFILE').catch(() => undefined)) ?? ''
@@ -319,13 +361,18 @@ const htmlBackend = async ($: EngineInterface): Promise<ClipboardBackend | null>
   return await $.env.get('WAYLAND_DISPLAY') || await $.env.get('DISPLAY') ? 'linux' : null
 }
 
-type Probes = { terminal?: Promise<Terminal | null>; htmlCopy?: Promise<ClipboardBackend | null> }
+const zoomBackend = async ($: EngineInterface): Promise<boolean> =>
+  !!(await $.env.get('KITTY_WINDOW_ID')) && !(await $.env.get('TMUX')) && !(await $.env.get('SSH_CONNECTION')) && !(await $.env.get('SSH_TTY'))
+
+type Probes = { terminal?: Promise<Terminal | null>; htmlCopy?: Promise<ClipboardBackend | null>; zoom?: Promise<boolean> }
 
 const probe = async ($: EngineInterface, style: Style, probes: Probes): Promise<Terminal | null> => {
   probes.terminal ??= applyRtl($, style)
   const terminal = await probes.terminal
   probes.htmlCopy ??= htmlBackend($)
   style.htmlCopy = await probes.htmlCopy
+  probes.zoom ??= zoomBackend($)
+  style.zoom = await probes.zoom
   return terminal
 }
 
@@ -373,7 +420,20 @@ const drawMarkdown = ($: EngineInterface, el: ReturnType<EngineInterface['ui']['
       const fit = picture ? fitDiagram(picture, columns) : null
       if (Image && picture && fit) {
         const alt = `mermaid: ${source.trim().split('\n')[0]!.trim()}`
-        drawn.set(i, { element: <el.Box key={`b${i}`} paddingLeft={2}><Image source={picture.png ? { png: picture.png } : { file: picture.file, format: 'png' }} columns={fit.columns} rows={fit.rows} alt={alt} /></el.Box> })
+        const id = zoomable.add(source)
+        const image = <Image key={`img${i}`} source={picture.png ? { png: picture.png } : { file: picture.file, format: 'png' }} columns={fit.columns} rows={fit.rows} alt={alt} />
+        const element = 'Client' in el && style.zoom ? (
+          <el.Box key={`b${i}`} paddingLeft={2}>
+            <el.Box key={`zoom${i}`} width={fit.columns} height={fit.rows}>
+              {image}
+              <el.Box position="absolute" top={0} left={0}>
+                <el.Client key={`zoom-${id}`} module="./zoom.tsx" props={{ id, columns: fit.columns, rows: fit.rows }} width={fit.columns} height={fit.rows} />
+              </el.Box>
+            </el.Box>
+          </el.Box>
+        ) : <el.Box key={`b${i}`} paddingLeft={2}>{image}</el.Box>
+        const button = style.zoom ? <el.Button key={`zoombtn${i}`} variant="primary" label="⤢ zoom" onPress={() => void openZoom($, id)} /> : undefined
+        drawn.set(i, { element, button })
         continue
       }
       let narrowest = Infinity
@@ -418,6 +478,7 @@ export const register: Register = (on, options) => {
   let terminal: Terminal | null = null
   const fit = (viewport?: { isFullscreen?: boolean }): Style => (terminal === 'apple-terminal' && viewport?.isFullscreen ? { ...style, shape: 'inverse' } : style)
   const mermaid: MermaidSession = { style, pending: new Set(), wanted: new Set(), batch: [], queue: Promise.resolve() }
+  zoomable.session = mermaid
   const latex: LatexSession = { style, color: ratexColor(style.theme.diagramText ?? style.theme.codeText ?? '#808080'), pending: new Set(), wanted: new Set(), batch: [], queue: Promise.resolve() }
   const forSurface = (base: Style, surface: RenderSurface): Style => (surface === 'terminal' || !base.htmlCopy ? base : { ...base, htmlCopy: null })
   const fullWidth = (text: string) => (style.reorder && hasRtl(text) ? { width: '100%' as const } : {})
@@ -568,6 +629,13 @@ export const register: Register = (on, options) => {
         </Box>
       </Box>
     )
+  })
+
+  on('ui.message', async ($, e, next) => {
+    const data = e.data as { zoom?: unknown } | null
+    if (!data || typeof data !== 'object' || typeof data.zoom !== 'string') return next(e)
+    void openZoom($, data.zoom)
+    return {}
   })
 
   on('ocellus.markdown', ($, e, next) => {
