@@ -5,9 +5,11 @@ import { clockText, endedAt, promptKey, sentAt, withRecord } from './clock'
 import type { Diagram, Picture } from './diagram'
 import { BROWSERS, MAX_DIAGRAMS, MMDC_SCALE, batchMarkdown, batchOutput, colorHex, diagramKey, fitDiagram, inlinable, mermaidConfig, mermaidOf } from './diagram'
 import type { HeadingSource } from './heading'
+import type { Facts, Platform } from './doctor'
+import { doctorText } from './doctor'
 import type { PastedSource } from './paste'
 import { fitPreview, imageRefs, pastedImages } from './paste'
-import { HEADING_PX_PER_ROW, KITTY_FONT, fitHeading, headingColor, headingRows, headingSource, parseHeadingSource, wrapHeading } from './heading'
+import { HEADING_PX_PER_ROW, KITTY_FONT, fitHeading, ghosttyFont, headingColor, headingRows, headingSource, labelText, parseHeadingSource, wrapHeading } from './heading'
 import type { Formula } from './latex'
 import { LATEX_DPR, LATEX_FONT_PX, fitsImage, keepFormulas, mathOf, padFor, pickFormula, pngSize, ratexColor, renderedOf } from './latex'
 import type { Block } from './markdown'
@@ -248,16 +250,48 @@ const startMermaid = async ($: EngineInterface, style: Style): Promise<Mermaid |
   const probe = await $.process.run(['mmdc', '--version'], { timeoutMs: 15000 })
   if (probe.exitCode !== 0) return null
   const dir = await workDir($, 'mermaid')
+  const browser = await findBrowser($)
+  if (browser?.kind !== 'system') return { dir }
+  const puppeteer = `${dir}/puppeteer.json`
+  await $.fs.write(puppeteer, JSON.stringify({ executablePath: browser.path }))
+  return { dir, puppeteer }
+}
+
+const findBrowser = async ($: EngineInterface): Promise<{ kind: 'puppeteer' } | { kind: 'system'; path: string } | null> => {
   const home = await $.env.get('HOME')
   const bundled = (await $.env.get('PUPPETEER_CACHE_DIR')) ?? (home ? `${home}/.cache/puppeteer` : '')
-  if ((await $.env.get('PUPPETEER_EXECUTABLE_PATH')) || (bundled && (await $.fs.exists(bundled)))) return { dir }
-  for (const browser of BROWSERS) {
-    if (!(await $.fs.exists(browser))) continue
-    const puppeteer = `${dir}/puppeteer.json`
-    await $.fs.write(puppeteer, JSON.stringify({ executablePath: browser }))
-    return { dir, puppeteer }
+  if ((await $.env.get('PUPPETEER_EXECUTABLE_PATH')) || (bundled && (await $.fs.exists(bundled)))) return { kind: 'puppeteer' }
+  for (const path of BROWSERS) if (await $.fs.exists(path)) return { kind: 'system', path }
+  return null
+}
+
+const commandPath = async ($: EngineInterface, name: string): Promise<string | null> => {
+  const result = await $.process.run(['sh', '-c', 'command -v "$1"', 'which', name], { timeoutMs: 5000 }).catch(() => null)
+  return (result?.exitCode === 0 && result.stdout.trim()) || null
+}
+
+const platformOf = async ($: EngineInterface): Promise<Platform> => {
+  const result = await $.process.run(['uname', '-s'], { timeoutMs: 5000 }).catch(() => null)
+  const name = result?.stdout.trim()
+  return name === 'Darwin' ? 'mac' : name === 'Linux' ? 'linux' : 'other'
+}
+
+const doctorFacts = async ($: EngineInterface, style: Style): Promise<Facts> => {
+  const terminal = await detectTerminal($)
+  const [platform, mmdc, browser, magick, fcMatch, ratex] = await Promise.all([platformOf($), commandPath($, 'mmdc'), findBrowser($), imageMagick($), commandPath($, 'fc-match'), commandPath($, 'ratex-render')])
+  return {
+    platform,
+    terminal,
+    tmux: !!(await $.env.get('TMUX')),
+    mmdc,
+    browser: browser ? (browser.kind === 'system' ? browser.path : "puppeteer's own Chrome") : null,
+    magick,
+    fcMatch,
+    font: magick && fcMatch ? ((await fontFile($, await terminalFont($)))?.split('/').pop() ?? null) : null,
+    kittyRemote: terminal === 'kitty' ? !!(await $.env.get('KITTY_LISTEN_ON')) : null,
+    ratex,
+    latex: style.latex,
   }
-  return { dir }
 }
 
 const painterEngine = ($: EngineInterface, p: Painter): Promise<Mermaid | Headings | null> =>
@@ -296,13 +330,31 @@ const renderDiagrams = async ($: EngineInterface, engine: Mermaid, theme: Style[
   return retried
 }
 
-type Headings = { dir: string; font: string }
+type Headings = { dir: string; font: string; magick: string }
 
-const kittyFont = async ($: EngineInterface): Promise<string | null> => {
-  if (!(await $.env.get('KITTY_WINDOW_ID'))) return null
-  const result = await $.process.run(['kitty', '+runpy', KITTY_FONT], { timeoutMs: 10000 }).catch(() => null)
-  const name = result?.exitCode === 0 ? result.stdout.trim() : ''
-  return name && name !== 'monospace' ? name : null
+const GHOSTTY_APP = '/Applications/Ghostty.app/Contents/MacOS/ghostty'
+
+const terminalFont = async ($: EngineInterface): Promise<string | null> => {
+  const terminal = await detectTerminal($)
+  if (terminal === 'kitty') {
+    const result = await $.process.run(['kitty', '+runpy', KITTY_FONT], { timeoutMs: 10000 }).catch(() => null)
+    const name = result?.exitCode === 0 ? result.stdout.trim() : ''
+    return name && name !== 'monospace' ? name : null
+  }
+  if (terminal !== 'ghostty') return null
+  for (const ghostty of ['ghostty', GHOSTTY_APP]) {
+    const result = await $.process.run([ghostty, '+show-config'], { timeoutMs: 10000 }).catch(() => null)
+    if (result?.exitCode === 0) return ghosttyFont(result.stdout)
+  }
+  return null
+}
+
+const imageMagick = async ($: EngineInterface): Promise<string | null> => {
+  for (const command of ['magick', 'convert']) {
+    const result = await $.process.run([command, '-version'], { timeoutMs: 10000 }).catch(() => null)
+    if (result?.exitCode === 0 && result.stdout.includes('ImageMagick')) return command
+  }
+  return null
 }
 
 const fontFile = async ($: EngineInterface, family: string | null): Promise<string | null> => {
@@ -316,13 +368,13 @@ const fontFile = async ($: EngineInterface, family: string | null): Promise<stri
 
 const startHeadings = async ($: EngineInterface, style: Style): Promise<Headings | null> => {
   if (!style.headingImages || !(await drawsImages($))) return null
-  const probe = await $.process.run(['magick', '-version'], { timeoutMs: 10000 })
-  if (probe.exitCode !== 0) return null
-  const font = await fontFile($, await kittyFont($))
+  const magick = await imageMagick($)
+  if (!magick) return null
+  const font = await fontFile($, await terminalFont($))
   if (!font) return null
   const dir = await workDir($, 'headings')
   await $.fs.write(`${dir}/.ocellus`, '')
-  return { dir, font }
+  return { dir, font, magick }
 }
 
 const renderHeadings = async ($: EngineInterface, engine: Headings, sources: readonly string[]): Promise<Diagram[]> => {
@@ -330,8 +382,8 @@ const renderHeadings = async ($: EngineInterface, engine: Headings, sources: rea
   for (const source of sources) {
     const heading = parseHeadingSource(source)
     const file = `${engine.dir}/${crypto.randomUUID().slice(0, 8)}.png`
-    const argv = ['magick', '-background', 'none', '-fill', heading.color, '-font', engine.font, '-pointsize', String(HEADING_PX_PER_ROW * headingRows(heading.level)), 'label:@-', file]
-    const { exitCode } = await $.process.run(argv, { stdin: heading.lines.join('\n'), timeoutMs: 10000 })
+    const argv = [engine.magick, '-background', 'none', '-fill', heading.color, '-font', engine.font, '-pointsize', String(HEADING_PX_PER_ROW * headingRows(heading.level)), `label:${labelText(heading.lines)}`, file]
+    const { exitCode } = await $.process.run(argv, { timeoutMs: 10000 })
     results.push(exitCode === 0 ? await pictureAt($, file) : { error: true })
   }
   return results
@@ -432,10 +484,13 @@ const pasteDir = async ($: EngineInterface): Promise<string> => {
   return dir
 }
 
+const DECODE = '{ base64 -d < "$1" 2>/dev/null || base64 -D < "$1"; } > "$2.raw" || exit 1; if [ "$3" = png ]; then mv "$2.raw" "$2"; else im=$(command -v magick || command -v convert) && "$im" "$2.raw" "png:$2"; fi'
+
 const pasteFile = async ($: EngineInterface, id: number, source: PastedSource): Promise<string | null> => {
   const file = `${await pasteDir($)}/image-${id}.png`
-  const decode = source.mediaType === 'image/png' ? 'base64 -d > "$1"' : 'base64 -d | magick - "png:$1"'
-  const result = await $.process.run(['sh', '-c', decode, 'paste', file], { stdin: source.data, timeoutMs: 20000 }).catch(() => null)
+  await $.fs.write(`${file}.b64`, source.data)
+  const kind = source.mediaType === 'image/png' ? 'png' : 'other'
+  const result = await $.process.run(['sh', '-c', DECODE, 'paste', `${file}.b64`, file, kind], { timeoutMs: 20000 }).catch(() => null)
   return result?.exitCode === 0 ? file : null
 }
 
@@ -709,7 +764,7 @@ export const register: Register = (on, options) => {
     void painterEngine($, headed)
     const started = await next(e)
     await $.command
-      .register({ name: 'ocellus', description: 'Switch the ocellus theme, copy the last reply, or show the demo', argumentHint: '[theme [<name> | random] | copy [code] | demo]' })
+      .register({ name: 'ocellus', description: 'Switch the ocellus theme, copy the last reply, show the demo, or check dependencies', argumentHint: '[theme [<name> | random] | copy [code] | demo | doctor]' })
       .catch(() => undefined)
     return started
   })
@@ -719,6 +774,7 @@ export const register: Register = (on, options) => {
     const themeArgs = [...PRESET_NAMES, 'random']
     const [sub, name] = themeArgs.includes(first ?? '') ? ['theme', first] : [first, second]
     if (sub === 'demo') return { text: showcaseText(PRESET_NAMES) }
+    if (sub === 'doctor') return { text: doctorText(await doctorFacts($, style)) }
     if (sub === 'copy') {
       const reply = (await $.session.messages()).findLast(m => m.role === 'assistant' && m.text.trim())
       if (!reply) return { text: 'Nothing to copy yet.' }

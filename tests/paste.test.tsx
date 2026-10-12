@@ -14,7 +14,7 @@ const pasted = (text: string, images: { media_type: string; data: string }[]) =>
   content: [{ type: 'text', text }, ...images.map(source => ({ type: 'image', source: { type: 'base64', ...source } }))],
 })
 
-type Run = { argv: readonly string[]; stdin?: string }
+type Run = { argv: readonly string[]; data?: string }
 
 const world = (on: On, messages: unknown[]) => {
   const runs: Run[] = []
@@ -22,10 +22,14 @@ const world = (on: On, messages: unknown[]) => {
   on('session.surfaces', () => ({ value: ['terminal'] as const }))
   on('session.id', () => ({ value: 'sess-1' }))
   on('session.messages', () => ({ value: messages as never }))
-  on('fs.write', () => ({ value: undefined }))
+  const written = new Map<string, string>()
+  on('fs.write', (_, e) => {
+    written.set(e.path, e.text)
+    return { value: undefined }
+  })
   on('process.run', (_, e) => {
-    runs.push({ argv: e.argv, stdin: e.init?.stdin })
-    if (e.argv[0] === 'sh') files.set(String(e.argv.at(-1)), PNG_800x400)
+    runs.push({ argv: e.argv, data: written.get(String(e.argv[4])) })
+    if (e.argv[0] === 'sh') files.set(String(e.argv[5]), PNG_800x400)
     return { value: { exitCode: 0, stdout: '', stderr: '', isStdoutTruncated: false, isStderrTruncated: false } }
   })
   on('fs.read', (_, e) => (files.has(e.path) ? { value: { base64: files.get(e.path)! } } : { deny: `no such file ${e.path}` }))
@@ -73,7 +77,8 @@ test('a JPEG paste is converted to PNG with ImageMagick', async ($, on) => {
 
   const convert = runs.find(r => r.argv[0] === 'sh')
   expect(convert?.argv[2]).toContain('magick')
-  expect(convert?.stdin).toBe(JPEG)
+  expect(convert?.argv.at(-1)).toBe('other')
+  expect(convert?.data).toBe(JPEG)
   expect(await ui.find({ type: 'Image' })).toBeDefined()
   await ui.unmount()
 })
@@ -93,9 +98,10 @@ test('clicking a pasted image opens it full screen in a kitty overlay', async ($
 
   const written = runs.find(r => r.argv[0] === 'sh')
   const launch = runs.find(r => r.argv[0] === 'kitty' && r.argv[1] === '@')
-  expect(written?.stdin).toBe(PNG_800x400)
+  expect(written?.data).toBe(PNG_800x400)
+  expect(written?.argv.at(-1)).toBe('png')
   expect(launch?.argv).toEqual(expect.arrayContaining(['--type=overlay', '--title=image']))
-  expect(launch?.argv.at(-1)).toBe(written?.argv.at(-1))
+  expect(launch?.argv.at(-1)).toBe(written?.argv[5])
   await ui.unmount()
 })
 

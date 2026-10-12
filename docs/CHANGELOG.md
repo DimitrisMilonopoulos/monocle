@@ -11,6 +11,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Added
 
+- `/ocellus doctor` checks what images, diagrams, big headings and zoom need on this machine and gives the install command for macOS or Linux; [docs/SETUP.md](SETUP.md) is the full guide.
+- ImageMagick 6 (`convert`, as Debian and Ubuntu ship it) works as well as 7, and big headings in Ghostty use its configured `font-family`.
 - Terminals built on libghostty, which report Ghostty's terminfo (`TERM=xterm-ghostty`) or `GHOSTTY_RESOURCES_DIR` under their own `TERM_PROGRAM`, get images, big headings and Ghostty's right-to-left handling like Ghostty itself.
 - Images you paste show under your prompt in kitty and Ghostty instead of only `[Image #1]`; in kitty, click one to see it full screen.
 - `#` and `##` headings draw larger in kitty and Ghostty, three and two rows tall, rendered by ImageMagick in the terminal's own bold font. `headingImages` turns it off.

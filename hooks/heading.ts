@@ -5,6 +5,15 @@ const CELL_RATIO = 0.46
 
 export const KITTY_FONT = 'from kitty.config import load_config; from kitty.constants import config_dir; import os; print(load_config(os.path.join(config_dir, "kitty.conf")).font_family.created_from_string)'
 
+export const labelText = (lines: readonly string[]): string =>
+  lines.map((line, i) => {
+    const escaped = line.replace(/\\/g, '\\\\').replace(/%/g, '%%')
+    return i === 0 && escaped.startsWith('@') ? `\\${escaped}` : escaped
+  }).join('\\n')
+
+export const ghosttyFont = (config: string): string | null =>
+  [...config.matchAll(/^font-family[ \t]*=[ \t]*(.*?)[ \t]*$/gm)].map(m => m[1]!.replace(/^"(.*)"$/, '$1')).find(Boolean) ?? null
+
 export const headingColor = (t: Theme, level: number): string | undefined =>
   [t.heading, t.accent, t.link, t.number, t.emphasis, t.emphasis][level - 1] ?? t.heading
 

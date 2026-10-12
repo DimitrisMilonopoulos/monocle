@@ -1,7 +1,7 @@
 import type { On } from 'claude-code'
 import { expect, mock, test } from 'claude-code/testing'
 
-import { fitHeading, headingColor, wrapHeading } from '../hooks/heading'
+import { fitHeading, ghosttyFont, headingColor, labelText, wrapHeading } from '../hooks/heading'
 import { PRESETS } from '../hooks/presets'
 
 const PNG_800x400 = 'iVBORw0KGgoAAAANSUhEUgAAAyAAAAGQAQAAAAB+XjmZAAAAPklEQVR42u3BMQEAAADCoPVPbQ0PoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD4NndAAAYtfwy0AAAAASUVORK5CYII='
@@ -23,7 +23,7 @@ const magick = (on: On, { installed = true } = {}) => {
     if (e.argv[0] === 'fc-match') return ok(e.argv.at(-1) === 'JetBrainsMono Nerd Font:bold' ? '/fonts/JBMono-Bold.ttf' : '/fonts/Mono-Bold.ttf')
     if (e.argv[0] !== 'magick' || !installed) return { deny: `spawn ${e.argv[0]} ENOENT` }
     if (e.argv[1] !== '-version' && !dirs.has(String(e.argv.at(-1)).replace(/\/[^/]*$/, ''))) return { value: { exitCode: 1, stdout: '', stderr: 'unable to open image: No such file or directory', isStdoutTruncated: false, isStderrTruncated: false } }
-    if (e.argv[1] !== '-version') paints.push({ argv: e.argv, text: e.init?.stdin ?? '' })
+    if (e.argv[1] !== '-version') paints.push({ argv: e.argv, text: String(e.argv.find(a => a.startsWith('label:'))).slice('label:'.length) })
     return ok('Version: ImageMagick 7')
   })
   on('fs.write', (_, e) => {
@@ -53,7 +53,7 @@ test('# and ## headings draw as big images in the terminal font and their level 
   const images = await ui.findAll({ type: 'Image' })
   expect(images.map(i => [i.props.alt, i.props.rows])).toEqual([['Big title', 3], ['A section', 2]])
   expect(paints.map(p => p.text)).toEqual(['Big title', 'A section'])
-  expect(paints[0]!.argv).toEqual(expect.arrayContaining(['-font', '/fonts/JBMono-Bold.ttf', '-fill', MOCHA.heading, 'label:@-']))
+  expect(paints[0]!.argv).toEqual(expect.arrayContaining(['-font', '/fonts/JBMono-Bold.ttf', '-fill', MOCHA.heading]))
   expect(paints[1]!.argv).toEqual(expect.arrayContaining(['-fill', MOCHA.accent]))
   expect(await ui.find({ type: 'Text', text: /^Smaller$/ })).toBeDefined()
   await ui.unmount()
@@ -120,4 +120,14 @@ test('a heading image is as many rows as its level and lines, and must fit the c
   const two = { level: 1, color: '#fff', lines: ['a', 'b'] }
   expect(fitHeading({ width: 800, height: 200 }, two, 120)).toEqual({ rows: 6, columns: Math.round((6 * 4) / 0.46) })
   expect(fitHeading({ width: 8000, height: 100 }, { ...two, lines: ['a'] }, 120)).toBeNull()
+})
+
+test('heading text reaches ImageMagick with its escapes neutralized', async () => {
+  expect(labelText(['@/etc/passwd 100% done'])).toBe('\\@/etc/passwd 100%% done')
+  expect(labelText(['back\\slash', 'line two'])).toBe('back\\\\slash\\nline two')
+})
+
+test("Ghostty's font comes from the first font-family it reports", async () => {
+  expect(ghosttyFont('font-size = 13\nfont-family = \nfont-family = "JetBrains Mono"\nfont-family = Symbols')).toBe('JetBrains Mono')
+  expect(ghosttyFont('font-size = 13\nfont-family = \n')).toBeNull()
 })

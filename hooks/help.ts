@@ -12,6 +12,7 @@ Colored markdown for Claude Code replies: **bold**, *italic*, ~~struck~~, \`inli
 | \`/ocellus\` | This screen |
 | \`/ocellus theme <name>\` | Switch theme on the spot (\`/ocellus <name>\` works too), \`random\` for a new dark one now and each time the mod loads |
 | \`/ocellus copy\` | Copy the last reply, or \`copy code\` for its last code block |
+| \`/ocellus doctor\` | Check what images, diagrams and big headings need on this machine |
 | \`/config\` | Edit any option |
 
 > [!NOTE]
@@ -187,6 +188,7 @@ export const helpText = (themes: readonly string[]): string => `
 |---------|------|
 | \`/ocellus theme <name>\` | Switch theme on the spot (\`/ocellus <name>\` works too), \`random\` for a new dark one now and each time the mod loads |
 | \`/ocellus copy\` | Copy the last reply, or \`copy code\` for its last code block |
+| \`/ocellus doctor\` | Check what images, diagrams and big headings need on this machine |
 | \`/ocellus demo\` | Full showcase, every element and diagram |
 | \`/ocellus demo-rtl\` | Hebrew right-to-left showcase |
 

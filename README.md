@@ -58,6 +58,8 @@ claude plugin uninstall ocellus@ocellus
 
 For LaTeX math, install RaTeX's renderer and set `latex` to `true`; see [LaTeX math](#latex-math). Until then formulas draw as text.
 
+Diagrams as images, big headings, pasted-image previews and click to zoom need kitty or Ghostty and a few programs. [docs/SETUP.md](docs/SETUP.md) has the install commands for macOS and Linux, and `/ocellus doctor` checks your machine and says what's missing.
+
 ## Features
 
 | Feature | What you get |
