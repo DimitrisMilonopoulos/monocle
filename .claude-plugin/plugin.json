@@ -1,6 +1,6 @@
 {
   "name": "ocellus",
-  "version": "0.17.1",
+  "version": "0.18.0",
   "description": "Colorful Claude Code replies, with mermaid diagrams and images drawn as real pixels in kitty. A fork of prismantis.",
   "author": {
     "name": "Dimitrios Milonopoulos",

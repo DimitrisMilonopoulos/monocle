@@ -2,16 +2,7 @@
 
 All notable changes to this project are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
-
-### Fixed
-
-- Lines written one under another, like `App: …` then `API: …`, stay on their own lines as Claude Code draws them, instead of running together into one paragraph.
-
-### Changed
-
-- Forked from prismantis 0.17.1 as ocellus. The plugin, its `/ocellus` command, its `$.ocellus` noun and its settings key `ocellus@ocellus` are renamed; settings under `prismantis@prismantis` do not carry over.
-- Each heading level gets its own theme color: heading, accent, link, number, then emphasis. H2 used to share H1's color and H4 and below were white.
+## [0.18.0] - 2026-10-13
 
 ### Added
 
@@ -23,6 +14,15 @@ All notable changes to this project are documented here. The format follows [Kee
 - `#` and `##` headings draw larger in kitty and Ghostty, three and two rows tall, rendered by ImageMagick in the terminal's own bold font. `headingImages` turns it off.
 - Mermaid diagrams draw as real images in kitty and Ghostty when mermaid-cli (`mmdc`) is installed, in the theme's colors, including pie, gantt, mindmap and the other types text art can't draw. Text art shows until the image is ready, and stays for diagrams `mmdc` rejects or that would shrink below half size. `mermaidImages` turns it off.
 - In kitty, clicking a diagram image or its `⤢ zoom` button opens it full screen in a kitty overlay, rendered again at twice the resolution.
+
+### Changed
+
+- Forked from prismantis 0.17.1 as ocellus. The plugin, its `/ocellus` command, its `$.ocellus` noun and its settings key `ocellus@ocellus` are renamed; settings under `prismantis@prismantis` do not carry over.
+- Each heading level gets its own theme color: heading, accent, link, number, then emphasis. H2 used to share H1's color and H4 and below were white.
+
+### Fixed
+
+- Lines written one under another, like `App: …` then `API: …`, stay on their own lines as Claude Code draws them, instead of running together into one paragraph.
 
 ## [0.17.1] - 2026-10-12
 
