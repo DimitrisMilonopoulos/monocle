@@ -418,8 +418,21 @@ const drawHeading = (el: ElementTable, style: Style, block: Extract<Block, { kin
 
 const ALERT_COLOR = { note: 'blue', tip: 'green', important: 'magenta', warning: 'yellow', caution: 'red' } as const
 
-const renderParagraph = (el: ElementTable, style: Style, block: Extract<Block, { kind: 'paragraph' }>, columns: number, key: string) => {
+const splitLines = (nodes: Inline[]): Inline[][] => {
+  const text = inlineText(nodes)
+  const lines: Inline[][] = []
+  let from = 0
+  for (let at = text.indexOf('\n'); at !== -1; at = text.indexOf('\n', from)) {
+    lines.push(sliceInline(nodes, from, at))
+    from = at + 1
+  }
+  return [...lines, sliceInline(nodes, from, text.length)]
+}
+
+const renderParagraph = (el: ElementTable, style: Style, block: Extract<Block, { kind: 'paragraph' }>, columns: number, key: string): RenderElement => {
   const { Box, Text } = el
+  const lines = splitLines(block.inline)
+  if (lines.length > 1) return <Box key={key} flexDirection="column">{lines.map((inline, i) => renderParagraph(el, style, { ...block, inline }, columns, `${key}.${i}`))}</Box>
   const rtl = flowOf(style, block.inline, columns)
   if (rtl?.base === 'R') return <Box key={key} flexDirection="column" alignItems="flex-end">{renderFlow(el, style, rtl.lines, key)}</Box>
   return <Text key={key} bold={style.narration}>{renderInline(el, style, rtl ? rtl.lines[0]! : block.inline, key)}</Text>

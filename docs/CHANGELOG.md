@@ -4,6 +4,10 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Fixed
+
+- Lines written one under another, like `App: …` then `API: …`, stay on their own lines as Claude Code draws them, instead of running together into one paragraph.
+
 ### Changed
 
 - Forked from prismantis 0.17.1 as ocellus. The plugin, its `/ocellus` command, its `$.ocellus` noun and its settings key `ocellus@ocellus` are renamed; settings under `prismantis@prismantis` do not carry over.

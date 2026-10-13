@@ -283,7 +283,7 @@ const parseBlocks = (source: string, hl: Highlight): Block[] => {
   let para: string[] = []
 
   const flush = (end: number) => {
-    if (para.length) add({ kind: 'paragraph', inline: parseInline(para.join(' '), hl) }, paraStart, end)
+    if (para.length) add({ kind: 'paragraph', inline: parseInline(para.join('\n'), hl) }, paraStart, end)
     para = []
   }
 

@@ -721,3 +721,11 @@ test('terminal control sequences in a reply never reach the drawn text', async $
   expect(all).not.toMatch(/evil\.test|\]52;|\]8;;|\[2J|\[31m/)
   expect(/[\x00-\x08\x0b-\x1f\x7f]/.test(all)).toBe(false)
 })
+
+test('lines written one under another stay on their own lines, as Claude Code draws them', async $ => {
+  const ui = await $.ui.mount(mount('App: https://app.example.com\nAPI: **https://api.example.com**\nTemporal: gamma\n\nNext paragraph.'))
+  for (const line of [/^App: https:\/\/app\.example\.com$/, /^API: https:\/\/api\.example\.com$/, /^Temporal: gamma$/]) expect(await ui.find({ type: 'Text', text: line })).toBeDefined()
+  expect(await ui.find({ type: 'Text', text: /App:.*API:/ })).toBeUndefined()
+  expect(await ui.find({ type: 'Text', text: /^Next paragraph\.$/ })).toBeDefined()
+  await ui.unmount()
+})
