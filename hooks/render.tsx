@@ -164,13 +164,13 @@ const grammarFor = (lang: string) => {
   return grammar !== null && typeof grammar === 'object' ? grammar : undefined
 }
 
-export const highlightBlock = ({ Text }: ElementTable, style: Style, lines: string[], lang: string, key: string): RenderElement[] | null => {
+const highlightRows = (style: Style, lines: string[], lang: string): Segment[][] | null => {
   const grammar = grammarFor(lang)
   if (!grammar) return null
   const code = lines.join('\n')
   const cache = highlighted.get(style.theme) ?? new Map<string, Segment[][]>()
   highlighted.set(style.theme, cache)
-  const rows = remember(cache, `${style.reorder ? style.shape : ''}\0${lang}\0${code}`, () => {
+  return remember(cache, `${style.reorder ? style.shape : ''}\0${lang}\0${code}`, () => {
     const out: Segment[][] = [[]]
     for (const seg of flatten(tokenize(code, grammar), style)) {
       seg.text.split('\n').forEach((piece, i) => {
@@ -180,6 +180,11 @@ export const highlightBlock = ({ Text }: ElementTable, style: Style, lines: stri
     }
     return out
   })
+}
+
+export const highlightBlock = ({ Text }: ElementTable, style: Style, lines: string[], lang: string, key: string): RenderElement[] | null => {
+  const rows = highlightRows(style, lines, lang)
+  if (!rows) return null
   return rows.map((row, r) => (
     <Text key={`${key}.${r}`} color={style.theme.codeText}>
       {row.length ? row.map((s, i) => <Text key={`${key}.${r}.${i}`} color={s.color} italic={s.italic}>{s.text}</Text>) : ' '}
@@ -747,6 +752,21 @@ const DIFF_MAX = 400
 
 type DiffLine = { mark: '+' | '-' | ' '; num: number; text: string }
 
+const DIFF_LANGS: Record<string, string> = {
+  ts: 'ts', mts: 'ts', cts: 'ts', tsx: 'tsx', js: 'js', mjs: 'js', cjs: 'js', jsx: 'jsx', py: 'py', go: 'go', rs: 'rust',
+  java: 'java', kt: 'kt', kts: 'kts', swift: 'swift', c: 'c', h: 'c', cpp: 'cpp', cc: 'cpp', hpp: 'cpp', cs: 'cs', rb: 'rb',
+  json: 'json', yaml: 'yaml', yml: 'yml', toml: 'toml', sql: 'sql', html: 'html', htm: 'html', xml: 'xml', svg: 'svg',
+  css: 'css', tf: 'hcl', hcl: 'hcl', diff: 'diff', patch: 'diff',
+}
+
+export const diffLanguage = (path: unknown): string | undefined => {
+  if (typeof path !== 'string') return undefined
+  const name = path.replace(/\\/g, '/').split('/').pop() ?? ''
+  if (/^dockerfile/i.test(name)) return 'docker'
+  const ext = /\.([a-z0-9]+)$/i.exec(name)?.[1]?.toLowerCase()
+  return ext ? DIFF_LANGS[ext] : undefined
+}
+
 const HEX = /^#[0-9a-f]{6}$/i
 
 export const tint = (base: string | undefined, color: string | undefined, share = 0.2): string | undefined => {
@@ -790,7 +810,14 @@ export const renderDiffCard = (el: ElementTable, style: Style, output: unknown, 
   const shown = rows.slice(0, toggle?.folded === false ? DIFF_MAX : DIFF_LINES)
   const gutter = String(Math.max(0, ...shown.map(r => r.num))).length
   const color = (mark: DiffLine['mark']) => (mark === '+' ? t.number : mark === '-' ? t.codeFlag : undefined)
-  const tints = { '+': tint(t.rule, t.number), '-': tint(t.rule, t.codeFlag), ' ': undefined }
+  const painted = style.followsTerminal && style.paletteRead ? style.imageTheme : undefined
+  const tints = {
+    '+': tint(t.rule, t.number) ?? tint(painted?.rule, painted?.number),
+    '-': tint(t.rule, t.codeFlag) ?? tint(painted?.rule, painted?.codeFlag),
+    ' ': undefined,
+  }
+  const lang = style.diffHighlight ? diffLanguage((output as { filePath?: unknown }).filePath) : undefined
+  const syntax = lang ? highlightRows(style, shown.map(r => r.text), lang) : null
   return (
     <Box flexDirection="row">
       <Text dimColor>{'  ⎿  '}</Text>
@@ -806,7 +833,13 @@ export const renderDiffCard = (el: ElementTable, style: Style, output: unknown, 
             <Box key={`d${i}`} flexDirection="row" {...(bg ? { backgroundColor: bg } : {})}>
               <Text dimColor>{`${String(r.num).padStart(gutter)} `}</Text>
               <Text color={color(r.mark)} dimColor={r.mark === ' '}>{`${r.mark} `}</Text>
-              <Text color={bg ? t.codeText : color(r.mark)} dimColor={r.mark === ' '}>{r.text === '' ? ' ' : r.text}</Text>
+              {syntax?.[i]?.length ? (
+                <Text color={t.codeText} dimColor={r.mark === ' '}>
+                  {syntax[i]!.map((s, j) => <Text key={`d${i}.${j}`} color={s.color} italic={s.italic}>{s.text}</Text>)}
+                </Text>
+              ) : (
+                <Text color={bg || syntax ? t.codeText : color(r.mark)} dimColor={r.mark === ' '}>{r.text === '' ? ' ' : r.text}</Text>
+              )}
             </Box>
           )
         })}

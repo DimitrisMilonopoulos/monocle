@@ -18,6 +18,8 @@ export type Style = {
   theme: Theme
   imageTheme: Theme
   followsTerminal: boolean
+  paletteRead?: boolean
+  diffHighlight: boolean
   headingStyle: 'bold' | 'underline' | 'uppercase' | 'banner'
   tableStyle: 'box' | 'rules' | 'grid' | 'minimal'
   taskStyle: 'checks' | 'ticks' | 'box' | 'progress'
@@ -88,6 +90,7 @@ export const resolveStyle = (options: PluginOptions): Style => {
     headingImages: options.headingImages !== false,
     mermaidAscii: options.mermaidAscii === true,
     copyButtons: options.copyButtons !== false,
+    diffHighlight: options.diffHighlight === true,
     htmlCopy: null,
     diagramHints: options.diagramHints !== false && options.mermaid !== false,
     rtl,

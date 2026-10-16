@@ -315,6 +315,12 @@
       "description": "In kitty and Ghostty (not under tmux), render ```mermaid blocks with mermaid-cli (mmdc on your PATH, with Chrome or Chromium) and draw them as real images in the theme's colors, including diagram types the text art cannot draw (pie, gantt, mindmap, timeline). A diagram shows as text art until its image is ready. Off, or without mmdc, diagrams stay text art.",
       "default": true
     },
+    "diffHighlight": {
+      "type": "boolean",
+      "title": "Highlight diffs (experimental)",
+      "description": "Color the code in Edit and Write diff cards with the same highlighting as code blocks, picked from the file's extension. Only the shown lines are highlighted, so a string or comment that starts above them may stay plain.",
+      "default": false
+    },
     "copyButtons": {
       "type": "boolean",
       "title": "Copy buttons",

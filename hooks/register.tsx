@@ -394,6 +394,7 @@ const refreshTones = ($: EngineInterface, style: Style, latex: LatexSession, ton
       tones.loading = undefined
       if (!found || samePalette(found, tones.palette)) return
       tones.palette = found
+      style.paletteRead = true
       style.imageTheme = paintTheme(style.theme, found, style.followsTerminal)
       latex.color = ratexColor(style.imageTheme.diagramText ?? style.imageTheme.codeText ?? '#808080')
       $.ui.invalidate('ui.render')

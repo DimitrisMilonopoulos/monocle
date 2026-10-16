@@ -3,6 +3,7 @@ import { expect, mock, test } from 'claude-code/testing'
 
 import { ghosttyPalette, kittyPalette, paintTheme, usesNames } from '../hooks/palette'
 import { PRESETS } from '../hooks/presets'
+import { tint } from '../hooks/render'
 
 const PNG_800x400 = 'iVBORw0KGgoAAAANSUhEUgAAAyAAAAGQAQAAAAB+XjmZAAAAPklEQVR42u3BMQEAAADCoPVPbQ0PoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD4NndAAAYtfwy0AAAAASUVORK5CYII='
 const KITTY = { TERM: 'xterm-kitty', KITTY_WINDOW_ID: '42', TMPDIR: '/tmp/', HOME: '/home/me' }
@@ -146,5 +147,19 @@ test('a hex theme never asks the terminal for its colors', async ($, on) => {
   await clock.settle()
 
   expect(kitty.some(argv => argv.includes('get-colors'))).toBe(false)
+  await ui.unmount()
+})
+
+test('with theme ansi, diff cards tint added lines in the terminal palette once it is read', { options: { theme: 'ansi' } }, async ($, on) => {
+  mock.env(on, KITTY)
+  const clock = mock.clock(on)
+  world(on, { current: kittyColors('#7daea3') })
+  on('session.start', () => ({ cwd: '/tmp' }))
+  await $.session.start({ cwd: '/tmp', surface: 'terminal', isInteractive: true })
+  await clock.settle()
+  const painted = paintTheme(PRESETS.ansi, kittyPalette(kittyColors('#7daea3'))!, true)
+  const patch = { filePath: '/tmp/app.ts', structuredPatch: [{ oldStart: 1, newStart: 1, lines: ['+const c = 4'] }] }
+  const ui = await $.ui.mount({ plugin: 'monocle', surface: 'terminal' as const, component: 'ToolResult' as const, props: { tool_use_id: 'd-1', tool: 'Edit', output: patch, isErrored: false } })
+  expect((await ui.find({ type: 'Box', text: /^1 \+ const c = 4$/ }))?.props.backgroundColor).toBe(tint(painted.rule, painted.number))
   await ui.unmount()
 })

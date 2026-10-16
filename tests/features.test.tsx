@@ -6,7 +6,7 @@ import { clockText, endedAt, sentAt } from '../hooks/clock'
 import { parse } from '../hooks/markdown'
 import { PRESET_NAMES, PRESETS } from '../hooks/presets'
 import { RANDOM_THEMES, pickTheme } from '../hooks/theme'
-import { columnWidths, describeShell, diffLines, tint, errorReason, formatDuration, groupSummary, isReadOnlyCall, programsOf, refusalReason, rememberCall, shortTarget, shortenPaths } from '../hooks/render'
+import { columnWidths, describeShell, diffLanguage, diffLines, tint, errorReason, formatDuration, groupSummary, isReadOnlyCall, programsOf, refusalReason, rememberCall, shortTarget, shortenPaths } from '../hooks/render'
 
 const t = PRESETS['catppuccin-mocha']
 const engine = (on: On) =>
@@ -1038,6 +1038,34 @@ for (const toolOutput of ['full', 'quiet'] as const) {
     }
   })
 }
+
+test('diffHighlight colors the code in a diff card by the file extension', { options: { diffHighlight: true } }, async ($, on) => {
+  engine(on)
+  const ui = await $.ui.mount(editResult('terminal', 'Edit', patch))
+  expect((await ui.find({ type: 'Text', text: /^const$/ }))?.props.color).toBe(t.codeFlag)
+  expect((await ui.find({ type: 'Text', text: /^4$/ }))?.props.color).toBe(t.number)
+  expect((await ui.find({ type: 'Box', text: /^6 \+ const c = 4$/ }))?.props.backgroundColor).toBe(tint(t.rule, t.number))
+  await ui.unmount()
+  const plain = await $.ui.mount(editResult('terminal', 'Edit', { ...patch, filePath: '/tmp/notes.unknownext' }))
+  expect(await plain.find({ type: 'Text', text: /^const$/ })).toBeUndefined()
+  expect((await plain.find({ type: 'Text', text: /^const c = 4$/ }))?.props.color).toBe(t.codeText)
+  await plain.unmount()
+})
+
+test('diff cards stay plain unless diffHighlight is on', async ($, on) => {
+  engine(on)
+  const ui = await $.ui.mount(editResult('terminal', 'Edit', patch))
+  expect(await ui.find({ type: 'Text', text: /^const$/ })).toBeUndefined()
+  await ui.unmount()
+})
+
+test('diff languages come from the file name', () => {
+  expect(diffLanguage('/src/app.tsx')).toBe('tsx')
+  expect(diffLanguage('C:\\repo\\main.PY')).toBe('py')
+  expect(diffLanguage('/repo/Dockerfile.dev')).toBe('docker')
+  expect(diffLanguage('/repo/README.md')).toBeUndefined()
+  expect(diffLanguage(undefined)).toBeUndefined()
+})
 
 test('a long diff card folds to 20 lines, opens on press up to 400, and folds back', async ($, on) => {
   engine(on)
