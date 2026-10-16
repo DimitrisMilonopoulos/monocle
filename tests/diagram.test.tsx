@@ -283,6 +283,19 @@ test('a click on the image opens the same overlay', async ($, on) => {
   await ui.unmount()
 })
 
+test('the image under the click target draws again once the click target has loaded', async ($, on) => {
+  mock.env(on, KITTY_WINDOW)
+  const clock = mock.clock(on)
+  mmdc(on)
+  await started($, on)
+
+  const ui = await $.ui.mount(reply(FLOW))
+  await clock.settle()
+
+  expect(String((await ui.find({ type: 'Image' }))?.key)).toMatch(/img\d+[0-9a-f]{8}$/)
+  await ui.unmount()
+})
+
 const HERDR = { TERM: 'xterm-256color', TERM_PROGRAM: 'herdr', KITTY_PID: '42', KITTY_LISTEN_ON: 'unix:@kitty-42', TMPDIR: '/tmp/', HOME: '/home/me' }
 
 test('in herdr, where Claude Code draws no images unless forced, diagrams stay text art', async ($, on) => {

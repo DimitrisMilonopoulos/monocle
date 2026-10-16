@@ -9,6 +9,11 @@ All notable changes to this project are documented here. The format follows [Kee
 - Renamed to monocle. The plugin is `monocle@monocle` from the `DimitrisMilonopoulos/monocle` marketplace, its command is `/monocle` and its noun `$.monocle`; settings under `ocellus@ocellus` do not carry over.
 - New banner, screenshots and demo reply.
 
+### Fixed
+
+- In kitty, the first diagram or pasted image of a session no longer stays blank until the screen redraws.
+- A pasted image shows under its prompt even when the prompt is drawn before the message reaches the session.
+
 ## [0.18.0] - 2026-10-13
 
 ### Added

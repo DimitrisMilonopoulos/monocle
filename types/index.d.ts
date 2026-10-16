@@ -20,6 +20,7 @@ declare module 'claude-code' {
       diagramDir: string
       headings: Record<string, unknown>
       unfolded: string[]
+      zoomLoad: string
       sent: { text: string; at: number }[]
       turnEnds: { durationMs: number; at: number }[]
       drawn: StateFamily<number>

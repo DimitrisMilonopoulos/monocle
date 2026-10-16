@@ -87,6 +87,7 @@ const diagramDir = atom({ plugin: 'monocle', key: 'diagramDir' } as const, '')
 const headings = atom({ plugin: 'monocle', key: 'headings' } as const, {})
 const MAX_HEADINGS = 100
 const unfolded = atom({ plugin: 'monocle', key: 'unfolded' } as const, [] as string[])
+const zoomLoad = atom({ plugin: 'monocle', key: 'zoomLoad' } as const, '')
 const sent = atom({ plugin: 'monocle', key: 'sent' } as const, [])
 const turnEnds = atom({ plugin: 'monocle', key: 'turnEnds' } as const, [])
 
@@ -521,7 +522,10 @@ const previewOf = async ($: EngineInterface, id: number, source: PastedSource): 
   return file && read ? { file, ...read, ...(inlinable(png) ? { png } : {}), ...source } : { error: true }
 }
 
-const loadPastes = async ($: EngineInterface): Promise<void> => {
+const PASTE_RETRY_MS = 250
+const PASTE_TRIES = 8
+
+const loadPastes = async ($: EngineInterface, wanted: number[], tries: number): Promise<void> => {
   const messages = await $.session.messages({ as: 'api' })
   let added = false
   for (const [id, source] of pastedImages(messages)) {
@@ -530,6 +534,8 @@ const loadPastes = async ($: EngineInterface): Promise<void> => {
     added = true
   }
   if (added) $.ui.invalidate('ui.render')
+  if (tries <= 1 || wanted.every(id => pastes.images.has(id))) return
+  await new Promise<void>(resolve => $.clock.after(PASTE_RETRY_MS, () => void loadPastes($, wanted, tries - 1).catch(() => undefined).finally(resolve)))
 }
 
 const previewsOf = async ($: EngineInterface, text: string): Promise<{ id: number; preview: Preview }[]> => {
@@ -539,7 +545,7 @@ const previewsOf = async ($: EngineInterface, text: string): Promise<{ id: numbe
   if (ids.some(id => !pastes.images.has(id)) && !pastes.loading && now - pastes.triedAt > 1000) {
     pastes.loading = true
     pastes.triedAt = now
-    $.clock.after(0, () => void loadPastes($).catch(() => undefined).finally(() => (pastes.loading = false)))
+    $.clock.after(0, () => void loadPastes($, ids, PASTE_TRIES).catch(() => undefined).finally(() => (pastes.loading = false)))
   }
   return ids.flatMap(id => {
     const preview = pastes.images.get(id)
@@ -597,7 +603,7 @@ const drawPreviews = ($: EngineInterface, el: ReturnType<EngineInterface['ui']['
   const shown = previews.flatMap(({ id, preview }) => {
     const fit = fitPreview(preview, columns - 2)
     if (!fit) return []
-    const image = <Image key={`img${id}`} source={preview.png ? { png: preview.png } : { file: preview.file, format: 'png' }} columns={fit.columns} rows={fit.rows} alt={`[Image #${id}]`} />
+    const image = <Image key={`img${id}${style.zoomLoad ?? ''}`} source={preview.png ? { png: preview.png } : { file: preview.file, format: 'png' }} columns={fit.columns} rows={fit.rows} alt={`[Image #${id}]`} />
     return [zoomBox(el, style, image, zoomable.add({ kind: 'image', id }), fit, `paste${id}`)]
   })
   return shown.length ? <el.Box key="pasted" flexDirection="column" rowGap={1} paddingLeft={2}>{shown}</el.Box> : null
@@ -679,7 +685,7 @@ const drawMarkdown = ($: EngineInterface, el: ReturnType<EngineInterface['ui']['
       if (Image && picture && fit) {
         const alt = `mermaid: ${source.trim().split('\n')[0]!.trim()}`
         const id = zoomable.add({ kind: 'mermaid', source })
-        const image = <Image key={`img${i}`} source={picture.png ? { png: picture.png } : { file: picture.file, format: 'png' }} columns={fit.columns} rows={fit.rows} alt={alt} />
+        const image = <Image key={`img${i}${style.zoomLoad ?? ''}`} source={picture.png ? { png: picture.png } : { file: picture.file, format: 'png' }} columns={fit.columns} rows={fit.rows} alt={alt} />
         const element = <el.Box key={`b${i}`} paddingLeft={2}>{zoomBox(el, style, image, id, fit, `zoom${i}`)}</el.Box>
         const button = style.zoom ? <el.Button key={`zoombtn${i}`} variant="primary" label="⤢ zoom" onPress={() => void openZoom($, id)} /> : undefined
         drawn.set(i, { element, button })
@@ -852,6 +858,7 @@ export const register: Register = (on, options) => {
     if (blocks.length === 0) return next(e)
     const el = $.ui.resolve(e)
     const { Box } = el
+    style.zoomLoad = await read($, zoomLoad)
     const math = await mathOfBlocks($, latex, e.surface, blocks)
     const pictures = await diagramsOfBlocks($, mermaid, e.surface, blocks)
     const titles = await headingsOfBlocks($, headed, e.surface, blocks, columnsOf(e.viewport))
@@ -869,6 +876,7 @@ export const register: Register = (on, options) => {
       ? await (time === undefined ? next(e) : next({ ...e, props: { ...e.props, text: `[${time}] ${e.props.text}` } }))
       : renderUserPrompt($.ui.resolve(e), fit(e.viewport), e.props.text, columnsOf(e.viewport), time)
     const el = $.ui.resolve(e)
+    style.zoomLoad = await read($, zoomLoad)
     const pasted = e.surface === 'terminal' && style.images ? drawPreviews($, el, style, await previewsOf($, e.props.text), columnsOf(e.viewport)) : null
     return pasted ? <el.Box flexDirection="column" rowGap={1}>{prompt}{pasted}</el.Box> : prompt
   })
@@ -879,6 +887,7 @@ export const register: Register = (on, options) => {
     const el = $.ui.resolve(e)
     const { Box, Text } = el
     const narration = style.toolStyle === 'tree-bold' && blocks.length === 1 && blocks[0]!.kind === 'paragraph'
+    style.zoomLoad = await read($, zoomLoad)
     const math = await mathOfBlocks($, latex, e.surface, blocks)
     const pictures = await diagramsOfBlocks($, mermaid, e.surface, blocks)
     const titles = await headingsOfBlocks($, headed, e.surface, blocks, columnsOf(e.viewport))
@@ -897,7 +906,12 @@ export const register: Register = (on, options) => {
   })
 
   on('ui.message', async ($, e, next) => {
-    const data = e.data as { zoom?: unknown } | null
+    const data = e.data as { zoom?: unknown; loaded?: unknown } | null
+    if (data && typeof data === 'object' && typeof data.loaded === 'string') {
+      const loaded = data.loaded
+      await update($, zoomLoad, () => loaded)
+      return {}
+    }
     if (!data || typeof data !== 'object' || typeof data.zoom !== 'string') return next(e)
     void openZoom($, data.zoom)
     return {}

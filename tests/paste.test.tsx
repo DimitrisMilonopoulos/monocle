@@ -68,6 +68,25 @@ test('a pasted image shows under the prompt that carried it', async ($, on) => {
   await ui.unmount()
 })
 
+test('a prompt drawn before its message reaches the session still gets its image', async ($, on) => {
+  mock.env(on, KITTY)
+  const clock = mock.clock(on)
+  const messages: unknown[] = []
+  world(on, messages)
+  await started($, on)
+
+  const ui = await $.ui.mount(prompt('[Image #1] what is this?'))
+  await clock.settle()
+  expect(await ui.find({ type: 'Image' })).toBeUndefined()
+
+  messages.push(pasted('[Image #1] what is this?', [{ media_type: 'image/png', data: PNG_800x400 }]))
+  await clock.advance(1000)
+  await clock.settle()
+
+  expect((await ui.find({ type: 'Image' }))?.props.alt).toBe('[Image #1]')
+  await ui.unmount()
+})
+
 test('a JPEG paste is converted to PNG with ImageMagick', async ($, on) => {
   mock.env(on, KITTY)
   const clock = mock.clock(on)
