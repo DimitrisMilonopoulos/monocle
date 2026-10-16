@@ -4,10 +4,15 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Added
+
+- The `ansi` theme follows your terminal. Text uses Claude Code's theme colors, which under an ANSI Claude Code theme (`dark-ansi`, `light-ansi`) are the terminal's 16 colors, so it changes with the terminal's theme on the spot. Diagrams, big headings and LaTeX take the terminal's current colors in kitty (`kitty @ get-colors`) and Ghostty (`ghostty +show-config`), read again on each prompt, so images drawn after a theme switch match it.
+
 ### Changed
 
 - Renamed to monocle. The plugin is `monocle@monocle` from the `DimitrisMilonopoulos/monocle` marketplace, its command is `/monocle` and its noun `$.monocle`; settings under `ocellus@ocellus` do not carry over.
-- New banner, screenshots and demo reply.
+- New banner, screenshots and demo reply. The README is short now; every feature and option is in [REFERENCE.md](REFERENCE.md), and drawing markdown from another mod in [MODS.md](MODS.md).
+- On macOS, the setup guide and `/monocle doctor` install mermaid-cli and Chrome with Homebrew.
 
 ### Fixed
 

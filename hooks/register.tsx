@@ -7,6 +7,8 @@ import { BROWSERS, MAX_DIAGRAMS, MMDC_SCALE, batchMarkdown, batchOutput, colorHe
 import type { HeadingSource } from './heading'
 import type { Facts, Platform } from './doctor'
 import { doctorText } from './doctor'
+import type { Palette } from './palette'
+import { ghosttyPalette, kittyPalette, paintTheme, samePalette, usesNames } from './palette'
 import type { PastedSource } from './paste'
 import { fitPreview, imageRefs, pastedImages } from './paste'
 import { HEADING_PX_PER_ROW, KITTY_FONT, fitHeading, ghosttyFont, headingColor, headingRows, headingSource, labelText, parseHeadingSource, wrapHeading } from './heading'
@@ -368,6 +370,37 @@ const terminalFont = async ($: EngineInterface): Promise<string | null> => {
   return null
 }
 
+const terminalColors = async ($: EngineInterface): Promise<Palette | null> => {
+  const terminal = await fontTerminal($)
+  if (terminal === 'kitty') {
+    const window = await $.env.get('KITTY_WINDOW_ID')
+    const result = await $.process.run(['kitty', '@', 'get-colors', ...(window ? ['--match', `id:${window}`] : [])], { timeoutMs: 5000 }).catch(() => null)
+    return result?.exitCode === 0 ? kittyPalette(result.stdout) : null
+  }
+  if (terminal !== 'ghostty') return null
+  for (const ghostty of ['ghostty', GHOSTTY_APP]) {
+    const result = await $.process.run([ghostty, '+show-config'], { timeoutMs: 10000 }).catch(() => null)
+    if (result?.exitCode === 0) return ghosttyPalette(result.stdout)
+  }
+  return null
+}
+
+type Tones = { palette: Palette | null; loading?: Promise<void> }
+
+const refreshTones = ($: EngineInterface, style: Style, latex: LatexSession, tones: Tones): Promise<void> => {
+  if (!style.followsTerminal && !usesNames(style.theme)) return Promise.resolve()
+  return (tones.loading ??= terminalColors($)
+    .catch(() => null)
+    .then(found => {
+      tones.loading = undefined
+      if (!found || samePalette(found, tones.palette)) return
+      tones.palette = found
+      style.imageTheme = paintTheme(style.theme, found, style.followsTerminal)
+      latex.color = ratexColor(style.imageTheme.diagramText ?? style.imageTheme.codeText ?? '#808080')
+      $.ui.invalidate('ui.render')
+    }))
+}
+
 const imageMagick = async ($: EngineInterface): Promise<string | null> => {
   for (const command of ['magick', 'convert']) {
     const result = await $.process.run([command, '-version'], { timeoutMs: 10000 }).catch(() => null)
@@ -412,7 +445,7 @@ const paintLater = async ($: EngineInterface, p: Painter, items: Job[]): Promise
   const engine = await painterEngine($, p)
   if (!engine || p.stopped) return
   const sources = items.map(item => item.source)
-  const results = await (p.kind === 'mermaid' ? renderDiagrams($, engine as Mermaid, p.style.theme, sources) : renderHeadings($, engine as Headings, sources)).catch(() => null)
+  const results = await (p.kind === 'mermaid' ? renderDiagrams($, engine as Mermaid, p.style.imageTheme, sources) : renderHeadings($, engine as Headings, sources)).catch(() => null)
   if (!results) return stopPainter(p)
   const fresh = items.map((item, i) => [item.key, results[i]!] as const)
   const keep = (store: Record<string, unknown>) => keepFormulas(store, fresh, p.wanted, p.limit)
@@ -449,7 +482,7 @@ const picturesOf = async ($: EngineInterface, p: Painter, found: (Job & { i: num
 
 const diagramsOfBlocks = async ($: EngineInterface, mermaid: MermaidSession, surface: string, blocks: Block[]): Promise<Map<number, Picture>> => {
   if (surface !== 'terminal' || !mermaid.style.mermaidImages) return new Map()
-  const themeKey = themeKeyOf(mermaid.style.theme)
+  const themeKey = themeKeyOf(mermaid.style.imageTheme)
   return picturesOf($, mermaid, [...blocks.entries()].flatMap(([i, block]) => {
     const source = mermaidOf(block)
     return source === null ? [] : [{ i, source, key: diagramKey(themeKey, source) }]
@@ -464,7 +497,7 @@ const headingsOfBlocks = async ($: EngineInterface, headed: Painter, surface: st
     if (block.kind !== 'heading' || !rows || i === blocks.length - 1) return []
     const text = inlineText(block.inline).trim()
     if (!text || hasRtl(text)) return []
-    const heading = { level: block.level, color: colorHex(headingColor(style.theme, block.level), '#808080'), lines: wrapHeading(style.headingStyle === 'uppercase' && block.level === 1 ? text.toUpperCase() : text, Math.max(4, Math.floor(columns / rows))) }
+    const heading = { level: block.level, color: colorHex(headingColor(style.imageTheme, block.level), '#808080'), lines: wrapHeading(style.headingStyle === 'uppercase' && block.level === 1 ? text.toUpperCase() : text, Math.max(4, Math.floor(columns / rows))) }
     const source = headingSource(heading)
     return [{ i, source, key: source, heading }]
   })
@@ -564,7 +597,7 @@ const zoomFile = async ($: EngineInterface, target: ZoomTarget): Promise<{ file:
   const engine = mermaid ? ((await painterEngine($, mermaid)) as Mermaid | null) : null
   if (!mermaid || !engine) return { failure: 'mmdc is not available' }
   const name = `${engine.dir}/zoom-${crypto.randomUUID().slice(0, 8)}`
-  await $.fs.write(`${name}.json`, JSON.stringify(mermaidConfig(mermaid.style.theme)))
+  await $.fs.write(`${name}.json`, JSON.stringify(mermaidConfig(mermaid.style.imageTheme)))
   await $.fs.write(`${name}.mmd`, target.source)
   const render = await $.process.run(['mmdc', '-q', '-i', `${name}.mmd`, '-o', `${name}.png`, '-c', `${name}.json`, '-b', 'transparent', '-s', String(ZOOM_SCALE), '-j', '1', ...(engine.puppeteer ? ['-p', engine.puppeteer] : [])], { timeoutMs: 60000 })
   return render.exitCode === 0 ? { file: `${name}.png` } : { failure: `mmdc failed: ${render.stderr.trim().split('\n')[0] ?? render.exitCode}` }
@@ -742,10 +775,11 @@ export const register: Register = (on, options) => {
   const mermaid: MermaidSession = painter(style, 'mermaid', MAX_DIAGRAMS)
   const headed = painter(style, 'headings', MAX_HEADINGS)
   zoomable.session = mermaid
-  const latex: LatexSession = { style, color: ratexColor(style.theme.diagramText ?? style.theme.codeText ?? '#808080'), pending: new Set(), wanted: new Set(), batch: [], queue: Promise.resolve() }
+  const latex: LatexSession = { style, color: ratexColor(style.imageTheme.diagramText ?? style.imageTheme.codeText ?? '#808080'), pending: new Set(), wanted: new Set(), batch: [], queue: Promise.resolve() }
   const forSurface = (base: Style, surface: RenderSurface): Style => (surface === 'terminal' || !base.htmlCopy ? base : { ...base, htmlCopy: null })
   const fullWidth = (text: string) => (style.reorder && hasRtl(text) ? { width: '100%' as const } : {})
   const probes: Probes = {}
+  const tones: Tones = { palette: null }
 
   const quiet = style.toolOutput === 'quiet'
   if (options.toolRows !== false) {
@@ -783,6 +817,7 @@ export const register: Register = (on, options) => {
 
   on('session.start', async ($, e, next) => {
     terminal = await probe($, style, probes)
+    await refreshTones($, style, latex, tones)
     void latexEngine($, latex)
     void painterEngine($, mermaid)
     void painterEngine($, headed)
@@ -820,6 +855,7 @@ export const register: Register = (on, options) => {
     const others = RANDOM_THEMES.filter(t => t !== themeName)
     themeName = others[Math.floor(Math.random() * others.length)]!
     Object.assign(style, resolveStyle({ ...options, theme: themeName }))
+    tones.palette = null
     $.ui.invalidate('ui.render')
     return { text: `Theme set to random: ${themeName} for now.\nkeep it: /monocle theme ${themeName}` }
   })
@@ -844,6 +880,7 @@ export const register: Register = (on, options) => {
       await update($, sent, list => withRecord(list, { text: promptKey(e.text), at }))
     }
     terminal = await probe($, style, probes)
+    void refreshTones($, style, latex, tones)
     if (!style.diagramHints || (e.origin.kind !== 'composer' && e.origin.kind !== 'bridge')) return next(e)
     void latexEngine($, latex)
     void painterEngine($, mermaid)

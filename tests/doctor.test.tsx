@@ -12,7 +12,7 @@ test('a ready machine shows every image feature ready', async () => {
 
 test('missing tools get the install command for the platform', async () => {
   const mac = doctorText({ ...READY, platform: 'mac', mmdc: null, magick: null })
-  expect(mac).toContain('`brew install node`, then `npm install -g @mermaid-js/mermaid-cli`')
+  expect(mac).toContain('`brew install mermaid-cli`')
   expect(mac).toContain('`brew install imagemagick`')
   const linux = doctorText({ ...READY, mmdc: null, fcMatch: null })
   expect(linux).toContain('`npm install -g @mermaid-js/mermaid-cli`')

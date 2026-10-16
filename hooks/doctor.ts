@@ -33,14 +33,14 @@ const rows = (f: Facts): Row[] => {
         status: f.tmux ? 'inside tmux' : `${f.terminal ?? 'this terminal'} has no kitty graphics`,
         fix: f.tmux ? 'run Claude Code outside tmux' : 'use kitty, Ghostty or herdr',
       }
-  const browserFix = install(f.platform, 'install Google Chrome, or reinstall with `npm install -g @mermaid-js/mermaid-cli`', '`npm install -g @mermaid-js/mermaid-cli` fetches one, or install Chromium')
+  const browserFix = install(f.platform, '`brew install --cask google-chrome`', '`npm install -g @mermaid-js/mermaid-cli` fetches one, or install Chromium')
   return [
     imageRow,
     f.mmdc
       ? f.browser
         ? { feature: 'Mermaid as images', ok: true, status: `mmdc, ${f.browser}` }
         : { feature: 'Mermaid as images', ok: false, status: 'mmdc finds no browser', fix: browserFix }
-      : { feature: 'Mermaid as images', ok: false, status: 'mmdc not found', fix: install(f.platform, '`brew install node`, then `npm install -g @mermaid-js/mermaid-cli`', '`npm install -g @mermaid-js/mermaid-cli`') },
+      : { feature: 'Mermaid as images', ok: false, status: 'mmdc not found', fix: install(f.platform, '`brew install mermaid-cli`', '`npm install -g @mermaid-js/mermaid-cli`') },
     !f.magick
       ? { feature: 'Big headings', ok: false, status: 'ImageMagick not found', fix: install(f.platform, '`brew install imagemagick`', '`sudo apt install imagemagick` or `sudo pacman -S imagemagick`') }
       : !f.fcMatch

@@ -16,6 +16,8 @@ export type Clock = 'off' | '24h' | '12h'
 
 export type Style = {
   theme: Theme
+  imageTheme: Theme
+  followsTerminal: boolean
   headingStyle: 'bold' | 'underline' | 'uppercase' | 'banner'
   tableStyle: 'box' | 'rules' | 'grid' | 'minimal'
   taskStyle: 'checks' | 'ticks' | 'box' | 'progress'
@@ -51,7 +53,7 @@ export const isColor = (value: unknown): value is string => typeof value === 'st
 const pick = <T extends string>(value: unknown, allowed: readonly T[], fallback: T): T =>
   allowed.includes(value as T) ? (value as T) : fallback
 
-export const RANDOM_THEMES: readonly string[] = PRESET_NAMES.filter(t => !/latte|light|dawn/.test(t) && t !== 'mono')
+export const RANDOM_THEMES: readonly string[] = PRESET_NAMES.filter(t => !/latte|light|dawn/.test(t) && t !== 'mono' && t !== 'ansi')
 
 export const pickTheme = (value: unknown, random = Math.random): string => {
   const name = value === 'random' ? RANDOM_THEMES[Math.floor(random() * RANDOM_THEMES.length)] : value
@@ -64,10 +66,14 @@ export const resolveStyle = (options: PluginOptions): Style => {
     TOKENS.filter(k => isColor(options[`${k}Color`])).map(k => [k, String(options[`${k}Color`]).trim()]),
   )
 
+  const theme = { ...base, ...fromFields }
+  const followsTerminal = String(options.theme) === 'ansi'
   const rtl = pick(options.rtl, ['auto', 'off', ...(Object.keys(TERMINALS) as Terminal[])], 'auto')
 
   return {
-    theme: { ...base, ...fromFields },
+    theme,
+    imageTheme: followsTerminal ? { ...PRESETS['catppuccin-mocha'], ...fromFields } : theme,
+    followsTerminal,
     headingStyle: pick(options.headingStyle, ['bold', 'underline', 'uppercase', 'banner'] as const, 'banner'),
     tableStyle: pick(options.tableStyle, ['box', 'rules', 'grid', 'minimal'] as const, 'box'),
     taskStyle: pick(options.taskStyle, ['checks', 'ticks', 'box', 'progress'] as const, 'checks'),

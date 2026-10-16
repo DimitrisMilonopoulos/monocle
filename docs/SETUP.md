@@ -18,6 +18,7 @@ After installing anything, run `/reload` (or start a new session) so monocle che
 | Big `#` and `##` headings | kitty or Ghostty | ImageMagick (`magick`, or `convert` from ImageMagick 6) and `fc-match` (fontconfig) |
 | Pasted images under your prompt | kitty or Ghostty | none for PNG; ImageMagick for JPEG, GIF and WebP |
 | Click a diagram or image to zoom | kitty | kitty remote control turned on |
+| `ansi` theme colors in diagrams and headings | kitty or Ghostty | kitty: remote control turned on |
 | LaTeX math as images | kitty or Ghostty | RaTeX's `ratex-render`, and `latex` set to `true` |
 
 "kitty or Ghostty" includes other terminals built on libghostty that report `TERM=xterm-ghostty`. Images never show inside tmux, which doesn't pass them through.
@@ -27,12 +28,19 @@ After installing anything, run `/reload` (or start a new session) so monocle che
 Install [Homebrew](https://brew.sh) if you don't have it, then:
 
 ```bash
-brew install node imagemagick fontconfig
-npm install -g @mermaid-js/mermaid-cli
+brew install mermaid-cli imagemagick
 ```
 
-- `npm install -g @mermaid-js/mermaid-cli` downloads the headless Chrome that `mmdc` renders with into `~/.cache/puppeteer`. If you skip that download, monocle points `mmdc` at `/Applications/Google Chrome.app` or `/Applications/Chromium.app` when either is installed.
-- Homebrew's ImageMagick already pulls in fontconfig; listing it makes sure `fc-match` is on your `PATH`.
+If you don't have Google Chrome yet, `mmdc` needs it to render:
+
+```bash
+brew install --cask google-chrome
+```
+
+- Homebrew's `mermaid-cli` brings Node with it. monocle points `mmdc` at `/Applications/Google Chrome.app`, or `/Applications/Chromium.app` if you have that instead.
+- Homebrew's ImageMagick brings fontconfig, so `fc-match` is on your `PATH` too.
+- kitty and Ghostty install the same way: `brew install --cask kitty` or `brew install --cask ghostty`.
+- RaTeX, for LaTeX, isn't in Homebrew; see [LaTeX math](#latex-math-optional).
 - Ghostty on macOS needs nothing more. monocle reads your `font-family` through the `ghostty` command, or `/Applications/Ghostty.app` when it isn't on your `PATH`.
 
 ## Linux
@@ -55,9 +63,9 @@ sudo npm install -g @mermaid-js/mermaid-cli
 - Debian and Ubuntu ship ImageMagick 6, which has `convert` instead of `magick`. monocle uses whichever it finds.
 - If npm is set up to install global packages in your home directory, drop the `sudo`.
 
-## kitty: turn on remote control for zoom
+## kitty: turn on remote control for zoom and `ansi`
 
-Clicking a diagram or a pasted image opens it full screen in a kitty overlay, which monocle asks kitty for over its remote-control socket. Add this to `kitty.conf` and restart kitty (a config reload isn't enough for `listen_on`):
+Clicking a diagram or a pasted image opens it full screen in a kitty overlay, which monocle asks kitty for over its remote-control socket. The `ansi` theme reads your window's colors the same way. Add this to `kitty.conf` and restart kitty (a config reload isn't enough for `listen_on`):
 
 ```conf
 allow_remote_control socket-only
@@ -84,7 +92,7 @@ Then diagrams, big headings and pasted images work as in the terminal herdr runs
 
 ## LaTeX math (optional)
 
-LaTeX is off by default. Install RaTeX's renderer as `ratex-render` on your `PATH` (see [LaTeX math](../README.md#latex-math) in the README for the download), then set `latex` to `true` in `/config`.
+LaTeX is off by default. Install RaTeX's renderer as `ratex-render` on your `PATH` (see [LaTeX math](REFERENCE.md#latex-math) for the download), then set `latex` to `true` in `/config`.
 
 ## Over SSH
 

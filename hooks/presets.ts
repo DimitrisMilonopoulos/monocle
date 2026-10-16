@@ -92,6 +92,12 @@ export const PRESETS = {
     rule: '#eee8d5', tableRule: '#93a1a1', bullet: '#6c71c4', diagram: '#268bd2', diagramText: '#586e75',
   },
   mono: {} as Theme,
+  ansi: {
+    accent: 'rainbow_violet', heading: 'rainbow_yellow', tableHeader: 'rainbow_yellow', emphasis: 'rainbow_violet',
+    inlineCode: 'rainbow_blue', codeCommand: 'rainbow_indigo', codeFlag: 'rainbow_red', codeString: 'rainbow_green',
+    codeComment: 'subtle', link: 'rainbow_indigo', path: 'rainbow_blue', number: 'rainbow_green', quote: 'subtle',
+    rule: 'subtle', tableRule: 'subtle', bullet: 'rainbow_violet', diagram: 'rainbow_indigo',
+  },
 } satisfies Record<string, Theme>
 
 export type PresetName = keyof typeof PRESETS

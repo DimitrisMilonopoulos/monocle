@@ -28,7 +28,7 @@
     "theme": {
       "type": "string",
       "title": "Theme",
-      "description": "Base palette, from popular MIT-licensed themes. Light variants: catppuccin-latte, gruvbox-light, rose-pine-dawn, github-light, solarized-light. mono uses bold and dim only. random picks a dark color preset each time the mod loads (session start or reload).",
+      "description": "Base palette, from popular MIT-licensed themes. Light variants: catppuccin-latte, gruvbox-light, rose-pine-dawn, github-light, solarized-light. mono uses bold and dim only. ansi follows your terminal's own 16 colors (with Claude Code on an ANSI theme such as dark-ansi), so text changes with the terminal theme, and diagrams and big headings take the terminal's current colors in kitty and Ghostty. random picks a dark color preset each time the mod loads (session start or reload).",
       "default": "catppuccin-mocha",
       "options": [
         "catppuccin-mocha",
@@ -47,6 +47,7 @@
         "solarized-dark",
         "solarized-light",
         "mono",
+        "ansi",
         "random"
       ]
     },

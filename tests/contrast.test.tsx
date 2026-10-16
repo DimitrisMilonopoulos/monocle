@@ -38,7 +38,7 @@ const FLOOR: Record<string, number> = { rule: 1.05, tableRule: 1.05, codeComment
 test('every preset stays readable on its own background', async () => {
   const failures: string[] = []
   for (const [name, theme] of Object.entries(PRESETS)) {
-    if (name === 'mono') continue
+    if (name === 'mono' || name === 'ansi') continue
     const bg = BACKGROUNDS[name]
     if (!bg) throw new Error(`no background for ${name}`)
     for (const [token, color] of Object.entries(theme)) {

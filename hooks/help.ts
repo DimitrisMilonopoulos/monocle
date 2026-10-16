@@ -16,7 +16,7 @@ Colored markdown for Claude Code replies: **bold**, *italic*, ~~struck~~, \`inli
 | \`/config\` | Edit any option |
 
 > [!NOTE]
-> ${themes.length} themes ship with it. \`mono\` uses no color, only bold and dim.
+> ${themes.length} themes ship with it. \`mono\` uses no color, only bold and dim, and \`ansi\` takes your terminal's own colors.
 
 ### Pick a theme
 
@@ -197,6 +197,7 @@ export const helpText = (themes: readonly string[]): string => `
 - Dark: ${themes.filter(t => RANDOM_THEMES.includes(t)).join(', ')}
 - Light: ${themes.filter(t => /latte|light|dawn/.test(t)).join(', ')}
 - Plain: mono, no color, only bold and dim
+- Terminal: ansi, your terminal's own colors, following its theme as it changes
 
 Docs and issues: https://github.com/DimitrisMilonopoulos/monocle
 

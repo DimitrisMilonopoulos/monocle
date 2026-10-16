@@ -112,7 +112,7 @@ test('mermaid off keeps the source', { options: { mermaid: false } }, async $ =>
 test('every preset defines every token with a valid color', async () => {
   const tokens = Object.keys(PRESETS['catppuccin-mocha'])
   for (const [name, theme] of Object.entries(PRESETS)) {
-    if (name === 'mono') continue
+    if (name === 'mono' || name === 'ansi') continue
     expect(Object.keys(theme).sort()).toEqual([...tokens].sort())
     for (const value of Object.values(theme)) expect(/^#[0-9a-f]{6}$/.test(value as string)).toBe(true)
   }
