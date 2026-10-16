@@ -2,7 +2,7 @@ import type { On } from 'claude-code'
 import type { Engine } from 'claude-code/testing'
 import { expect, mock, test } from 'claude-code/testing'
 
-import { fitDiagram, mermaidConfig } from '../hooks/diagram'
+import { OFFLINE_CHROME, fitDiagram, mermaidConfig, puppeteerConfig } from '../hooks/diagram'
 import { PRESETS } from '../hooks/presets'
 
 const PNG_800x400 = 'iVBORw0KGgoAAAANSUhEUgAAAyAAAAGQAQAAAAB+XjmZAAAAPklEQVR42u3BMQEAAADCoPVPbQ0PoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD4NndAAAYtfwy0AAAAASUVORK5CYII='
@@ -83,8 +83,14 @@ test('a mermaid block draws as an image rendered by mmdc in the theme colors', a
   expect(runs[0]!.sources).toEqual(['graph LR\n  A[Start] --> B[Done]'])
   const config = [...written].find(([name]) => name.endsWith('.json') && name !== 'puppeteer.json')?.[1]
   expect(JSON.parse(config ?? '{}').themeVariables.lineColor).toBe(PRESETS['catppuccin-mocha'].diagram)
-  expect(JSON.parse(written.get('puppeteer.json') ?? '{}')).toEqual({ executablePath: '/usr/bin/chromium' })
+  expect(JSON.parse(written.get('puppeteer.json') ?? '{}')).toEqual({ executablePath: '/usr/bin/chromium', args: OFFLINE_CHROME })
   await ui.unmount()
+})
+
+test('chrome under mmdc gets no network, whichever chrome it is', () => {
+  expect(puppeteerConfig()).toEqual({ args: OFFLINE_CHROME })
+  expect(puppeteerConfig('/usr/bin/chromium')).toEqual({ executablePath: '/usr/bin/chromium', args: OFFLINE_CHROME })
+  expect(OFFLINE_CHROME).toEqual(expect.arrayContaining(['--proxy-server=127.0.0.1:9', '--proxy-bypass-list=<-loopback>', '--host-resolver-rules=MAP * ~NOTFOUND']))
 })
 
 test('a diagram the text art cannot draw still renders as an image', async ($, on) => {
@@ -249,7 +255,7 @@ test('in kitty a drawn diagram gets a zoom button and a click target over the im
 test('the zoom button renders the diagram sharper and opens it in a kitty overlay over this window', async ($, on) => {
   mock.env(on, KITTY_WINDOW)
   const clock = mock.clock(on)
-  const { written, kitty } = mmdc(on)
+  const { runs, written, kitty } = mmdc(on)
   await started($, on)
 
   const ui = await $.ui.mount(reply(FLOW))
@@ -262,6 +268,7 @@ test('the zoom button renders the diagram sharper and opens it in a kitty overla
   expect(written.get(zoomInput ?? '')).toBe('graph LR\n  A[Start] --> B[Done]')
   expect(kitty).toHaveLength(1)
   expect(kitty[0]).toEqual(expect.arrayContaining(['@', 'launch', '--type=overlay', '--match', 'window_id:42', '--next-to', 'id:42']))
+  for (const run of runs) expect(base(String(run.argv[run.argv.indexOf('-p') + 1]))).toBe('puppeteer.json')
   expect(base(String(kitty[0]!.at(-1)))).toBe(zoomInput!.replace(/\.mmd$/, '.png'))
   await ui.unmount()
 })

@@ -18,6 +18,10 @@ const MAX_SOURCE = 20000
 const MAX_INLINE_BYTES = 2 * 1024 * 1024
 const DIAGRAM_TYPES = ['flowchart', 'sequence', 'gantt', 'journey', 'timeline', 'class', 'state', 'er', 'pie', 'quadrantChart', 'xyChart', 'requirement', 'mindmap', 'kanban', 'gitGraph', 'c4', 'sankey', 'packet', 'block', 'radar', 'architecture']
 
+export const OFFLINE_CHROME = ['--proxy-server=127.0.0.1:9', '--proxy-bypass-list=<-loopback>', '--host-resolver-rules=MAP * ~NOTFOUND']
+
+export const puppeteerConfig = (executablePath?: string): Record<string, unknown> => ({ ...(executablePath ? { executablePath } : {}), args: OFFLINE_CHROME })
+
 export const BROWSERS = [
   '/usr/bin/chromium',
   '/usr/bin/chromium-browser',

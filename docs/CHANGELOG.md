@@ -19,6 +19,10 @@ All notable changes to this project are documented here. The format follows [Kee
 - In kitty, the first diagram or pasted image of a session no longer stays blank until the screen redraws.
 - A pasted image shows under its prompt even when the prompt is drawn before the message reaches the session.
 
+### Security
+
+- The Chrome that `mmdc` renders diagrams in has no network. Before, a diagram could make it load a remote image, so a prompt injection could send data out in a URL with no permission prompt.
+
 ## [0.18.0] - 2026-10-13
 
 ### Added

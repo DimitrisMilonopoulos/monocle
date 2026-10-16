@@ -3,7 +3,7 @@ import type { EngineInterface, Register, RenderElement, RenderSurface } from 'cl
 
 import { clockText, endedAt, promptKey, sentAt, withRecord } from './clock'
 import type { Diagram, Picture } from './diagram'
-import { BROWSERS, MAX_DIAGRAMS, MMDC_SCALE, batchMarkdown, batchOutput, colorHex, diagramKey, fitDiagram, inlinable, mermaidConfig, mermaidOf } from './diagram'
+import { BROWSERS, MAX_DIAGRAMS, MMDC_SCALE, batchMarkdown, batchOutput, colorHex, diagramKey, fitDiagram, inlinable, mermaidConfig, mermaidOf, puppeteerConfig } from './diagram'
 import type { HeadingSource } from './heading'
 import type { Facts, Platform } from './doctor'
 import { doctorText } from './doctor'
@@ -212,7 +212,7 @@ const mathOfBlocks = async ($: EngineInterface, latex: LatexSession, surface: st
   }))
 }
 
-type Mermaid = { dir: string; puppeteer?: string }
+type Mermaid = { dir: string; puppeteer: string }
 type Job = { key: string; source: string }
 type Painter = {
   style: Style
@@ -263,9 +263,8 @@ const startMermaid = async ($: EngineInterface, style: Style): Promise<Mermaid |
   if (version.exitCode !== 0) return null
   const dir = await workDir($, 'mermaid')
   const browser = await findBrowser($)
-  if (browser?.kind !== 'system') return { dir }
   const puppeteer = `${dir}/puppeteer.json`
-  await $.fs.write(puppeteer, JSON.stringify({ executablePath: browser.path }))
+  await $.fs.write(puppeteer, JSON.stringify(puppeteerConfig(browser?.kind === 'system' ? browser.path : undefined)))
   return { dir, puppeteer }
 }
 
@@ -334,7 +333,7 @@ const renderDiagrams = async ($: EngineInterface, engine: Mermaid, theme: Style[
   const config = `${engine.dir}/${batch}.json`
   await $.fs.write(config, JSON.stringify(mermaidConfig(theme)))
   await $.fs.write(input, batchMarkdown(sources))
-  const argv = ['mmdc', '-q', '-i', input, '-o', `${engine.dir}/${batch}.png`, '-c', config, '-b', 'transparent', '-s', String(MMDC_SCALE), '-j', '1', ...(engine.puppeteer ? ['-p', engine.puppeteer] : [])]
+  const argv = ['mmdc', '-q', '-i', input, '-o', `${engine.dir}/${batch}.png`, '-c', config, '-b', 'transparent', '-s', String(MMDC_SCALE), '-j', '1', '-p', engine.puppeteer]
   const { exitCode } = await $.process.run(argv, { timeoutMs: Math.min(120000, 20000 + 5000 * sources.length) })
   const results = await Promise.all(sources.map((_, i) => pictureAt($, batchOutput(engine.dir, batch, i))))
   if (exitCode === 0 || sources.length === 1) return results
@@ -599,7 +598,7 @@ const zoomFile = async ($: EngineInterface, target: ZoomTarget): Promise<{ file:
   const name = `${engine.dir}/zoom-${crypto.randomUUID().slice(0, 8)}`
   await $.fs.write(`${name}.json`, JSON.stringify(mermaidConfig(mermaid.style.imageTheme)))
   await $.fs.write(`${name}.mmd`, target.source)
-  const render = await $.process.run(['mmdc', '-q', '-i', `${name}.mmd`, '-o', `${name}.png`, '-c', `${name}.json`, '-b', 'transparent', '-s', String(ZOOM_SCALE), '-j', '1', ...(engine.puppeteer ? ['-p', engine.puppeteer] : [])], { timeoutMs: 60000 })
+  const render = await $.process.run(['mmdc', '-q', '-i', `${name}.mmd`, '-o', `${name}.png`, '-c', `${name}.json`, '-b', 'transparent', '-s', String(ZOOM_SCALE), '-j', '1', '-p', engine.puppeteer], { timeoutMs: 60000 })
   return render.exitCode === 0 ? { file: `${name}.png` } : { failure: `mmdc failed: ${render.stderr.trim().split('\n')[0] ?? render.exitCode}` }
 }
 
