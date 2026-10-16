@@ -44,7 +44,7 @@ const started = async ($: Engine, on: On) => {
 }
 
 const prompt = (text: string) => ({
-  plugin: 'ocellus',
+  plugin: 'monocle',
   component: 'UserMessage' as const,
   props: { text, origin: { kind: 'composer' as const }, isExpanded: false },
   viewport: { columns: 120, rows: 40 },

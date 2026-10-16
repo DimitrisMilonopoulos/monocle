@@ -7,7 +7,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 export const ROOT = fileURLToPath(new URL('..', import.meta.url))
 
 export const load = async () => {
-  const out = join(mkdtempSync(join(tmpdir(), 'ocellus-')), 'bundle.js')
+  const out = join(mkdtempSync(join(tmpdir(), 'monocle-')), 'bundle.js')
   await build({
     stdin: {
       contents: [

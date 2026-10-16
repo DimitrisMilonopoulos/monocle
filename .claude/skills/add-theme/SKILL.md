@@ -1,6 +1,6 @@
 ---
 name: add-theme
-description: Add, rename or update a ocellus color preset from an existing theme (Dracula, Nord, a VS Code theme, ...). Use when someone says "add a theme", "support <theme name>", "new palette" or "rename a preset".
+description: Add, rename or update a monocle color preset from an existing theme (Dracula, Nord, a VS Code theme, ...). Use when someone says "add a theme", "support <theme name>", "new palette" or "rename a preset".
 ---
 
 # Add a theme

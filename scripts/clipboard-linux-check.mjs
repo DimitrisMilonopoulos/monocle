@@ -21,7 +21,7 @@ const stop = async child => {
 assert.equal(process.platform, 'linux')
 assert.ok(process.env.DISPLAY, 'Run under xvfb-run to isolate the X11 clipboard')
 const { clipboardCommand } = await load()
-const scratch = mkdtempSync(join(tmpdir(), 'ocellus-wayland-'))
+const scratch = mkdtempSync(join(tmpdir(), 'monocle-wayland-'))
 const config = join(scratch, 'sway.conf')
 writeFileSync(config, 'xwayland disable\nseat seat0 fallback true\n')
 const env = { ...process.env, XDG_RUNTIME_DIR: scratch, WLR_BACKENDS: 'headless', WLR_RENDERER: 'pixman', WLR_LIBINPUT_NO_DEVICES: '1' }

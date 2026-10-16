@@ -70,7 +70,7 @@ const cell = (text: string) => text.replace(/\|/g, '\\|')
 export const doctorText = (facts: Facts): string => {
   const table = rows(facts).map(r => `| ${r.feature} | ${r.ok ? '✓' : '✗'} ${cell(r.status)} | ${cell(r.fix ?? '')} |`)
   return [
-    '## ocellus doctor',
+    '## monocle doctor',
     '',
     '| Feature | Status | To fix |',
     '|---|---|---|',

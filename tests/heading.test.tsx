@@ -38,7 +38,7 @@ const magick = (on: On, { installed = true } = {}) => {
 }
 
 const reply = (text: string, columns = 120) => ({
-  plugin: 'ocellus',
+  plugin: 'monocle',
   component: 'AssistantMessage' as const,
   props: { text, isFirstOfReply: true },
   viewport: { columns, rows: 40 },

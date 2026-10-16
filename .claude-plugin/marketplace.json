@@ -1,13 +1,13 @@
 {
-  "name": "ocellus",
+  "name": "monocle",
   "owner": {
     "name": "Dimitrios Milonopoulos",
     "url": "https://github.com/DimitrisMilonopoulos"
   },
   "plugins": [
     {
-      "name": "ocellus",
-      "description": "Colorful Claude Code replies, with mermaid diagrams and images drawn as real pixels in kitty. A fork of prismantis.",
+      "name": "monocle",
+      "description": "Colorful Claude Code replies, with mermaid diagrams and images drawn as real pixels in kitty.",
       "source": "./",
       "version": "0.18.0",
       "category": "appearance",
@@ -20,5 +20,5 @@
       ]
     }
   ],
-  "description": "ocellus: colorful Claude Code replies with real pixels in kitty. A fork of prismantis."
+  "description": "monocle: colorful Claude Code replies with real pixels in kitty."
 }

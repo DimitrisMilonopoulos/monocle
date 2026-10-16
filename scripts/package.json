@@ -1,5 +1,5 @@
 {
-  "name": "ocellus",
+  "name": "monocle",
   "private": true,
   "type": "module",
   "description": "Dev tooling only. The mod itself has no runtime dependencies.",

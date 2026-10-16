@@ -1,17 +1,17 @@
 <Box border=bold>
   <Text color=#0550ae bold>
     <Text>
-      "ocellus"
+      "monocle"
 <Text>
   <Text color=#1f2328 bold>
     <Text>
-      "Furious Five status:"
+      "Afternoon tea report:"
   <Text>
-    " Mantis cleared "
+    " Lord Pemberton poured "
   <Text color=#0550ae>
     "3"
   <Text>
-    " dumplings in "
+    " pots in "
   <Text color=#0550ae>
     "6m"
   <Text>
@@ -19,7 +19,7 @@
   <Text color=#0550ae>
     "20s"
   <Text>
-    ", kick power up "
+    ", scone stock up "
   <Text color=#0550ae>
     "18%"
   <Text>
@@ -27,11 +27,11 @@
   <Text color=#0550ae>
     "82"
   <Text>
-    " kicks/min. Notes in "
+    " per hour. Notes in "
   <Text color=#116329>
-    "~/jade-palace/training.md"
+    "~/club/ledger.md"
   <Text>
-    ", scroll at "
+    ", minutes at "
   <Link>
 <Box>
   <Text color=#8250df bold>
@@ -41,166 +41,158 @@
     "━━━━━━"
 <Box>
   <Text color=#6e7781>
-    "┌───────────────┬─────────────────────────┬───────────────────────┬───────┐"
+    "┌────────────────┬──────────┬─────────────────┬──────┐"
   <Box row>
     <Text color=#6e7781>
       "│ "
     <Box>
       <Text color=#953800 bold>
-        "Mantis"
+        "Member"
     <Text color=#6e7781>
       " │ "
     <Box>
       <Text color=#953800 bold>
-        "Movie"
+        "Club"
     <Text color=#6e7781>
       " │ "
     <Box>
       <Text color=#953800 bold>
-        "Superpower"
+        "Accessory"
     <Text color=#6e7781>
       " │ "
     <Box>
       <Text color=#953800 bold>
-        "Size"
+        "Lens"
     <Text color=#6e7781>
       " │"
   <Text color=#6e7781>
-    "╞═══════════════╪═════════════════════════╪═══════════════════════╪═══════╡"
-  <Box row>
-    <Text color=#6e7781>
-      "│ "
-    <Box>
-      <Text>
-        <Text>
-          "Mantis"
-    <Text color=#6e7781>
-      " │ "
-    <Box>
-      <Text>
-        <Text>
-          "Kung Fu Panda"
-    <Text color=#6e7781>
-      " │ "
-    <Box>
-      <Text>
-        <Text>
-          "acupuncture kicks"
-    <Text color=#6e7781>
-      " │ "
-    <Box>
-      <Text>
-        <Text>
-          "5cm"
-    <Text color=#6e7781>
-      " │"
-  <Text color=#6e7781>
-    "├───────────────┼─────────────────────────┼───────────────────────┼───────┤"
+    "╞════════════════╪══════════╪═════════════════╪══════╡"
   <Box row>
     <Text color=#6e7781>
       "│ "
     <Box>
       <Text>
         <Text>
-          "Mantis"
+          "Lord Pemberton"
     <Text color=#6e7781>
       " │ "
     <Box>
       <Text>
         <Text>
-          "Guardians of the Galaxy"
+          "Drones"
     <Text color=#6e7781>
       " │ "
     <Box>
       <Text>
         <Text>
-          "empathy, awkward hugs"
+          "gold monocle"
     <Text color=#6e7781>
       " │ "
     <Box>
       <Text>
         <Text>
-          "168cm"
+          "32mm"
     <Text color=#6e7781>
       " │"
   <Text color=#6e7781>
-    "├───────────────┼─────────────────────────┼───────────────────────┼───────┤"
+    "├────────────────┼──────────┼─────────────────┼──────┤"
   <Box row>
     <Text color=#6e7781>
       "│ "
     <Box>
       <Text>
         <Text>
-          "mantis shrimp"
+          "Lady Ashcombe"
     <Text color=#6e7781>
       " │ "
     <Box>
       <Text>
         <Text>
-          "real life"
+          "Diogenes"
     <Text color=#6e7781>
       " │ "
     <Box>
       <Text>
         <Text>
-          "punches at "
-        <Text color=#0550ae>
-          "23"
-        <Text>
-          " m/s"
+          "opera lorgnette"
     <Text color=#6e7781>
       " │ "
     <Box>
       <Text>
         <Text>
-          "10cm"
+          "28mm"
     <Text color=#6e7781>
       " │"
   <Text color=#6e7781>
-    "└───────────────┴─────────────────────────┴───────────────────────┴───────┘"
+    "├────────────────┼──────────┼─────────────────┼──────┤"
+  <Box row>
+    <Text color=#6e7781>
+      "│ "
+    <Box>
+      <Text>
+        <Text>
+          "Sir Reginald"
+    <Text color=#6e7781>
+      " │ "
+    <Box>
+      <Text>
+        <Text>
+          "Reform"
+    <Text color=#6e7781>
+      " │ "
+    <Box>
+      <Text>
+        <Text>
+          "pocket loupe"
+    <Text color=#6e7781>
+      " │ "
+    <Box>
+      <Text>
+        <Text>
+          "21mm"
+    <Text color=#6e7781>
+      " │"
+  <Text color=#6e7781>
+    "└────────────────┴──────────┴─────────────────┴──────┘"
 <Box>
   <Box row>
     <Text color=#cf222e>
       "1. "
     <Text>
       <Text>
-        "Wake up, stretch all "
-      <Text color=#0550ae>
-        "6"
-      <Text>
-        " legs"
+        "Polish the monocle"
   <Box row>
     <Text color=#cf222e>
       "2. "
     <Text>
       <Text>
-        "Pray to the noodle gods"
+        "Ring for tea"
   <Box row>
     <Text color=#cf222e>
       "◦ "
     <Text>
       <Text>
-        "extra dumplings"
+        "Earl Grey"
   <Box row>
     <Text color=#cf222e>
       "◦ "
     <Text>
       <Text>
-        "no tofu"
+        "no milk"
 <Box row>
   <Box>
     <Box>
       <Text>
         <Text color=#0969da>
-          "┌────┐"
+          "┌────────┐"
         <Text color=#1f2328>
           "   "
         <Text color=#0550ae>
-          "┌─────────┐"
+          "┌────────┐"
         <Text color=#1f2328>
           "   "
         <Text color=#8250df>
-          "┌──────────┐"
+          "┌──────┐"
         <Text color=#1f2328>
           "   "
         <Text color=#116329>
@@ -211,7 +203,7 @@
         <Text color=#1f2328>
           " "
         <Text color=#0969da>
-          "Po"
+          "Butler"
         <Text color=#1f2328>
           " "
         <Text color=#0969da>
@@ -223,7 +215,7 @@
         <Text color=#1f2328>
           " "
         <Text color=#0550ae>
-          "Noodles"
+          "Teapot"
         <Text color=#1f2328>
           " "
         <Text color=#0550ae>
@@ -235,7 +227,7 @@
         <Text color=#1f2328>
           " "
         <Text color=#8250df>
-          "Training"
+          "Tray"
         <Text color=#1f2328>
           " "
         <Text color=#8250df>
@@ -247,311 +239,283 @@
         <Text color=#116329>
           "│"
         <Text color=#1f2328>
-          "  "
-        <Text color=#116329>
-          "Mantis"
-        <Text color=#1f2328>
           " "
         <Text color=#116329>
-          "│"
-      <Text>
-        <Text color=#0969da>
-          "└────┘"
+          "Library"
         <Text color=#1f2328>
-          "   "
-        <Text color=#0550ae>
-          "└─────────┘"
-        <Text color=#1f2328>
-          "   "
-        <Text color=#8250df>
-          "└─────┬────┘"
-        <Text color=#1f2328>
-          "   "
+          " "
         <Text color=#116329>
-          "└─────────┘"
-      <Text>
-        <Text color=#1f2328>
-          "                             "
-        <Text color=#0969da>
-          "│"
-        <Text color=#1f2328>
-          "        "
-        <Text color=#cf222e>
-          "┌─────────┐"
-      <Text>
-        <Text color=#1f2328>
-          "                             "
-        <Text color=#0969da>
-          "└───────"
-        <Text color=#8250df>
-          "►"
-        <Text color=#cf222e>
-          "│"
-        <Text color=#1f2328>
-          " "
-        <Text color=#cf222e>
-          "Tigress"
-        <Text color=#1f2328>
-          " "
-        <Text color=#cf222e>
-          "│"
-      <Text>
-        <Text color=#1f2328>
-          "                                      "
-        <Text color=#cf222e>
-          "└─────────┘"
-  <Box>
-    <Box>
-      <Text>
-        <Text color=#0969da>
-          "┌────────┐"
-        <Text color=#1f2328>
-          "            "
-        <Text color=#0550ae>
-          "┌──────┐"
-      <Text>
-        <Text color=#0969da>
-          "│"
-        <Text color=#1f2328>
-          " "
-        <Text color=#0969da>
-          "Shrimp"
-        <Text color=#1f2328>
-          " "
-        <Text color=#0969da>
-          "│"
-        <Text color=#1f2328>
-          "            "
-        <Text color=#0550ae>
-          "│"
-        <Text color=#1f2328>
-          " "
-        <Text color=#0550ae>
-          "Crab"
-        <Text color=#1f2328>
-          " "
-        <Text color=#0550ae>
-          "│"
-      <Text>
-        <Text color=#0969da>
-          "└────┬───┘"
-        <Text color=#1f2328>
-          "            "
-        <Text color=#0550ae>
-          "└───┬──┘"
-      <Text>
-        <Text color=#1f2328>
-          "     "
-        <Text color=#0969da>
-          "│"
-        <Text color=#1f2328>
-          "  punch at 23 m/s   "
-        <Text color=#0969da>
-          "│"
-      <Text>
-        <Text color=#1f2328>
-          "     "
-        <Text color=#0969da>
-          "│────────────────────"
-        <Text color=#8250df>
-          "►"
-      <Text>
-        <Text color=#1f2328>
-          "     "
-        <Text color=#0969da>
-          "│"
-        <Text color=#1f2328>
-          "        why         "
-        <Text color=#0969da>
-          "│"
-      <Text>
-        <Text color=#1f2328>
-          "     "
-        <Text color=#8250df>
-          "◄"
-        <Text color=#0969da>
-          "────────────────────│"
-      <Text>
-        <Text color=#1f2328>
-          "     "
-        <Text color=#0969da>
-          "│"
-        <Text color=#1f2328>
-          "  I see 16 colors   "
-        <Text color=#0969da>
-          "│"
-      <Text>
-        <Text color=#1f2328>
-          "     "
-        <Text color=#0969da>
-          "│╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌"
-        <Text color=#8250df>
-          "►"
-      <Text>
-        <Text color=#0969da>
-          "┌────┴───┐"
-        <Text color=#1f2328>
-          "            "
-        <Text color=#0550ae>
-          "┌───┴──┐"
-      <Text>
-        <Text color=#0969da>
-          "│"
-        <Text color=#1f2328>
-          " "
-        <Text color=#0969da>
-          "Shrimp"
-        <Text color=#1f2328>
-          " "
-        <Text color=#0969da>
-          "│"
-        <Text color=#1f2328>
-          "            "
-        <Text color=#0550ae>
-          "│"
-        <Text color=#1f2328>
-          " "
-        <Text color=#0550ae>
-          "Crab"
-        <Text color=#1f2328>
-          " "
-        <Text color=#0550ae>
           "│"
       <Text>
         <Text color=#0969da>
           "└────────┘"
         <Text color=#1f2328>
-          "            "
+          "   "
         <Text color=#0550ae>
+          "└────────┘"
+        <Text color=#1f2328>
+          "   "
+        <Text color=#8250df>
+          "└───┬──┘"
+        <Text color=#1f2328>
+          "   "
+        <Text color=#116329>
+          "└─────────┘"
+      <Text>
+        <Text color=#1f2328>
+          "                              "
+        <Text color=#0969da>
+          "│"
+        <Text color=#1f2328>
+          "      "
+        <Text color=#cf222e>
+          "┌─────────┐"
+      <Text>
+        <Text color=#1f2328>
+          "                              "
+        <Text color=#0969da>
+          "└─────"
+        <Text color=#8250df>
+          "►"
+        <Text color=#cf222e>
+          "│"
+        <Text color=#1f2328>
+          " "
+        <Text color=#cf222e>
+          "Terrace"
+        <Text color=#1f2328>
+          " "
+        <Text color=#cf222e>
+          "│"
+      <Text>
+        <Text color=#1f2328>
+          "                                     "
+        <Text color=#cf222e>
+          "└─────────┘"
+  <Box>
+    <Box>
+      <Text>
+        <Text color=#0969da>
+          "┌──────┐"
+        <Text color=#1f2328>
+          "               "
+        <Text color=#0550ae>
+          "┌────────┐"
+      <Text>
+        <Text color=#0969da>
+          "│"
+        <Text color=#1f2328>
+          " "
+        <Text color=#0969da>
+          "Lord"
+        <Text color=#1f2328>
+          " "
+        <Text color=#0969da>
+          "│"
+        <Text color=#1f2328>
+          "               "
+        <Text color=#0550ae>
+          "│"
+        <Text color=#1f2328>
+          " "
+        <Text color=#0550ae>
+          "Butler"
+        <Text color=#1f2328>
+          " "
+        <Text color=#0550ae>
+          "│"
+      <Text>
+        <Text color=#0969da>
+          "└───┬──┘"
+        <Text color=#1f2328>
+          "               "
+        <Text color=#0550ae>
+          "└────┬───┘"
+      <Text>
+        <Text color=#1f2328>
+          "    "
+        <Text color=#0969da>
+          "│"
+        <Text color=#1f2328>
+          "   more tea, please    "
+        <Text color=#0969da>
+          "│"
+      <Text>
+        <Text color=#1f2328>
+          "    "
+        <Text color=#0969da>
+          "│───────────────────────"
+        <Text color=#8250df>
+          "►"
+      <Text>
+        <Text color=#1f2328>
+          "    "
+        <Text color=#0969da>
+          "│"
+        <Text color=#1f2328>
+          "  Earl Grey or Assam   "
+        <Text color=#0969da>
+          "│"
+      <Text>
+        <Text color=#1f2328>
+          "    "
+        <Text color=#8250df>
+          "◄"
+        <Text color=#0969da>
+          "───────────────────────│"
+      <Text>
+        <Text color=#1f2328>
+          "    "
+        <Text color=#0969da>
+          "│"
+        <Text color=#1f2328>
+          "      surprise me      "
+        <Text color=#0969da>
+          "│"
+      <Text>
+        <Text color=#1f2328>
+          "    "
+        <Text color=#0969da>
+          "│╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌"
+        <Text color=#8250df>
+          "►"
+      <Text>
+        <Text color=#0969da>
+          "┌───┴──┐"
+        <Text color=#1f2328>
+          "               "
+        <Text color=#0550ae>
+          "┌────┴───┐"
+      <Text>
+        <Text color=#0969da>
+          "│"
+        <Text color=#1f2328>
+          " "
+        <Text color=#0969da>
+          "Lord"
+        <Text color=#1f2328>
+          " "
+        <Text color=#0969da>
+          "│"
+        <Text color=#1f2328>
+          "               "
+        <Text color=#0550ae>
+          "│"
+        <Text color=#1f2328>
+          " "
+        <Text color=#0550ae>
+          "Butler"
+        <Text color=#1f2328>
+          " "
+        <Text color=#0550ae>
+          "│"
+      <Text>
+        <Text color=#0969da>
           "└──────┘"
+        <Text color=#1f2328>
+          "               "
+        <Text color=#0550ae>
+          "└────────┘"
   <Box>
     <Box>
       <Text>
         <Text color=#1f2328>
-          "           Color receptors"
-      <Text>
-        " "
+          "      Scones per guest"
       <Text>
         <Text color=#1f2328>
-          "   "
-        <Text color=#0969da>
-          "│"
-        <Text color=#1f2328>
-          "                            16"
+          "                        7"
       <Text>
         <Text color=#1f2328>
           " "
         <Text color=#0550ae>
-          "16"
+          "7"
         <Text color=#0969da>
           "┤"
         <Text color=#d0d7de>
-          "·························"
+          "···················"
         <Text color=#8250df>
-          "██████"
+          "████"
         <Text color=#d0d7de>
           "·"
       <Text>
         <Text color=#1f2328>
           " "
-        <Text color=#0550ae>
-          "14"
-        <Text color=#0969da>
-          "┤"
-        <Text color=#d0d7de>
-          "·························"
-        <Text color=#8250df>
-          "██████"
-        <Text color=#d0d7de>
-          "·"
-      <Text>
-        <Text color=#1f2328>
-          " "
-        <Text color=#0550ae>
-          "12"
-        <Text color=#0969da>
-          "┤"
-        <Text color=#d0d7de>
-          "·························"
-        <Text color=#8250df>
-          "██████"
-        <Text color=#d0d7de>
-          "·"
-      <Text>
-        <Text color=#1f2328>
-          " "
-        <Text color=#0550ae>
-          "10"
-        <Text color=#0969da>
-          "┤"
-        <Text color=#d0d7de>
-          "·························"
-        <Text color=#8250df>
-          "██████"
-        <Text color=#d0d7de>
-          "·"
-      <Text>
-        <Text color=#1f2328>
-          "  "
-        <Text color=#0550ae>
-          "8"
-        <Text color=#0969da>
-          "┤"
-        <Text color=#d0d7de>
-          "·························"
-        <Text color=#8250df>
-          "██████"
-        <Text color=#d0d7de>
-          "·"
-      <Text>
-        <Text color=#1f2328>
-          "  "
         <Text color=#0550ae>
           "6"
         <Text color=#0969da>
           "┤"
         <Text color=#d0d7de>
-          "············"
+          "···················"
+        <Text color=#8250df>
+          "████"
+        <Text color=#d0d7de>
+          "·"
+      <Text>
+        <Text color=#1f2328>
+          " "
+        <Text color=#0550ae>
+          "5"
+        <Text color=#0969da>
+          "┤"
+        <Text color=#d0d7de>
+          "···············"
+        <Text color=#1f2328>
+          "4"
+        <Text color=#d0d7de>
+          "···"
+        <Text color=#8250df>
+          "████"
+        <Text color=#d0d7de>
+          "·"
+      <Text>
+        <Text color=#1f2328>
+          " "
+        <Text color=#0550ae>
+          "4"
+        <Text color=#0969da>
+          "┤"
+        <Text color=#d0d7de>
+          "·········"
         <Text color=#1f2328>
           "3"
         <Text color=#d0d7de>
-          "·······"
-        <Text color=#1f2328>
-          "4"
+          "···"
+        <Text color=#656d76>
+          "████"
         <Text color=#d0d7de>
-          "····"
+          "··"
         <Text color=#8250df>
-          "██████"
+          "████"
         <Text color=#d0d7de>
           "·"
       <Text>
         <Text color=#1f2328>
-          "  "
+          " "
         <Text color=#0550ae>
-          "4"
+          "3"
         <Text color=#0969da>
           "┤"
         <Text color=#d0d7de>
-          "····"
+          "···"
         <Text color=#1f2328>
           "2"
         <Text color=#d0d7de>
-          "····"
+          "···"
         <Text color=#656d76>
-          "██████"
+          "████"
         <Text color=#d0d7de>
           "··"
         <Text color=#656d76>
-          "██████"
+          "████"
         <Text color=#d0d7de>
           "··"
         <Text color=#8250df>
-          "██████"
+          "████"
         <Text color=#d0d7de>
           "·"
       <Text>
         <Text color=#1f2328>
-          "  "
+          " "
         <Text color=#0550ae>
           "2"
         <Text color=#0969da>
@@ -559,24 +523,49 @@
         <Text color=#d0d7de>
           "·"
         <Text color=#656d76>
-          "██████"
+          "████"
         <Text color=#d0d7de>
           "··"
         <Text color=#656d76>
-          "██████"
+          "████"
         <Text color=#d0d7de>
           "··"
         <Text color=#656d76>
-          "██████"
+          "████"
         <Text color=#d0d7de>
           "··"
         <Text color=#8250df>
-          "██████"
+          "████"
         <Text color=#d0d7de>
           "·"
       <Text>
         <Text color=#1f2328>
-          "  "
+          " "
+        <Text color=#0550ae>
+          "1"
+        <Text color=#0969da>
+          "┤"
+        <Text color=#d0d7de>
+          "·"
+        <Text color=#656d76>
+          "████"
+        <Text color=#d0d7de>
+          "··"
+        <Text color=#656d76>
+          "████"
+        <Text color=#d0d7de>
+          "··"
+        <Text color=#656d76>
+          "████"
+        <Text color=#d0d7de>
+          "··"
+        <Text color=#8250df>
+          "████"
+        <Text color=#d0d7de>
+          "·"
+      <Text>
+        <Text color=#1f2328>
+          " "
         <Text color=#0550ae>
           "0"
         <Text color=#0969da>
@@ -584,34 +573,34 @@
         <Text color=#d0d7de>
           "·"
         <Text color=#656d76>
-          "██████"
+          "████"
         <Text color=#d0d7de>
           "··"
         <Text color=#656d76>
-          "██████"
+          "████"
         <Text color=#d0d7de>
           "··"
         <Text color=#656d76>
-          "██████"
+          "████"
         <Text color=#d0d7de>
           "··"
         <Text color=#8250df>
-          "██████"
+          "████"
         <Text color=#d0d7de>
           "·"
       <Text>
         <Text color=#1f2328>
-          "   "
+          "  "
         <Text color=#0969da>
-          "┼────┬───────┬───────┬───────┬───"
+          "┼───┬─────┬─────┬─────┬──"
       <Text>
         <Text color=#1f2328>
-          "       Dog    Human  Pigeon  Shrimp"
+          "     Mon   Tue   Wed   Thu"
   <Box>
     <Box>
       <Text>
         <Text color=#1f2328>
-          "      Mantis hug acceptance"
+          "      Monocles dropped"
       <Text>
         " "
       <Text>
@@ -620,7 +609,7 @@
         <Text color=#0969da>
           "│"
         <Text color=#1f2328>
-          "                     "
+          "                  "
         <Text color=#0969da>
           "╭────"
       <Text>
@@ -631,11 +620,11 @@
         <Text color=#0969da>
           "┤"
         <Text color=#d0d7de>
-          "·····················"
+          "··················"
         <Text color=#0969da>
           "│"
         <Text color=#d0d7de>
-          "······"
+          "·····"
       <Text>
         <Text color=#1f2328>
           " "
@@ -644,11 +633,11 @@
         <Text color=#0969da>
           "┤"
         <Text color=#d0d7de>
-          "··············"
+          "············"
         <Text color=#0969da>
-          "╭──────╯"
+          "╭─────╯"
         <Text color=#d0d7de>
-          "······"
+          "·····"
       <Text>
         <Text color=#1f2328>
           " "
@@ -657,11 +646,11 @@
         <Text color=#0969da>
           "┤"
         <Text color=#d0d7de>
-          "·······"
+          "······"
         <Text color=#0969da>
-          "╭──────╯"
+          "╭─────╯"
         <Text color=#d0d7de>
-          "·············"
+          "···········"
       <Text>
         <Text color=#1f2328>
           " "
@@ -672,9 +661,9 @@
         <Text color=#d0d7de>
           "··"
         <Text color=#0969da>
-          "─────╯"
+          "────╯"
         <Text color=#d0d7de>
-          "····················"
+          "·················"
       <Text>
         <Text color=#1f2328>
           " "
@@ -683,15 +672,15 @@
         <Text color=#0969da>
           "┼"
         <Text color=#d0d7de>
-          "····························"
+          "························"
       <Text>
         <Text color=#1f2328>
           "  "
         <Text color=#0969da>
-          "┼───┬──────┬──────┬──────┬───"
+          "┼───┬─────┬─────┬─────┬──"
       <Text>
         <Text color=#1f2328>
-          "    GotG2   IW     EG    GotG3"
+          "     Jan   Feb   Mar   Apr"
 <Box>
   <Box row>
     <Text color=#6e7781>
@@ -701,17 +690,17 @@
       <Text color=#cf222e>
         "const"
       <Text>
-        " master "
+        " butler "
       <Text>
         "="
       <Text>
         " "
       <Text color=#0a3069>
-        ""Shifu""
+        ""Jeeves""
       <Text>
         " "
       <Text color=#6e7781 italic>
-        "// wise, short"
+        "// discreet, punctual"
     <Text color=#1f2328>
       <Text color=#cf222e>
         "export"
@@ -722,11 +711,11 @@
       <Text>
         " "
       <Text color=#8250df>
-        "train"
+        "serve"
       <Text>
         "("
       <Text>
-        "student"
+        "guest"
       <Text>
         ":"
       <Text>
@@ -736,7 +725,7 @@
       <Text>
         ","
       <Text>
-        " dumplings "
+        " cups "
       <Text>
         "="
       <Text>
@@ -761,19 +750,19 @@
       <Text color=#0a3069>
         "${"
       <Text color=#0a3069>
-        "student"
+        "guest"
       <Text color=#0a3069>
         "}"
       <Text color=#0a3069>
-        " ate "
+        " took "
       <Text color=#0a3069>
         "${"
       <Text color=#0a3069>
-        "dumplings"
+        "cups"
       <Text color=#0a3069>
         "}"
       <Text color=#0a3069>
-        " dumplings"
+        " cups"
       <Text color=#0a3069>
         "`"
     <Text color=#1f2328>
@@ -786,35 +775,35 @@
   <Box>
     <Text color=#1f2328>
       <Text color=#8250df>
-        "kungfu"
+        "tea"
       <Text>
         " "
       <Text>
-        "train"
+        "brew"
       <Text>
         " "
       <Text color=#cf222e>
-        "--student"
+        "--blend"
       <Text>
         " "
       <Text color=#0a3069>
-        ""Po""
+        ""Earl Grey""
       <Text>
         " "
       <Text color=#cf222e>
-        "--master"
-      <Text>
-        " "
-      <Text>
-        "shifu"
-      <Text>
-        " "
-      <Text color=#cf222e>
-        "--dumplings"
+        "--cups"
       <Text>
         " "
       <Text>
         "3"
+      <Text>
+        " "
+      <Text color=#cf222e>
+        "--steep"
+      <Text>
+        " "
+      <Text>
+        "4m"
       <Text>
         " "
       <Text>
@@ -826,7 +815,7 @@
       <Text>
         " "
       <Text color=#0a3069>
-        ""skadoosh""
+        ""splendid""
 <Box border=round>
   <Text color=green bold>
     "Tip"
@@ -834,7 +823,7 @@
     <Text>
       "If "
     <Text color=#0550ae>
-      "inner peace"
+      "the kettle"
     <Text>
       " returns "
     <Text color=#0550ae>
@@ -842,7 +831,7 @@
     <Text>
       ", try "
     <Text color=#0550ae>
-      "snacks"
+      "the samovar"
     <Text>
       " first."
 <Box row>
@@ -850,7 +839,7 @@
     "│ "
   <Text color=#656d76 italic>
     <Text>
-      "Mantis wisdom: small bug, big kick."
+      "A gentleman never squints."
 <Box>
   <Box>
     <Text color=#8250df bold>
@@ -879,7 +868,7 @@
     <Text>
       "."
     <Text>
-      "(https://github.com/DimitrisMilonopoulos/ocellus)"
+      "(https://github.com/DimitrisMilonopoulos/monocle)"
 <Box>
   <Box row>
     <Box>
@@ -892,7 +881,7 @@
     <Box>
       <Text>
         <Text color=#0550ae>
-          "/ocellus theme nord"
+          "/monocle theme nord"
         <Text>
           " םע אשונ תכרע םיפילחמ"
     <Text color=#cf222e>
@@ -902,18 +891,14 @@
     <Box>
       <Text>
         <Text>
-          "םיילגרה "
-        <Text color=#0550ae>
-          "6"
-        <Text>
-          " לכ תא םיחתומו םיררועתמ"
+          "לקונומה תא םיחצחצמ"
     <Text color=#cf222e>
       " 1."
   <Box row>
     <Box>
       <Text>
         <Text>
-          "סלדונה ילאל םיללפתמ"
+          "הת םינימזמ"
     <Text color=#cf222e>
       " 2."
 <Box row>
@@ -925,73 +910,73 @@
     " │"
 <Box>
   <Text color=#6e7781>
-    "┌────────────────┬──────────────┬───────┐"
+    "┌─────────────┬────────┬────────┐"
   <Box row>
     <Text color=#6e7781>
       "│ "
     <Box>
       <Text color=#953800 bold>
-        "לע חוכ"
+        "רזיבא"
     <Text color=#6e7781>
       " │ "
     <Box>
       <Text color=#953800 bold>
-        "טרס"
+        "ןודעומ"
     <Text color=#6e7781>
       " │ "
     <Box>
       <Text color=#953800 bold>
-        "םחול"
+        "חרוא"
     <Text color=#6e7781>
       " │"
   <Text color=#6e7781>
-    "╞════════════════╪══════════════╪═══════╡"
-  <Box row>
-    <Text color=#6e7781>
-      "│ "
-    <Box>
-      <Text>
-        <Text>
-          "רוקיד תוטיעב"
-    <Text color=#6e7781>
-      " │ "
-    <Box>
-      <Text>
-        <Text>
-          "הדנפ ופ גנוק"
-    <Text color=#6e7781>
-      " │ "
-    <Box>
-      <Text>
-        <Text>
-          "סיטנמ"
-    <Text color=#6e7781>
-      " │"
-  <Text color=#6e7781>
-    "├────────────────┼──────────────┼───────┤"
+    "╞═════════════╪════════╪════════╡"
   <Box row>
     <Text color=#6e7781>
       "│ "
     <Box>
       <Text>
         <Text>
-          "23 m/s-ב ףורגא"
+          "בהז לקונומ"
     <Text color=#6e7781>
       " │ "
     <Box>
       <Text>
         <Text>
-          "תואיצמ"
+          "סנורד"
     <Text color=#6e7781>
       " │ "
     <Box>
       <Text>
         <Text>
-          "פמירש"
+          "דרולה"
     <Text color=#6e7781>
       " │"
   <Text color=#6e7781>
-    "└────────────────┴──────────────┴───────┘"
+    "├─────────────┼────────┼────────┤"
+  <Box row>
+    <Text color=#6e7781>
+      "│ "
+    <Box>
+      <Text>
+        <Text>
+          "הרפוא יפקשמ"
+    <Text color=#6e7781>
+      " │ "
+    <Box>
+      <Text>
+        <Text>
+          "סנגויד"
+    <Text color=#6e7781>
+      " │ "
+    <Box>
+      <Text>
+        <Text>
+          "ידיילה"
+    <Text color=#6e7781>
+      " │"
+  <Text color=#6e7781>
+    "└─────────────┴────────┴────────┘"
 <Box>
   <Box row>
     <Text color=#6e7781>

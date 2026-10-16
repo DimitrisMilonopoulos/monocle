@@ -1,17 +1,17 @@
 <Box border=bold>
   <Text bold>
     <Text>
-      "ocellus"
+      "monocle"
 <Text>
   <Text bold>
     <Text>
-      "Furious Five status:"
+      "Afternoon tea report:"
   <Text>
-    " Mantis cleared "
+    " Lord Pemberton poured "
   <Text>
     "3"
   <Text>
-    " dumplings in "
+    " pots in "
   <Text>
     "6m"
   <Text>
@@ -19,7 +19,7 @@
   <Text>
     "20s"
   <Text>
-    ", kick power up "
+    ", scone stock up "
   <Text>
     "18%"
   <Text>
@@ -27,11 +27,11 @@
   <Text>
     "82"
   <Text>
-    " kicks/min. Notes in "
+    " per hour. Notes in "
   <Text>
-    "~/jade-palace/training.md"
+    "~/club/ledger.md"
   <Text>
-    ", scroll at "
+    ", minutes at "
   <Link>
 <Box>
   <Text bold>
@@ -41,285 +41,272 @@
     "━━━━━━"
 <Box>
   <Text>
-    "┌───────────────┬─────────────────────────┬───────────────────────┬───────┐"
+    "┌────────────────┬──────────┬─────────────────┬──────┐"
   <Box row>
     <Text>
       "│ "
     <Box>
       <Text bold>
-        "Mantis"
+        "Member"
     <Text>
       " │ "
     <Box>
       <Text bold>
-        "Movie"
+        "Club"
     <Text>
       " │ "
     <Box>
       <Text bold>
-        "Superpower"
+        "Accessory"
     <Text>
       " │ "
     <Box>
       <Text bold>
-        "Size"
+        "Lens"
     <Text>
       " │"
   <Text>
-    "╞═══════════════╪═════════════════════════╪═══════════════════════╪═══════╡"
-  <Box row>
-    <Text>
-      "│ "
-    <Box>
-      <Text>
-        <Text>
-          "Mantis"
-    <Text>
-      " │ "
-    <Box>
-      <Text>
-        <Text>
-          "Kung Fu Panda"
-    <Text>
-      " │ "
-    <Box>
-      <Text>
-        <Text>
-          "acupuncture kicks"
-    <Text>
-      " │ "
-    <Box>
-      <Text>
-        <Text>
-          "5cm"
-    <Text>
-      " │"
-  <Text>
-    "├───────────────┼─────────────────────────┼───────────────────────┼───────┤"
+    "╞════════════════╪══════════╪═════════════════╪══════╡"
   <Box row>
     <Text>
       "│ "
     <Box>
       <Text>
         <Text>
-          "Mantis"
+          "Lord Pemberton"
     <Text>
       " │ "
     <Box>
       <Text>
         <Text>
-          "Guardians of the Galaxy"
+          "Drones"
     <Text>
       " │ "
     <Box>
       <Text>
         <Text>
-          "empathy, awkward hugs"
+          "gold monocle"
     <Text>
       " │ "
     <Box>
       <Text>
         <Text>
-          "168cm"
+          "32mm"
     <Text>
       " │"
   <Text>
-    "├───────────────┼─────────────────────────┼───────────────────────┼───────┤"
+    "├────────────────┼──────────┼─────────────────┼──────┤"
   <Box row>
     <Text>
       "│ "
     <Box>
       <Text>
         <Text>
-          "mantis shrimp"
+          "Lady Ashcombe"
     <Text>
       " │ "
     <Box>
       <Text>
         <Text>
-          "real life"
+          "Diogenes"
     <Text>
       " │ "
     <Box>
       <Text>
         <Text>
-          "punches at "
-        <Text>
-          "23"
-        <Text>
-          " m/s"
+          "opera lorgnette"
     <Text>
       " │ "
     <Box>
       <Text>
         <Text>
-          "10cm"
+          "28mm"
     <Text>
       " │"
   <Text>
-    "└───────────────┴─────────────────────────┴───────────────────────┴───────┘"
+    "├────────────────┼──────────┼─────────────────┼──────┤"
+  <Box row>
+    <Text>
+      "│ "
+    <Box>
+      <Text>
+        <Text>
+          "Sir Reginald"
+    <Text>
+      " │ "
+    <Box>
+      <Text>
+        <Text>
+          "Reform"
+    <Text>
+      " │ "
+    <Box>
+      <Text>
+        <Text>
+          "pocket loupe"
+    <Text>
+      " │ "
+    <Box>
+      <Text>
+        <Text>
+          "21mm"
+    <Text>
+      " │"
+  <Text>
+    "└────────────────┴──────────┴─────────────────┴──────┘"
 <Box>
   <Box row>
     <Text>
       "1. "
     <Text>
       <Text>
-        "Wake up, stretch all "
-      <Text>
-        "6"
-      <Text>
-        " legs"
+        "Polish the monocle"
   <Box row>
     <Text>
       "2. "
     <Text>
       <Text>
-        "Pray to the noodle gods"
+        "Ring for tea"
   <Box row>
     <Text>
       "◦ "
     <Text>
       <Text>
-        "extra dumplings"
+        "Earl Grey"
   <Box row>
     <Text>
       "◦ "
     <Text>
       <Text>
-        "no tofu"
+        "no milk"
 <Box row>
   <Box>
     <Box>
       <Text>
         <Text>
-          "┌────┐   ┌─────────┐   ┌──────────┐   ┌─────────┐"
+          "┌────────┐   ┌────────┐   ┌──────┐   ┌─────────┐"
       <Text>
         <Text>
-          "│ Po ├──►│ Noodles ├──►│ Training ├──►│  Mantis │"
+          "│ Butler ├──►│ Teapot ├──►│ Tray ├──►│ Library │"
       <Text>
         <Text>
-          "└────┘   └─────────┘   └─────┬────┘   └─────────┘"
+          "└────────┘   └────────┘   └───┬──┘   └─────────┘"
       <Text>
         <Text>
-          "                             │        ┌─────────┐"
+          "                              │      ┌─────────┐"
       <Text>
         <Text>
-          "                             └───────►│ Tigress │"
+          "                              └─────►│ Terrace │"
       <Text>
         <Text>
-          "                                      └─────────┘"
+          "                                     └─────────┘"
   <Box>
     <Box>
       <Text>
         <Text>
-          "┌────────┐            ┌──────┐"
+          "┌──────┐               ┌────────┐"
       <Text>
         <Text>
-          "│ Shrimp │            │ Crab │"
+          "│ Lord │               │ Butler │"
       <Text>
         <Text>
-          "└────┬───┘            └───┬──┘"
+          "└───┬──┘               └────┬───┘"
       <Text>
         <Text>
-          "     │  punch at 23 m/s   │"
+          "    │   more tea, please    │"
       <Text>
         <Text>
-          "     │────────────────────►"
+          "    │───────────────────────►"
       <Text>
         <Text>
-          "     │        why         │"
+          "    │  Earl Grey or Assam   │"
       <Text>
         <Text>
-          "     ◄────────────────────│"
+          "    ◄───────────────────────│"
       <Text>
         <Text>
-          "     │  I see 16 colors   │"
+          "    │      surprise me      │"
       <Text>
         <Text>
-          "     │╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌►"
+          "    │╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌►"
       <Text>
         <Text>
-          "┌────┴───┐            ┌───┴──┐"
+          "┌───┴──┐               ┌────┴───┐"
       <Text>
         <Text>
-          "│ Shrimp │            │ Crab │"
+          "│ Lord │               │ Butler │"
       <Text>
         <Text>
-          "└────────┘            └──────┘"
+          "└──────┘               └────────┘"
   <Box>
     <Box>
       <Text>
         <Text>
-          "           Color receptors"
+          "      Scones per guest"
+      <Text>
+        <Text>
+          "                        7"
+      <Text>
+        <Text>
+          " 7┤···················████·"
+      <Text>
+        <Text>
+          " 6┤···················████·"
+      <Text>
+        <Text>
+          " 5┤···············4···████·"
+      <Text>
+        <Text>
+          " 4┤·········3···████··████·"
+      <Text>
+        <Text>
+          " 3┤···2···████··████··████·"
+      <Text>
+        <Text>
+          " 2┤·████··████··████··████·"
+      <Text>
+        <Text>
+          " 1┤·████··████··████··████·"
+      <Text>
+        <Text>
+          " 0┼·████··████··████··████·"
+      <Text>
+        <Text>
+          "  ┼───┬─────┬─────┬─────┬──"
+      <Text>
+        <Text>
+          "     Mon   Tue   Wed   Thu"
+  <Box>
+    <Box>
+      <Text>
+        <Text>
+          "      Monocles dropped"
       <Text>
         " "
       <Text>
         <Text>
-          "   │                            16"
+          "  │                  ╭────"
       <Text>
         <Text>
-          " 16┤·························██████·"
+          " 8┤··················│·····"
       <Text>
         <Text>
-          " 14┤·························██████·"
+          " 6┤············╭─────╯·····"
       <Text>
         <Text>
-          " 12┤·························██████·"
+          " 4┤······╭─────╯···········"
       <Text>
         <Text>
-          " 10┤·························██████·"
+          " 2┤··────╯·················"
       <Text>
         <Text>
-          "  8┤·························██████·"
+          " 0┼························"
       <Text>
         <Text>
-          "  6┤············3·······4····██████·"
+          "  ┼───┬─────┬─────┬─────┬──"
       <Text>
         <Text>
-          "  4┤····2····██████··██████··██████·"
-      <Text>
-        <Text>
-          "  2┤·██████··██████··██████··██████·"
-      <Text>
-        <Text>
-          "  0┼·██████··██████··██████··██████·"
-      <Text>
-        <Text>
-          "   ┼────┬───────┬───────┬───────┬───"
-      <Text>
-        <Text>
-          "       Dog    Human  Pigeon  Shrimp"
-  <Box>
-    <Box>
-      <Text>
-        <Text>
-          "      Mantis hug acceptance"
-      <Text>
-        " "
-      <Text>
-        <Text>
-          "  │                     ╭────"
-      <Text>
-        <Text>
-          " 8┤·····················│······"
-      <Text>
-        <Text>
-          " 6┤··············╭──────╯······"
-      <Text>
-        <Text>
-          " 4┤·······╭──────╯·············"
-      <Text>
-        <Text>
-          " 2┤··─────╯····················"
-      <Text>
-        <Text>
-          " 0┼····························"
-      <Text>
-        <Text>
-          "  ┼───┬──────┬──────┬──────┬───"
-      <Text>
-        <Text>
-          "    GotG2   IW     EG    GotG3"
+          "     Jan   Feb   Mar   Apr"
 <Box>
   <Box row>
     <Text>
@@ -329,17 +316,17 @@
       <Text>
         "const"
       <Text>
-        " master "
+        " butler "
       <Text>
         "="
       <Text>
         " "
       <Text>
-        ""Shifu""
+        ""Jeeves""
       <Text>
         " "
       <Text italic>
-        "// wise, short"
+        "// discreet, punctual"
     <Text>
       <Text>
         "export"
@@ -350,11 +337,11 @@
       <Text>
         " "
       <Text>
-        "train"
+        "serve"
       <Text>
         "("
       <Text>
-        "student"
+        "guest"
       <Text>
         ":"
       <Text>
@@ -364,7 +351,7 @@
       <Text>
         ","
       <Text>
-        " dumplings "
+        " cups "
       <Text>
         "="
       <Text>
@@ -389,19 +376,19 @@
       <Text>
         "${"
       <Text>
-        "student"
+        "guest"
       <Text>
         "}"
       <Text>
-        " ate "
+        " took "
       <Text>
         "${"
       <Text>
-        "dumplings"
+        "cups"
       <Text>
         "}"
       <Text>
-        " dumplings"
+        " cups"
       <Text>
         "`"
     <Text>
@@ -414,35 +401,35 @@
   <Box>
     <Text>
       <Text>
-        "kungfu"
+        "tea"
       <Text>
         " "
       <Text>
-        "train"
+        "brew"
       <Text>
         " "
       <Text>
-        "--student"
+        "--blend"
       <Text>
         " "
       <Text>
-        ""Po""
+        ""Earl Grey""
       <Text>
         " "
       <Text>
-        "--master"
-      <Text>
-        " "
-      <Text>
-        "shifu"
-      <Text>
-        " "
-      <Text>
-        "--dumplings"
+        "--cups"
       <Text>
         " "
       <Text>
         "3"
+      <Text>
+        " "
+      <Text>
+        "--steep"
+      <Text>
+        " "
+      <Text>
+        "4m"
       <Text>
         " "
       <Text>
@@ -454,7 +441,7 @@
       <Text>
         " "
       <Text>
-        ""skadoosh""
+        ""splendid""
 <Box border=round>
   <Text color=green bold>
     "Tip"
@@ -462,7 +449,7 @@
     <Text>
       "If "
     <Text>
-      "inner peace"
+      "the kettle"
     <Text>
       " returns "
     <Text>
@@ -470,7 +457,7 @@
     <Text>
       ", try "
     <Text>
-      "snacks"
+      "the samovar"
     <Text>
       " first."
 <Box row>
@@ -478,7 +465,7 @@
     "│ "
   <Text italic>
     <Text>
-      "Mantis wisdom: small bug, big kick."
+      "A gentleman never squints."
 <Box>
   <Box>
     <Text bold>
@@ -507,7 +494,7 @@
     <Text>
       "."
     <Text>
-      "(https://github.com/DimitrisMilonopoulos/ocellus)"
+      "(https://github.com/DimitrisMilonopoulos/monocle)"
 <Box>
   <Box row>
     <Box>
@@ -520,7 +507,7 @@
     <Box>
       <Text>
         <Text>
-          "/ocellus theme nord"
+          "/monocle theme nord"
         <Text>
           " םע אשונ תכרע םיפילחמ"
     <Text>
@@ -530,18 +517,14 @@
     <Box>
       <Text>
         <Text>
-          "םיילגרה "
-        <Text>
-          "6"
-        <Text>
-          " לכ תא םיחתומו םיררועתמ"
+          "לקונומה תא םיחצחצמ"
     <Text>
       " 1."
   <Box row>
     <Box>
       <Text>
         <Text>
-          "סלדונה ילאל םיללפתמ"
+          "הת םינימזמ"
     <Text>
       " 2."
 <Box row>
@@ -553,73 +536,73 @@
     " │"
 <Box>
   <Text>
-    "┌────────────────┬──────────────┬───────┐"
+    "┌─────────────┬────────┬────────┐"
   <Box row>
     <Text>
       "│ "
     <Box>
       <Text bold>
-        "לע חוכ"
+        "רזיבא"
     <Text>
       " │ "
     <Box>
       <Text bold>
-        "טרס"
+        "ןודעומ"
     <Text>
       " │ "
     <Box>
       <Text bold>
-        "םחול"
+        "חרוא"
     <Text>
       " │"
   <Text>
-    "╞════════════════╪══════════════╪═══════╡"
-  <Box row>
-    <Text>
-      "│ "
-    <Box>
-      <Text>
-        <Text>
-          "רוקיד תוטיעב"
-    <Text>
-      " │ "
-    <Box>
-      <Text>
-        <Text>
-          "הדנפ ופ גנוק"
-    <Text>
-      " │ "
-    <Box>
-      <Text>
-        <Text>
-          "סיטנמ"
-    <Text>
-      " │"
-  <Text>
-    "├────────────────┼──────────────┼───────┤"
+    "╞═════════════╪════════╪════════╡"
   <Box row>
     <Text>
       "│ "
     <Box>
       <Text>
         <Text>
-          "23 m/s-ב ףורגא"
+          "בהז לקונומ"
     <Text>
       " │ "
     <Box>
       <Text>
         <Text>
-          "תואיצמ"
+          "סנורד"
     <Text>
       " │ "
     <Box>
       <Text>
         <Text>
-          "פמירש"
+          "דרולה"
     <Text>
       " │"
   <Text>
-    "└────────────────┴──────────────┴───────┘"
+    "├─────────────┼────────┼────────┤"
+  <Box row>
+    <Text>
+      "│ "
+    <Box>
+      <Text>
+        <Text>
+          "הרפוא יפקשמ"
+    <Text>
+      " │ "
+    <Box>
+      <Text>
+        <Text>
+          "סנגויד"
+    <Text>
+      " │ "
+    <Box>
+      <Text>
+        <Text>
+          "ידיילה"
+    <Text>
+      " │"
+  <Text>
+    "└─────────────┴────────┴────────┘"
 <Box>
   <Box row>
     <Text>

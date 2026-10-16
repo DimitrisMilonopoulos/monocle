@@ -44,7 +44,7 @@ const ratex = (on: On, answer: (formulas: string[]) => string = ok, png: string 
 }
 
 const reply = (text: string, columns = 120) => ({
-  plugin: 'ocellus',
+  plugin: 'monocle',
   component: 'AssistantMessage' as const,
   props: { text, isFirstOfReply: true },
   viewport: { columns, rows: 40 },
@@ -141,7 +141,7 @@ test('without the renderer installed, math stays text and no LaTeX hint is sent'
 
   expect(await ui.find({ type: 'Image' })).toBeUndefined()
   expect(await ui.find({ type: 'Text', text: /^∫₀¹ x² dx$/ })).toBeDefined()
-  expect(seen[0]?.some(c => c.includes('ocellus'))).toBe(true)
+  expect(seen[0]?.some(c => c.includes('monocle'))).toBe(true)
   expect(seen[0]?.some(c => c.includes('$$'))).toBe(false)
   await ui.unmount()
 })
@@ -296,7 +296,7 @@ test('the renderer runs as ratex-render in one folder named for the session plus
   expect(runs.every(r => r.argv[0] === 'ratex-render')).toBe(true)
   const dirs = [...new Set(runs.map(r => r.argv[r.argv.indexOf('--output-dir') + 1]))]
   expect(dirs).toHaveLength(1)
-  expect(dirs[0]).toMatch(/^\/tmp\/ocellus-latex-sess-1-[0-9a-f-]{36}$/)
+  expect(dirs[0]).toMatch(/^\/tmp\/monocle-latex-sess-1-[0-9a-f-]{36}$/)
   await ui.unmount()
 })
 

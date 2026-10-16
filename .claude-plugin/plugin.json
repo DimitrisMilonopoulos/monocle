@@ -1,13 +1,13 @@
 {
-  "name": "ocellus",
+  "name": "monocle",
   "version": "0.18.0",
-  "description": "Colorful Claude Code replies, with mermaid diagrams and images drawn as real pixels in kitty. A fork of prismantis.",
+  "description": "Colorful Claude Code replies, with mermaid diagrams and images drawn as real pixels in kitty.",
   "author": {
     "name": "Dimitrios Milonopoulos",
     "url": "https://github.com/DimitrisMilonopoulos"
   },
-  "homepage": "https://github.com/DimitrisMilonopoulos/ocellus",
-  "repository": "https://github.com/DimitrisMilonopoulos/ocellus",
+  "homepage": "https://github.com/DimitrisMilonopoulos/monocle",
+  "repository": "https://github.com/DimitrisMilonopoulos/monocle",
   "license": "MIT",
   "keywords": [
     "mod",

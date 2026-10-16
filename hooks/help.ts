@@ -1,18 +1,18 @@
 import { RANDOM_THEMES } from './theme'
 
 export const showcaseText = (themes: readonly string[]): string => `
-# ocellus
+# monocle
 
-Colored markdown for Claude Code replies: **bold**, *italic*, ~~struck~~, \`inline code\`, a [link](https://github.com/DimitrisMilonopoulos/ocellus) and a bare URL https://github.com/DimitrisMilonopoulos/ocellus/issues, both clickable, numbers like 99.9% and 250ms, paths like ~/src/app.ts.
+Colored markdown for Claude Code replies: **bold**, *italic*, ~~struck~~, \`inline code\`, a [link](https://github.com/DimitrisMilonopoulos/monocle) and a bare URL https://github.com/DimitrisMilonopoulos/monocle/issues, both clickable, numbers like 99.9% and 250ms, paths like ~/src/app.ts.
 
 ## Commands
 
 | Command | Does |
 |---------|------|
-| \`/ocellus\` | This screen |
-| \`/ocellus theme <name>\` | Switch theme on the spot (\`/ocellus <name>\` works too), \`random\` for a new dark one now and each time the mod loads |
-| \`/ocellus copy\` | Copy the last reply, or \`copy code\` for its last code block |
-| \`/ocellus doctor\` | Check what images, diagrams and big headings need on this machine |
+| \`/monocle\` | This screen |
+| \`/monocle theme <name>\` | Switch theme on the spot (\`/monocle <name>\` works too), \`random\` for a new dark one now and each time the mod loads |
+| \`/monocle copy\` | Copy the last reply, or \`copy code\` for its last code block |
+| \`/monocle doctor\` | Check what images, diagrams and big headings need on this machine |
 | \`/config\` | Edit any option |
 
 > [!NOTE]
@@ -21,9 +21,9 @@ Colored markdown for Claude Code replies: **bold**, *italic*, ~~struck~~, \`inli
 ### Pick a theme
 
 \`\`\`bash
-/ocellus theme nord
-/ocellus theme github-light
-/ocellus theme random
+/monocle theme nord
+/monocle theme github-light
+/monocle theme random
 \`\`\`
 
 1. Dark: ${themes.filter(t => RANDOM_THEMES.includes(t)).join(', ')}
@@ -150,7 +150,7 @@ flowchart LR
 sequenceDiagram
     participant U as You
     participant C as Claude
-    participant P as ocellus
+    participant P as monocle
     U->>C: prompt
     C->>P: markdown
     P-->>U: colored reply
@@ -186,11 +186,11 @@ export const helpText = (themes: readonly string[]): string => `
 
 | Command | Does |
 |---------|------|
-| \`/ocellus theme <name>\` | Switch theme on the spot (\`/ocellus <name>\` works too), \`random\` for a new dark one now and each time the mod loads |
-| \`/ocellus copy\` | Copy the last reply, or \`copy code\` for its last code block |
-| \`/ocellus doctor\` | Check what images, diagrams and big headings need on this machine |
-| \`/ocellus demo\` | Full showcase, every element and diagram |
-| \`/ocellus demo-rtl\` | Hebrew right-to-left showcase |
+| \`/monocle theme <name>\` | Switch theme on the spot (\`/monocle <name>\` works too), \`random\` for a new dark one now and each time the mod loads |
+| \`/monocle copy\` | Copy the last reply, or \`copy code\` for its last code block |
+| \`/monocle doctor\` | Check what images, diagrams and big headings need on this machine |
+| \`/monocle demo\` | Full showcase, every element and diagram |
+| \`/monocle demo-rtl\` | Hebrew right-to-left showcase |
 
 ### ${themes.length} themes
 
@@ -198,7 +198,7 @@ export const helpText = (themes: readonly string[]): string => `
 - Light: ${themes.filter(t => /latte|light|dawn/.test(t)).join(', ')}
 - Plain: mono, no color, only bold and dim
 
-Docs and issues: https://github.com/DimitrisMilonopoulos/ocellus
+Docs and issues: https://github.com/DimitrisMilonopoulos/monocle
 
 > [!TIP]
 > Any color slot beats the theme. Set \`headingColor\` or \`numberColor\` to a hex value in \`/config\`.
@@ -231,12 +231,12 @@ xychart-beta
 export const rtlShowcaseText = (): string => `
 # עברית מימין לשמאל
 
-**שלום חברים**, זו הדגמה של עברית עם מונחים באנגלית כמו \`kubectl\`, מספרים כמו 99.9% ו-250ms, נתיב כמו ~/src/app.ts וגם [קישור](https://github.com/DimitrisMilonopoulos/ocellus).
+**שלום חברים**, זו הדגמה של עברית עם מונחים באנגלית כמו \`kubectl\`, מספרים כמו 99.9% ו-250ms, נתיב כמו ~/src/app.ts וגם [קישור](https://github.com/DimitrisMilonopoulos/monocle).
 
 ## רשימות
 
 - פרוסים בשני אזורים (us-east ו-eu-west)
-- מחליפים ערכת נושא עם \`/ocellus theme nord\`
+- מחליפים ערכת נושא עם \`/monocle theme nord\`
 
 1. מתקינים את התוסף
 2. שואלים שאלה בעברית

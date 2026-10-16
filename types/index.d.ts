@@ -1,19 +1,19 @@
-export type OcellusMarkdownArgs<Surface> = {
+export type MonocleMarkdownArgs<Surface> = {
   surface: Surface
   text: string
   columns: number
 }
 
-export type Ocellus<Surface, Drawing> = {
-  markdown: (args: OcellusMarkdownArgs<Surface>) => Promise<Drawing | undefined>
+export type Monocle<Surface, Drawing> = {
+  markdown: (args: MonocleMarkdownArgs<Surface>) => Promise<Drawing | undefined>
 }
 
 declare module 'claude-code' {
   interface EngineInterface {
-    ocellus: Ocellus<RenderSurface, RenderElement>
+    monocle: Monocle<RenderSurface, RenderElement>
   }
   interface PluginState {
-    ocellus: {
+    monocle: {
       formulas: Record<string, unknown>
       dir: string
       diagrams: Record<string, unknown>

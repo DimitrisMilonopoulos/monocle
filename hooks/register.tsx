@@ -27,7 +27,7 @@ import type { Terminal } from './rtl'
 import { TERMINALS, hasRtl } from './rtl'
 
 const HINT = [
-  'Replies in this session are drawn by the ocellus mod, which runs inside Claude Code and is not a command or tool to call: when the user asks to show something with ocellus, write it as markdown in the reply.',
+  'Replies in this session are drawn by the monocle mod, which runs inside Claude Code and is not a command or tool to call: when the user asks to show something with monocle, write it as markdown in the reply.',
   'Markdown tables, GitHub alerts (> [!WARNING], > [!NOTE]), fenced code with a language tag, and ```mermaid blocks render as colored terminal graphics:',
   'flowcharts, sequence diagrams and xychart-beta bar or line charts.',
   'When a reply carries a numeric series or a flow that is easier to see than read, add one small diagram or chart with short labels.',
@@ -80,18 +80,18 @@ const markExpanded = (id: string) => {
 
 const columnsOf = (viewport?: { columns?: number }) => Math.max(20, (viewport?.columns ?? 100) - 4)
 
-const formulas = atom({ plugin: 'ocellus', key: 'formulas' } as const, {})
-const latexDir = atom({ plugin: 'ocellus', key: 'dir' } as const, '')
-const diagrams = atom({ plugin: 'ocellus', key: 'diagrams' } as const, {})
-const diagramDir = atom({ plugin: 'ocellus', key: 'diagramDir' } as const, '')
-const headings = atom({ plugin: 'ocellus', key: 'headings' } as const, {})
+const formulas = atom({ plugin: 'monocle', key: 'formulas' } as const, {})
+const latexDir = atom({ plugin: 'monocle', key: 'dir' } as const, '')
+const diagrams = atom({ plugin: 'monocle', key: 'diagrams' } as const, {})
+const diagramDir = atom({ plugin: 'monocle', key: 'diagramDir' } as const, '')
+const headings = atom({ plugin: 'monocle', key: 'headings' } as const, {})
 const MAX_HEADINGS = 100
-const unfolded = atom({ plugin: 'ocellus', key: 'unfolded' } as const, [] as string[])
-const sent = atom({ plugin: 'ocellus', key: 'sent' } as const, [])
-const turnEnds = atom({ plugin: 'ocellus', key: 'turnEnds' } as const, [])
+const unfolded = atom({ plugin: 'monocle', key: 'unfolded' } as const, [] as string[])
+const sent = atom({ plugin: 'monocle', key: 'sent' } as const, [])
+const turnEnds = atom({ plugin: 'monocle', key: 'turnEnds' } as const, [])
 
 const firstDrawn = async ($: EngineInterface, id: string): Promise<number> => {
-  const ref = { plugin: 'ocellus', key: 'drawn', id } as const
+  const ref = { plugin: 'monocle', key: 'drawn', id } as const
   const { value } = await $.state.get(ref)
   if (value !== undefined) return value
   const now = await $.clock.now()
@@ -145,7 +145,7 @@ const startLatex = async ($: EngineInterface, latex: LatexSession): Promise<Late
   const tmp = (await $.env.get('TMPDIR')) ?? (await $.env.get('TEMP')) ?? '/tmp'
   const suffix = (await read($, latexDir)) || crypto.randomUUID()
   await update($, latexDir, () => suffix)
-  const engine = { command: 'ratex-render', dir: `${tmp.replace(/[\\/]+$/, '')}/ocellus-latex-${await $.session.id()}-${suffix}` }
+  const engine = { command: 'ratex-render', dir: `${tmp.replace(/[\\/]+$/, '')}/monocle-latex-${await $.session.id()}-${suffix}` }
   const [check] = await typeset($, latex, engine, ['x^2'])
   return check && 'png' in check ? engine : null
 }
@@ -249,7 +249,7 @@ const tmpDir = async ($: EngineInterface): Promise<string> => ((await $.env.get(
 const workDir = async ($: EngineInterface, kind: string): Promise<string> => {
   const suffix = (await read($, diagramDir)) || crypto.randomUUID()
   await update($, diagramDir, () => suffix)
-  return `${await tmpDir($)}/ocellus-${kind}-${await $.session.id()}-${suffix}`
+  return `${await tmpDir($)}/monocle-${kind}-${await $.session.id()}-${suffix}`
 }
 
 const drawsImages = async ($: EngineInterface): Promise<boolean> => (await $.session.surfaces()).includes('terminal') && (await showsImages($))
@@ -391,7 +391,7 @@ const startHeadings = async ($: EngineInterface, style: Style): Promise<Headings
   const font = await fontFile($, await terminalFont($))
   if (!font) return null
   const dir = await workDir($, 'headings')
-  await $.fs.write(`${dir}/.ocellus`, '')
+  await $.fs.write(`${dir}/.monocle`, '')
   return { dir, font, magick }
 }
 
@@ -497,7 +497,7 @@ const pastes = { images: new Map<number, Preview | { error: true }>(), loading: 
 const pasteDir = async ($: EngineInterface): Promise<string> => {
   if (pastes.dir) return pastes.dir
   const dir = await workDir($, 'paste')
-  await $.fs.write(`${dir}/.ocellus`, '')
+  await $.fs.write(`${dir}/.monocle`, '')
   pastes.dir = dir
   return dir
 }
@@ -724,7 +724,7 @@ const drawMarkdown = ($: EngineInterface, el: ReturnType<EngineInterface['ui']['
 }
 
 export const register: Register = (on, options) => {
-  on('engine.create', async (_$, e, next) => ({ ...(await next(e)), ocellus: { markdown: async () => undefined } }))
+  on('engine.create', async (_$, e, next) => ({ ...(await next(e)), monocle: { markdown: async () => undefined } }))
   if (options.enabled === false) return
   let themeName = pickTheme(options.theme)
   const style = resolveStyle({ ...options, theme: themeName })
@@ -782,12 +782,12 @@ export const register: Register = (on, options) => {
     void painterEngine($, headed)
     const started = await next(e)
     await $.command
-      .register({ name: 'ocellus', description: 'Switch the ocellus theme, copy the last reply, show the demo, or check dependencies', argumentHint: '[theme [<name> | random] | copy [code] | demo | doctor]' })
+      .register({ name: 'monocle', description: 'Switch the monocle theme, copy the last reply, show the demo, or check dependencies', argumentHint: '[theme [<name> | random] | copy [code] | demo | doctor]' })
       .catch(() => undefined)
     return started
   })
 
-  on('command.run', { command: 'ocellus' }, async ($, e) => {
+  on('command.run', { command: 'monocle' }, async ($, e) => {
     const [first, second] = e.args.trim().split(/\s+/)
     const themeArgs = [...PRESET_NAMES, 'random']
     const [sub, name] = themeArgs.includes(first ?? '') ? ['theme', first] : [first, second]
@@ -806,7 +806,7 @@ export const register: Register = (on, options) => {
       return { text: rtlShowcaseText() }
     }
     if (sub !== 'theme') return { text: helpText(PRESET_NAMES) }
-    if (!name) return { text: options.theme === 'random' ? `current: ${themeName} (random)\nkeep it: /ocellus theme ${themeName}` : `current: ${themeName}` }
+    if (!name) return { text: options.theme === 'random' ? `current: ${themeName} (random)\nkeep it: /monocle theme ${themeName}` : `current: ${themeName}` }
     if (!themeArgs.includes(name)) return { text: `Unknown theme "${name}". Themes: ${PRESET_NAMES.join(', ')}, random` }
     const result = await $.config.set({ key: `${$.plugin.name}.theme`, value: name })
     if (result.deny) return { text: `Could not switch theme: ${result.deny}` }
@@ -815,7 +815,7 @@ export const register: Register = (on, options) => {
     themeName = others[Math.floor(Math.random() * others.length)]!
     Object.assign(style, resolveStyle({ ...options, theme: themeName }))
     $.ui.invalidate('ui.render')
-    return { text: `Theme set to random: ${themeName} for now.\nkeep it: /ocellus theme ${themeName}` }
+    return { text: `Theme set to random: ${themeName} for now.\nkeep it: /monocle theme ${themeName}` }
   })
 
   on('ui.render', { component: 'TurnDuration' }, async ($, e) => {
@@ -903,7 +903,7 @@ export const register: Register = (on, options) => {
     return {}
   })
 
-  on('ocellus.markdown', ($, e, next) => {
+  on('monocle.markdown', ($, e, next) => {
     const blocks = parseCached(e.text, shared, 20)
     if (blocks.length === 0) return next(e)
     const el = $.ui.resolve({ surface: e.surface, component: 'AssistantMessage' })

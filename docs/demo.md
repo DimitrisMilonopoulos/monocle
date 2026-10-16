@@ -1,80 +1,80 @@
-# ocellus
+# monocle
 
-**Furious Five status:** Mantis cleared 3 dumplings in 6m 20s, kick power up 18% to 82 kicks/min. Notes in ~/jade-palace/training.md, scroll at https://github.com/DimitrisMilonopoulos/ocellus
+**Afternoon tea report:** Lord Pemberton poured 3 pots in 6m 20s, scone stock up 18% to 82 per hour. Notes in ~/club/ledger.md, minutes at https://github.com/DimitrisMilonopoulos/monocle
 
 ## Roster
 
-| Mantis | Movie | Superpower | Size |
+| Member | Club | Accessory | Lens |
 | :--- | :--- | :--- | ---: |
-| Mantis | Kung Fu Panda | acupuncture kicks | 5cm |
-| Mantis | Guardians of the Galaxy | empathy, awkward hugs | 168cm |
-| mantis shrimp | real life | punches at 23 m/s | 10cm |
+| Lord Pemberton | Drones | gold monocle | 32mm |
+| Lady Ashcombe | Diogenes | opera lorgnette | 28mm |
+| Sir Reginald | Reform | pocket loupe | 21mm |
 
-1. Wake up, stretch all 6 legs
-2. Pray to the noodle gods
-   - extra dumplings
-   - no tofu
+1. Polish the monocle
+2. Ring for tea
+   - Earl Grey
+   - no milk
 
 ```mermaid
 graph LR
-  Po --> Noodles --> Training
-  Training --> Mantis
-  Training --> Tigress
+  Butler --> Teapot --> Tray
+  Tray --> Library
+  Tray --> Terrace
 ```
 
 ```mermaid
 sequenceDiagram
-  Shrimp->>Crab: punch at 23 m/s
-  Crab->>Shrimp: why
-  Shrimp-->>Crab: I see 16 colors
+  Lord->>Butler: more tea, please
+  Butler->>Lord: Earl Grey or Assam
+  Lord-->>Butler: surprise me
 ```
 
 ```mermaid
 xychart-beta
-  title "Color receptors"
-  x-axis [Dog, Human, Pigeon, Shrimp]
-  bar [2, 3, 4, 16]
+  title "Scones per guest"
+  x-axis [Mon, Tue, Wed, Thu]
+  bar [2, 3, 4, 7]
 ```
 
 ```mermaid
 xychart-beta
-  title "Mantis hug acceptance"
-  x-axis [GotG2, IW, EG, GotG3]
+  title "Monocles dropped"
+  x-axis [Jan, Feb, Mar, Apr]
   line [2, 4, 6, 9]
 ```
 
 ```ts
-const master = "Shifu" // wise, short
-export function train(student: string, dumplings = 3) {
-  return `${student} ate ${dumplings} dumplings`
+const butler = "Jeeves" // discreet, punctual
+export function serve(guest: string, cups = 3) {
+  return `${guest} took ${cups} cups`
 }
 ```
 
 ```bash
-kungfu train --student "Po" --master shifu --dumplings 3 && echo "skadoosh"
+tea brew --blend "Earl Grey" --cups 3 --steep 4m && echo "splendid"
 ```
 
 > [!TIP]
-> If `inner peace` returns 404, try `snacks` first.
+> If `the kettle` returns 404, try `the samovar` first.
 
-> Mantis wisdom: small bug, big kick.
+> A gentleman never squints.
 
 ## עברית
 
-**שלום חברים**, התוסף מצייר גם עברית עם מונחים באנגלית כמו `kubectl`, מספרים כמו 99.9% ו-250ms, וגם [קישור](https://github.com/DimitrisMilonopoulos/ocellus).
+**שלום חברים**, התוסף מצייר גם עברית עם מונחים באנגלית כמו `kubectl`, מספרים כמו 99.9% ו-250ms, וגם [קישור](https://github.com/DimitrisMilonopoulos/monocle).
 
 - פרוסים ב-us-east ו-eu-west (שני אזורים)
-- מחליפים ערכת נושא עם `/ocellus theme nord`
+- מחליפים ערכת נושא עם `/monocle theme nord`
 
-1. מתעוררים ומותחים את כל 6 הרגליים
-2. מתפללים לאלי הנודלס
+1. מצחצחים את המונוקל
+2. מזמינים תה
 
 > עברית נקראת מימין לשמאל, גם בטרמינל בלי תמיכה בכיווניות
 
-| לוחם | סרט | כוח על |
+| אורח | מועדון | אביזר |
 | :--- | :--- | :--- |
-| מנטיס | קונג פו פנדה | בעיטות דיקור |
-| שרימפ | מציאות | אגרוף ב-23 m/s |
+| הלורד | דרונס | מונוקל זהב |
+| הליידי | דיוגנס | משקפי אופרה |
 
 ```bash
 ls -la # רשימת הקבצים
