@@ -3,7 +3,7 @@ import { expect, test } from 'claude-code/testing'
 import type { Facts } from '../hooks/doctor'
 import { doctorText } from '../hooks/doctor'
 
-const READY: Facts = { platform: 'linux', terminal: 'kitty', tmux: false, forced: false, mmdc: '/usr/bin/mmdc', browser: '/usr/bin/chromium', magick: 'magick', fcMatch: '/usr/bin/fc-match', font: '/fonts/JB-Bold.ttf', kittyRemote: true, ratex: null, latex: false }
+const READY: Facts = { platform: 'linux', terminal: 'kitty', tmux: false, forced: false, background: false, mmdc: '/usr/bin/mmdc', browser: '/usr/bin/chromium', magick: 'magick', fcMatch: '/usr/bin/fc-match', font: '/fonts/JB-Bold.ttf', kittyRemote: true, ratex: null, latex: false }
 
 test('a ready machine shows every image feature ready', async () => {
   const text = doctorText(READY)
@@ -29,4 +29,11 @@ test('herdr shows images once Claude Code is told to, and has no zoom', async ()
   const text = doctorText({ ...READY, terminal: 'herdr', forced: true, kittyRemote: null })
   expect(text).toMatch(/\| Images in the terminal \| ✓ herdr \|/)
   expect(text).toMatch(/\| Click to zoom \| ✗ not inside herdr \|/)
+})
+
+test('a background session says why it has no images instead of asking for another terminal', () => {
+  const text = doctorText({ ...READY, terminal: null, kittyRemote: null, background: true })
+  expect(text).toMatch(/\| Images in the terminal \| ✗ background session, where Claude Code draws no images \| start Claude Code in the foreground/)
+  expect(text).toMatch(/\| Click to zoom \| ✗ not in a background session \|/)
+  expect(text).not.toMatch(/use kitty, Ghostty or herdr/)
 })

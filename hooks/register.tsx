@@ -106,8 +106,10 @@ type Typeset = Exclude<Formula, { error: true }> & { tex: string }
 
 const forcedImages = async ($: EngineInterface): Promise<boolean> => /^(1|true|yes|on)$/i.test((await $.env.get('CLAUDE_CODE_FORCE_TERMINAL_IMAGES')) ?? '')
 
+const inBackground = async ($: EngineInterface): Promise<boolean> => (await $.env.get('CLAUDE_CODE_SESSION_KIND')) === 'bg'
+
 const viewsImages = async ($: EngineInterface, host: Host | null): Promise<boolean> => {
-  if (await $.env.get('TMUX')) return false
+  if ((await $.env.get('TMUX')) || (await inBackground($))) return false
   if (host === 'herdr') return forcedImages($)
   return host === 'kitty' || host === 'ghostty'
 }
@@ -294,6 +296,7 @@ const doctorFacts = async ($: EngineInterface, style: Style): Promise<Facts> => 
     platform,
     terminal: host,
     forced: await forcedImages($),
+    background: await inBackground($),
     tmux: !!(await $.env.get('TMUX')),
     mmdc,
     browser: browser ? (browser.kind === 'system' ? browser.path : "puppeteer's own Chrome") : null,

@@ -5,6 +5,7 @@ export type Facts = {
   terminal: string | null
   tmux: boolean
   forced: boolean
+  background: boolean
   mmdc: string | null
   browser: string | null
   magick: string | null
@@ -23,7 +24,9 @@ const VIEWERS: Record<string, string> = { kitty: 'kitty', ghostty: 'Ghostty', he
 
 const rows = (f: Facts): Row[] => {
   const viewer = f.tmux ? undefined : VIEWERS[f.terminal ?? '']
-  const imageRow: Row = f.terminal === 'herdr' && !f.forced && !f.tmux
+  const imageRow: Row = f.background
+    ? { feature: 'Images in the terminal', ok: false, status: 'background session, where Claude Code draws no images', fix: 'start Claude Code in the foreground, not with `--bg` or `/bg`' }
+    : f.terminal === 'herdr' && !f.forced && !f.tmux
     ? { feature: 'Images in the terminal', ok: false, status: 'herdr, which Claude Code does not draw images in by itself', fix: 'start Claude Code with `CLAUDE_CODE_FORCE_TERMINAL_IMAGES=1` inside herdr' }
     : viewer
     ? { feature: 'Images in the terminal', ok: true, status: viewer }
@@ -52,7 +55,9 @@ const rows = (f: Facts): Row[] => {
       status: f.magick ? 'PNG, JPEG, GIF and WebP' : 'PNG only',
       ...(f.magick ? {} : { fix: 'ImageMagick, as for big headings, shows other formats' }),
     },
-    f.kittyRemote === null
+    f.background
+      ? { feature: 'Click to zoom', ok: false, status: 'not in a background session' }
+      : f.kittyRemote === null
       ? { feature: 'Click to zoom', ok: false, status: f.terminal === 'herdr' ? 'not inside herdr' : 'kitty only' }
       : f.kittyRemote
         ? { feature: 'Click to zoom', ok: true, status: 'kitty remote control' }

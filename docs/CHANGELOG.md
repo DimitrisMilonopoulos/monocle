@@ -10,6 +10,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Fixed
 
+- In a background session (`claude --bg`, `/bg`), where Claude Code draws no images, `/monocle doctor` says so instead of asking for kitty or Ghostty, and monocle keeps text art even when the session's environment looks like kitty.
 - With the `ansi` theme, added and removed lines in diff cards get a tinted background like in the other themes, in the terminal's own colors.
 
 ## [0.19.0] - 2026-10-16

@@ -303,6 +303,19 @@ test('the image under the click target draws again once the click target has loa
   await ui.unmount()
 })
 
+test('in a background session, where Claude Code draws no images, diagrams stay text art even in kitty', async ($, on) => {
+  mock.env(on, { ...KITTY_WINDOW, CLAUDE_CODE_SESSION_KIND: 'bg' })
+  const clock = mock.clock(on)
+  const { runs } = mmdc(on)
+
+  const ui = await $.ui.mount(reply(FLOW))
+  await clock.settle()
+
+  expect(runs).toHaveLength(0)
+  expect(await ui.find({ type: 'Image' })).toBeUndefined()
+  await ui.unmount()
+})
+
 const HERDR = { TERM: 'xterm-256color', TERM_PROGRAM: 'herdr', KITTY_PID: '42', KITTY_LISTEN_ON: 'unix:@kitty-42', TMPDIR: '/tmp/', HOME: '/home/me' }
 
 test('in herdr, where Claude Code draws no images unless forced, diagrams stay text art', async ($, on) => {
