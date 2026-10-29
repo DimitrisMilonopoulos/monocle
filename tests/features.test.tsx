@@ -1061,7 +1061,8 @@ test('diff cards stay plain with diffHighlight off', { options: { diffHighlight:
 
 test('a removed line that opens a comment leaves the added lines highlighted', async ($, on) => {
   engine(on)
-  const open = { filePath: '/tmp/app.ts', structuredPatch: [{ oldStart: 1, newStart: 1, lines: ['-/* old', '+const b = 3', ' const a = 1'] }] }
+  const opener = `-${'/'}* old`
+  const open = { filePath: '/tmp/app.ts', structuredPatch: [{ oldStart: 1, newStart: 1, lines: [opener, '+const b = 3', ' const a = 1'] }] }
   const ui = await $.ui.mount(editResult('terminal', 'Edit', open))
   expect((await ui.findAll({ type: 'Text', text: /^\/\* old$/ })).at(-1)?.props.color).toBe(t.codeComment)
   expect((await ui.findAll({ type: 'Text', text: /^const$/ })).map(n => n.props.color)).toEqual([t.codeFlag, t.codeFlag])

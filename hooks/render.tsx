@@ -800,7 +800,6 @@ export const diffLines = (output: unknown): DiffLine[] | undefined => {
   return rows
 }
 
-// Old and new sides are highlighted apart, so a removed line that opens a string or comment cannot color the added lines.
 const diffSyntax = (style: Style, rows: DiffLine[], lang: string): (Segment[] | undefined)[] | null => {
   const out: (Segment[] | undefined)[] = []
   for (const side of ['-', '+'] as const) {
