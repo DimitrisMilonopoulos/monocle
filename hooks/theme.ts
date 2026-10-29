@@ -90,7 +90,7 @@ export const resolveStyle = (options: PluginOptions): Style => {
     headingImages: options.headingImages !== false,
     mermaidAscii: options.mermaidAscii === true,
     copyButtons: options.copyButtons !== false,
-    diffHighlight: options.diffHighlight === true,
+    diffHighlight: options.diffHighlight !== false,
     htmlCopy: null,
     diagramHints: options.diagramHints !== false && options.mermaid !== false,
     rtl,

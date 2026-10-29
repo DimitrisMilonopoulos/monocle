@@ -1039,7 +1039,7 @@ for (const toolOutput of ['full', 'quiet'] as const) {
   })
 }
 
-test('diffHighlight colors the code in a diff card by the file extension', { options: { diffHighlight: true } }, async ($, on) => {
+test('diff cards color the code by the file extension', async ($, on) => {
   engine(on)
   const ui = await $.ui.mount(editResult('terminal', 'Edit', patch))
   expect((await ui.find({ type: 'Text', text: /^const$/ }))?.props.color).toBe(t.codeFlag)
@@ -1052,10 +1052,28 @@ test('diffHighlight colors the code in a diff card by the file extension', { opt
   await plain.unmount()
 })
 
-test('diff cards stay plain unless diffHighlight is on', async ($, on) => {
+test('diff cards stay plain with diffHighlight off', { options: { diffHighlight: false } }, async ($, on) => {
   engine(on)
   const ui = await $.ui.mount(editResult('terminal', 'Edit', patch))
   expect(await ui.find({ type: 'Text', text: /^const$/ })).toBeUndefined()
+  await ui.unmount()
+})
+
+test('a removed line that opens a comment leaves the added lines highlighted', async ($, on) => {
+  engine(on)
+  const open = { filePath: '/tmp/app.ts', structuredPatch: [{ oldStart: 1, newStart: 1, lines: ['-/* old', '+const b = 3', ' const a = 1'] }] }
+  const ui = await $.ui.mount(editResult('terminal', 'Edit', open))
+  expect((await ui.findAll({ type: 'Text', text: /^\/\* old$/ })).at(-1)?.props.color).toBe(t.codeComment)
+  expect((await ui.findAll({ type: 'Text', text: /^const$/ })).map(n => n.props.color)).toEqual([t.codeFlag, t.codeFlag])
+  await ui.unmount()
+})
+
+test('shell scripts in a diff card get the shell coloring of code blocks', async ($, on) => {
+  engine(on)
+  const script = { filePath: '/tmp/run.sh', structuredPatch: [{ oldStart: 1, newStart: 1, lines: ['+npm test --watch'] }] }
+  const ui = await $.ui.mount(editResult('terminal', 'Edit', script))
+  expect((await ui.find({ type: 'Text', text: /^npm$/ }))?.props.color).toBe(t.codeCommand)
+  expect((await ui.find({ type: 'Text', text: /^--watch$/ }))?.props.color).toBe(t.codeFlag)
   await ui.unmount()
 })
 
@@ -1063,7 +1081,10 @@ test('diff languages come from the file name', () => {
   expect(diffLanguage('/src/app.tsx')).toBe('tsx')
   expect(diffLanguage('C:\\repo\\main.PY')).toBe('py')
   expect(diffLanguage('/repo/Dockerfile.dev')).toBe('docker')
-  expect(diffLanguage('/repo/README.md')).toBeUndefined()
+  expect(diffLanguage('/repo/README.md')).toBe('md')
+  expect(diffLanguage('/home/me/.config/hypr/hyprland.lua')).toBe('lua')
+  expect(diffLanguage('/repo/build.zsh')).toBe('zsh')
+  expect(diffLanguage('/repo/notes.txt')).toBeUndefined()
   expect(diffLanguage(undefined)).toBeUndefined()
 })
 

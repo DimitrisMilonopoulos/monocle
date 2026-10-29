@@ -92,7 +92,7 @@ Collapsed groups draw one line too: `Ran 3 commands, read 2 files · last: npm t
 
 `toolOutput: quiet` shows what Claude did, not what it read: reads, searches and read-only shell commands draw one plain row like `Read src/report.py lines 1–10` and nothing under it. Edits keep their diff and failures show their real error; the full rules are in [docs/tool-output.md](tool-output.md).
 
-With `diffHighlight` on (experimental, off by default), the code in a diff card gets the same highlighting as code blocks, picked from the file's extension. Only the shown lines are highlighted, so a string or comment that starts above them may stay plain.
+The code in a diff card gets the same highlighting as code blocks, picked from the file's extension, on top of the green and red line tints. Removed lines are highlighted with the old file's lines and added lines with the new file's, so an edit that opens or closes a comment colors each side correctly. Only the shown lines are highlighted, so a string or comment that starts above them may stay plain. `diffHighlight: false` turns it off.
 
 ### Turn footer
 
@@ -183,7 +183,7 @@ Options sit under `options`, keyed by the plugin's install name. Project setting
 | `toolStyle` | `chat`, `tree-dim`, `tree-bold`, `classic` | `chat` |
 | `toolOutput` | `full`, `quiet` | `full` |
 | `copyButtons` | `true`, `false` | `true` |
-| `diffHighlight` (experimental) | `true`, `false` | `false` |
+| `diffHighlight` | `true`, `false` | `true` |
 | `diagramHints` | `true`, `false` | `true` |
 | `rtl` | `auto`, a terminal (`warp`, `kitty`, `apple-terminal`, `iterm`, `ghostty`, `wezterm`, `vscode`, `alacritty`, `windows-terminal`, `gnome`, `konsole`), `off` | `auto` |
 | `mermaid` | `true`, `false` | `true` |

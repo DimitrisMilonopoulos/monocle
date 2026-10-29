@@ -756,7 +756,8 @@ const DIFF_LANGS: Record<string, string> = {
   ts: 'ts', mts: 'ts', cts: 'ts', tsx: 'tsx', js: 'js', mjs: 'js', cjs: 'js', jsx: 'jsx', py: 'py', go: 'go', rs: 'rust',
   java: 'java', kt: 'kt', kts: 'kts', swift: 'swift', c: 'c', h: 'c', cpp: 'cpp', cc: 'cpp', hpp: 'cpp', cs: 'cs', rb: 'rb',
   json: 'json', yaml: 'yaml', yml: 'yml', toml: 'toml', sql: 'sql', html: 'html', htm: 'html', xml: 'xml', svg: 'svg',
-  css: 'css', tf: 'hcl', hcl: 'hcl', diff: 'diff', patch: 'diff',
+  css: 'css', tf: 'hcl', hcl: 'hcl', diff: 'diff', patch: 'diff', lua: 'lua', md: 'md', markdown: 'md',
+  sh: 'bash', bash: 'bash', zsh: 'zsh', fish: 'fish',
 }
 
 export const diffLanguage = (path: unknown): string | undefined => {
@@ -799,6 +800,20 @@ export const diffLines = (output: unknown): DiffLine[] | undefined => {
   return rows
 }
 
+// Old and new sides are highlighted apart, so a removed line that opens a string or comment cannot color the added lines.
+const diffSyntax = (style: Style, rows: DiffLine[], lang: string): (Segment[] | undefined)[] | null => {
+  const out: (Segment[] | undefined)[] = []
+  for (const side of ['-', '+'] as const) {
+    const at = rows.flatMap((r, i) => (r.mark === side || r.mark === ' ' ? [i] : []))
+    const lit = highlightRows(style, at.map(i => rows[i]!.text), lang)
+    if (!lit) return null
+    at.forEach((i, k) => {
+      if (side === '+' || rows[i]!.mark === '-') out[i] = lit[k]
+    })
+  }
+  return out
+}
+
 export const renderDiffCard = (el: ElementTable, style: Style, output: unknown, fold: Fold, id: string): RenderElement | undefined => {
   const rows = diffLines(output)
   if (rows === undefined) return undefined
@@ -817,7 +832,8 @@ export const renderDiffCard = (el: ElementTable, style: Style, output: unknown, 
     ' ': undefined,
   }
   const lang = style.diffHighlight ? diffLanguage((output as { filePath?: unknown }).filePath) : undefined
-  const syntax = lang ? highlightRows(style, shown.map(r => r.text), lang) : null
+  const shell = lang !== undefined && isShellLang(lang)
+  const syntax = lang && !shell ? diffSyntax(style, shown, lang) : null
   return (
     <Box flexDirection="row">
       <Text dimColor>{'  ⎿  '}</Text>
@@ -837,6 +853,8 @@ export const renderDiffCard = (el: ElementTable, style: Style, output: unknown, 
                 <Text color={t.codeText} dimColor={r.mark === ' '}>
                   {syntax[i]!.map((s, j) => <Text key={`d${i}.${j}`} color={s.color} italic={s.italic}>{s.text}</Text>)}
                 </Text>
+              ) : shell && r.text.trim() ? (
+                <Text dimColor={r.mark === ' '}>{codeLine(el, style, r.text, lang, `d${i}.c`)}</Text>
               ) : (
                 <Text color={bg || syntax ? t.codeText : color(r.mark)} dimColor={r.mark === ' '}>{r.text === '' ? ' ' : r.text}</Text>
               )}

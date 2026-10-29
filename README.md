@@ -89,6 +89,7 @@ Images never show inside tmux, which doesn't pass them through.
 | Text | bold, italic, links, numbers, versions, durations and paths in their own colors |
 | Headings, lists, quotes | four heading styles, nested and task lists, GitHub alerts as colored boxes |
 | Tool rows | `Ran npm test`, `Read src/app.ts`, groups summed up in one line; `toolOutput: quiet` hides what Claude only read |
+| Edits | a diff card with `+N −M`, tinted lines and the code highlighted by the file's language |
 | Your prompts | a bubble, bar or chevron so you find your turns, and an optional clock |
 | Copy buttons | `⧉ md`, `⧉ art` and `⧉ html` on tables, `⧉ copy` on code, lists, quotes, diagrams and whole replies |
 | Right to left | Hebrew and Arabic read right to left, with bullets, quotes and tables mirrored |

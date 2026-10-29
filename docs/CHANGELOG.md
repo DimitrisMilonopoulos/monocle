@@ -6,7 +6,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Added
 
-- `diffHighlight` (experimental, off by default) colors the code in Edit and Write diff cards like code blocks, by the file's extension.
+- Diff cards highlight the code in Edit and Write diffs like code blocks, by the file's extension, with the old and new sides highlighted apart. Shell scripts, Lua and Markdown join the highlighted languages, in code blocks too. `diffHighlight: false` keeps cards plain.
 
 ### Fixed
 

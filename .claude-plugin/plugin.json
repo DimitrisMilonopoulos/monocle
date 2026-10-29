@@ -317,9 +317,9 @@
     },
     "diffHighlight": {
       "type": "boolean",
-      "title": "Highlight diffs (experimental)",
+      "title": "Highlight diffs",
       "description": "Color the code in Edit and Write diff cards with the same highlighting as code blocks, picked from the file's extension. Only the shown lines are highlighted, so a string or comment that starts above them may stay plain.",
-      "default": false
+      "default": true
     },
     "copyButtons": {
       "type": "boolean",
